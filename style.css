@@ -1,16 +1,17 @@
 /* ==========================================================================
-   Monochrome Editorial Theme inspired by Abatable.com
+   Inverted Light Editorial Theme
    Brand: KB Savouries
    ========================================================================== */
 
 :root {
-  --bg-black: #0D0E10;
-  --bg-card: #141619;
-  --border-color: #22252A;
-  --text-white: #FFFFFF;
-  --text-dark: #000000;
-  --text-muted: #8A8F98;
-  --text-light-gray: #CCCCCC;
+  --bg-white: #FFFFFF;
+  --bg-card: #F4F5F7;
+  --border-black: #000000;
+  --border-subtle: #E2E8F0;
+  --text-black: #0D0E10;
+  --text-muted: #555E6C;
+  --text-dark-gray: #333842;
+  --vegan-green: #16A34A;
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -21,8 +22,8 @@
 }
 
 body {
-  background-color: var(--bg-black);
-  color: var(--text-white);
+  background-color: var(--bg-white);
+  color: var(--text-black);
   font-family: var(--font-family);
   line-height: 1.6;
   scroll-behavior: smooth;
@@ -37,7 +38,7 @@ body {
 }
 
 /* ==========================================================================
-   Pure White Intro Splash Overlay Animation
+   Pure Black Intro Splash Overlay Animation
    ========================================================================== */
 
 .intro-screen {
@@ -46,7 +47,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #FFFFFF;
+  background-color: #0D0E10;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -64,24 +65,39 @@ body {
   animation: introPulse 3s infinite ease-in-out;
 }
 
-.intro-logo {
-  width: 220px;
-  height: auto;
-  max-height: 180px;
-  object-fit: contain;
-  display: block;
+/* Fixed White Circle Wrapper for Intro Screen Logo */
+.intro-logo-circle {
+  width: 180px;
+  height: 180px;
+  min-width: 180px;
+  min-height: 180px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
   transition: transform 0.3s ease;
+  overflow: hidden;
 }
 
-.intro-content:hover .intro-logo {
+.intro-logo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.intro-content:hover .intro-logo-circle {
   transform: scale(1.05);
 }
 
 .intro-fallback {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  letter-spacing: 3px;
-  color: var(--text-dark);
+  letter-spacing: 2px;
+  color: #0D0E10;
   display: none;
 }
 
@@ -89,7 +105,7 @@ body {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 3px;
-  color: #000000;
+  color: #FFFFFF;
   font-weight: 800;
 }
 
@@ -128,46 +144,50 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 2.5rem;
-  background-color: rgba(13, 14, 16, 0.95);
+  background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-black);
 }
 
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .brand-logo {
-  width: 56px;
-  height: 56px;
-  min-width: 56px;
-  border-radius: 50%;
-  background-color: #FFFDF7;
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 0;
+  background-color: transparent;
   object-fit: contain;
-  padding: 6px;
+  padding: 0;
   display: block;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 .logo-fallback {
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 800;
   letter-spacing: 1.5px;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
+  color: var(--text-black);
 }
 
 .badge-vegan {
   font-size: 0.65rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 1px;
-  padding: 0.25rem 0.55rem;
-  border: 1px solid var(--text-white);
-  color: var(--text-white);
-  border-radius: 2px;
+  padding: 0.25rem 0.6rem;
+  background-color: var(--vegan-green);
+  border: 1px solid var(--vegan-green);
+  color: #FFFFFF;
+  border-radius: 3px;
+  margin-left: 0.25rem;
 }
 
 .nav-right {
@@ -176,27 +196,14 @@ body {
   gap: 1.5rem;
 }
 
-.nav-link {
-  color: var(--text-muted);
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.nav-link:hover {
-  color: var(--text-white);
-}
-
 /* ==========================================================================
    Buttons
    ========================================================================== */
 
 .btn {
   display: inline-block;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.75rem;
   font-size: 0.85rem;
-  font-weight: 600;
   letter-spacing: 0.5px;
   text-decoration: none;
   border-radius: 4px;
@@ -204,16 +211,16 @@ body {
   cursor: pointer;
 }
 
-.btn-outline {
-  border: 1px solid var(--border-color);
-  color: var(--text-white);
-  background: transparent;
+.btn-order {
+  background-color: #000000;
+  color: #FFFFFF;
+  font-weight: 800;
+  border: 2px solid #000000;
 }
 
-.btn-outline:hover {
-  border-color: var(--text-white);
-  background-color: var(--text-white);
-  color: var(--bg-black);
+.btn-order:hover {
+  background-color: #222222;
+  border-color: #222222;
 }
 
 /* ==========================================================================
@@ -231,6 +238,7 @@ body {
   letter-spacing: -1.5px;
   line-height: 1.1;
   margin-bottom: 1rem;
+  color: var(--text-black);
 }
 
 .hero-subtitle {
@@ -245,7 +253,7 @@ body {
   max-width: 900px;
   margin: 0 auto;
   background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -254,8 +262,8 @@ body {
   display: flex;
   align-items: center;
   padding: 0.6rem 1rem;
-  background-color: #1A1D21;
-  border-bottom: 1px solid var(--border-color);
+  background-color: #E8EBF0;
+  border-bottom: 1px solid var(--border-subtle);
   gap: 6px;
 }
 
@@ -263,7 +271,7 @@ body {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: var(--border-color);
+  background-color: #CBD5E1;
 }
 
 .video-bar-title {
@@ -284,7 +292,7 @@ body {
 
 .recipes-section {
   padding: 5rem 0;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .section-header {
@@ -306,6 +314,7 @@ body {
   font-size: 2.2rem;
   font-weight: 700;
   margin: 0.5rem 0;
+  color: var(--text-black);
 }
 
 .section-header p {
@@ -321,7 +330,7 @@ body {
 
 .recipe-card {
   background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
   padding: 2rem;
   display: flex;
@@ -332,9 +341,8 @@ body {
 
 .recipe-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 25px 4px rgba(255, 255, 255, 0.25), 
-              0 10px 20px rgba(0, 0, 0, 0.5);
+  border-color: var(--border-black);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
 }
 
 .recipe-time {
@@ -348,6 +356,7 @@ body {
   font-size: 1.4rem;
   font-weight: 700;
   margin: 0.75rem 0;
+  color: var(--text-black);
 }
 
 .recipe-desc {
@@ -359,7 +368,7 @@ body {
 .recipe-details {
   margin-top: 1rem;
   padding-top: 1.2rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-subtle);
   font-size: 0.85rem;
 }
 
@@ -368,7 +377,7 @@ body {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-light-gray);
+  color: var(--text-dark-gray);
 }
 
 .recipe-details ul, .recipe-details ol {
@@ -381,13 +390,14 @@ body {
 }
 
 /* ==========================================================================
-   Footer Styles
+   Solid Black Footer
    ========================================================================== */
 
 .footer {
-  border-top: 1px solid var(--border-color);
+  border-top: 2px solid var(--border-black);
   padding: 3rem 0;
-  background-color: var(--bg-black);
+  background-color: #0D0E10;
+  color: #FFFFFF;
 }
 
 .footer-content {
@@ -396,16 +406,6 @@ body {
   align-items: flex-end;
   flex-wrap: wrap;
   gap: 1.5rem;
-}
-
-.footer-logo {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: #FFFDF7;
-  object-fit: contain;
-  padding: 5px;
-  margin-bottom: 0.5rem;
 }
 
 .footer-left {
@@ -418,7 +418,7 @@ body {
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.8px;
-  color: var(--text-white);
+  color: #FFFFFF;
   text-transform: uppercase;
 }
 
@@ -429,7 +429,7 @@ body {
 }
 
 .social-link {
-  color: var(--text-muted);
+  color: #8A8F98;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -443,25 +443,25 @@ body {
 }
 
 .social-link:hover {
-  color: var(--text-white);
+  color: #FFFFFF;
   transform: translateY(-2px);
 }
 
 .footer-right {
   text-align: right;
-  color: var(--text-muted);
+  color: #8A8F98;
   font-size: 0.85rem;
 }
 
 .footer-info {
-  font-weight: 500;
-  color: var(--text-white);
+  font-weight: 600;
+  color: #FFFFFF;
 }
 
 .copyright {
   margin-top: 0.3rem;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #8A8F98;
 }
 
 /* ==========================================================================
@@ -477,13 +477,11 @@ body {
     gap: 1rem;
     padding: 1.25rem 1.5rem;
   }
-  .brand-logo {
-    width: 48px;
-    height: 48px;
-    padding: 5px;
-  }
-  .intro-logo {
-    width: 170px;
+  .intro-logo-circle {
+    width: 140px;
+    height: 140px;
+    min-width: 140px;
+    min-height: 140px;
   }
   .footer-content {
     flex-direction: column;
