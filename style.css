@@ -46,7 +46,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #FFFFFF; /* Pure White Background */
+  background-color: #FFFFFF;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -64,7 +64,6 @@ body {
   animation: introPulse 3s infinite ease-in-out;
 }
 
-/* Unframed, Seamless Logo in Center */
 .intro-logo {
   width: 220px;
   height: auto;
@@ -90,18 +89,16 @@ body {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 3px;
-  color: #000000; /* Crisp Pure Black */
-  font-weight: 800; /* Bold */
+  color: #000000;
+  font-weight: 800;
 }
 
-/* Fade Out State for Intro Overlay */
 .intro-screen.fade-out {
   opacity: 0;
   transform: translateY(-20px);
   pointer-events: none;
 }
 
-/* Main Content Wrapper Reveal Animation */
 .main-content {
   opacity: 0;
   transform: translateY(20px);
@@ -145,7 +142,6 @@ body {
   gap: 1.25rem;
 }
 
-/* Circular Logo Containers for Main Dark Site */
 .brand-logo {
   width: 56px;
   height: 56px;
@@ -220,16 +216,6 @@ body {
   color: var(--bg-black);
 }
 
-.btn-solid {
-  background-color: var(--text-white);
-  color: var(--bg-black);
-  border: 1px solid var(--text-white);
-}
-
-.btn-solid:hover {
-  background-color: #E0E0E0;
-}
-
 /* ==========================================================================
    Hero Section
    ========================================================================== */
@@ -255,10 +241,9 @@ body {
   font-weight: 400;
 }
 
-/* Video Frame (Abatable UI Container Style) */
 .video-frame {
   max-width: 900px;
-  margin: 0 auto 2.5rem auto;
+  margin: 0 auto;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -291,10 +276,6 @@ body {
   width: 100%;
   display: block;
   background-color: #000;
-}
-
-.hero-actions {
-  margin-top: 1.5rem;
 }
 
 /* ==========================================================================
@@ -345,12 +326,15 @@ body {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  transition: border-color 0.2s ease;
+  justify-content: flex-start;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .recipe-card:hover {
-  border-color: var(--text-muted);
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 25px 4px rgba(255, 255, 255, 0.25), 
+              0 10px 20px rgba(0, 0, 0, 0.5);
 }
 
 .recipe-time {
@@ -372,30 +356,11 @@ body {
   margin-bottom: 1.5rem;
 }
 
-.toggle-btn {
-  background: none;
-  border: none;
-  color: var(--text-white);
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  padding: 0;
-}
-
-.toggle-btn:hover {
-  text-decoration: underline;
-}
-
 .recipe-details {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-top: 1rem;
+  padding-top: 1.2rem;
   border-top: 1px solid var(--border-color);
   font-size: 0.85rem;
-}
-
-.recipe-details.hidden {
-  display: none;
 }
 
 .recipe-details h4 {
@@ -409,6 +374,10 @@ body {
 .recipe-details ul, .recipe-details ol {
   padding-left: 1.2rem;
   color: var(--text-muted);
+}
+
+.recipe-details li {
+  margin-bottom: 0.4rem;
 }
 
 /* ==========================================================================
