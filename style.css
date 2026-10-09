@@ -1,16 +1,18 @@
 /* ==========================================================================
-   Inverted Light Editorial Theme
+   Inverted Light Editorial Theme with Black Recipe Boxes
    Brand: KB Savouries
    ========================================================================== */
 
 :root {
   --bg-white: #FFFFFF;
-  --bg-card: #F4F5F7;
+  --bg-card: #0D0E10; /* Pure Black for Recipe Boxes */
   --border-black: #000000;
-  --border-subtle: #E2E8F0;
+  --border-subtle: #D0D5DD; /* Slightly Bolder Light Separator */
+  --border-card: #22252A; /* Bolder Dark Separator inside Cards */
   --text-black: #0D0E10;
-  --text-muted: #555E6C;
-  --text-dark-gray: #333842;
+  --text-white: #FFFFFF;
+  --text-muted-light: #555E6C;
+  --text-muted-dark: #A0A6B2;
   --vegan-green: #16A34A;
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -21,14 +23,21 @@
   padding: 0;
 }
 
+/* Enhanced Smooth Scrolling & Feel */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
 body {
   background-color: var(--bg-white);
   color: var(--text-black);
   font-family: var(--font-family);
   line-height: 1.6;
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .container {
@@ -65,7 +74,6 @@ body {
   animation: introPulse 3s infinite ease-in-out;
 }
 
-/* Fixed White Circle Wrapper for Intro Screen Logo */
 .intro-logo-circle {
   width: 180px;
   height: 180px;
@@ -78,7 +86,7 @@ body {
   align-items: center;
   padding: 20px;
   box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 }
 
@@ -136,7 +144,7 @@ body {
 }
 
 /* ==========================================================================
-   Header & Navbar
+   Header & Navbar (Smooth Hide/Show on Scroll)
    ========================================================================== */
 
 .navbar {
@@ -144,12 +152,23 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 2.5rem;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 1000;
   border-bottom: 2px solid var(--border-black);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+/* Smooth Disappear State when Scrolling Down */
+.navbar.nav-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .nav-brand {
@@ -207,7 +226,7 @@ body {
   letter-spacing: 0.5px;
   text-decoration: none;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
 
@@ -221,6 +240,7 @@ body {
 .btn-order:hover {
   background-color: #222222;
   border-color: #222222;
+  transform: translateY(-1px);
 }
 
 /* ==========================================================================
@@ -242,7 +262,7 @@ body {
 }
 
 .hero-subtitle {
-  color: var(--text-muted);
+  color: var(--text-muted-light);
   font-size: 1.15rem;
   max-width: 650px;
   margin: 0 auto 3rem auto;
@@ -252,8 +272,8 @@ body {
 .video-frame {
   max-width: 900px;
   margin: 0 auto;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  background-color: #F4F5F7;
+  border: 1.5px solid var(--border-subtle);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -263,7 +283,7 @@ body {
   align-items: center;
   padding: 0.6rem 1rem;
   background-color: #E8EBF0;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1.5px solid var(--border-subtle);
   gap: 6px;
 }
 
@@ -276,7 +296,7 @@ body {
 
 .video-bar-title {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-muted-light);
   margin-left: 0.5rem;
 }
 
@@ -287,12 +307,12 @@ body {
 }
 
 /* ==========================================================================
-   Recipes Section
+   Recipes Section (Black Recipe Cards with White Glow)
    ========================================================================== */
 
 .recipes-section {
   padding: 5rem 0;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1.5px solid var(--border-subtle);
 }
 
 .section-header {
@@ -306,7 +326,7 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: var(--text-muted);
+  color: var(--text-muted-light);
   margin-bottom: 0.5rem;
 }
 
@@ -318,7 +338,7 @@ body {
 }
 
 .section-header p {
-  color: var(--text-muted);
+  color: var(--text-muted-light);
   font-size: 1rem;
 }
 
@@ -330,37 +350,41 @@ body {
 
 .recipe-card {
   background-color: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
+  border: 1.5px solid var(--border-card);
+  border-radius: 8px;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.35s ease, 
+              box-shadow 0.35s ease;
+  will-change: transform, box-shadow;
 }
 
 .recipe-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--border-black);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px);
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 25px 4px rgba(255, 255, 255, 0.3), 
+              0 12px 24px rgba(0, 0, 0, 0.6);
 }
 
 .recipe-time {
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 1.5px;
-  color: var(--text-muted);
+  color: var(--text-muted-dark);
 }
 
 .recipe-card h3 {
   font-size: 1.4rem;
   font-weight: 700;
   margin: 0.75rem 0;
-  color: var(--text-black);
+  color: var(--text-white);
 }
 
 .recipe-desc {
-  color: var(--text-muted);
+  color: var(--text-muted-dark);
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
@@ -368,7 +392,7 @@ body {
 .recipe-details {
   margin-top: 1rem;
   padding-top: 1.2rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1.5px solid var(--border-card);
   font-size: 0.85rem;
 }
 
@@ -377,12 +401,12 @@ body {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-dark-gray);
+  color: #CCCCCC;
 }
 
 .recipe-details ul, .recipe-details ol {
   padding-left: 1.2rem;
-  color: var(--text-muted);
+  color: var(--text-muted-dark);
 }
 
 .recipe-details li {
@@ -390,11 +414,11 @@ body {
 }
 
 /* ==========================================================================
-   Solid Black Footer
+   Solid Black Footer with Scroll-Triggered Fade In
    ========================================================================== */
 
 .footer {
-  border-top: 2px solid var(--border-black);
+  border-top: 2.5px solid var(--border-black);
   padding: 3rem 0;
   background-color: #0D0E10;
   color: #FFFFFF;
@@ -406,6 +430,16 @@ body {
   align-items: flex-end;
   flex-wrap: wrap;
   gap: 1.5rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.footer-content.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .footer-left {
@@ -433,7 +467,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: color 0.25s ease, transform 0.25s ease;
 }
 
 .social-icon {
