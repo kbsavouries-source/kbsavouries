@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KB Savouries — Nostalgia Meets Modern Crunch</title>
+  <title>KB Savouries</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
       <div class="container">
         <div class="hero-header">
           <h1 class="hero-title">Nostalgia Meets Modern Crunch</h1>
-          <p class="hero-subtitle">Poha Crunch - From Kitchen, Not Factory</p>
+          <p class="hero-subtitle">Poha Crunch - Fresh from Kitchen, Not Factory</p>
         </div>
 
         <!-- Modern Video Grid Stack -->
@@ -80,7 +80,7 @@
     <section id="benefits" class="recipes-section">
       <div class="container">
         <div class="section-header">
-          <h2>Wholesome Goodness</h2>
+          <h2>Why Poha Crunch ?</h2>
           <p>Discover why our traditional preparation is good for your everyday snacking.</p>
         </div>
 
@@ -172,169 +172,6 @@
           </div>
 
           <button class="carousel-btn next-btn" aria-label="Next Benefit" onclick="scrollCarousel('benefitGrid', 1)">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Recipe Showcase Section -->
-    <section id="recipes" class="recipes-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>2-Minute Snack Hacks</h2>
-          <p>Elevate your Poha Crunch pouch into a quick, delicious dish.</p>
-        </div>
-
-        <div class="carousel-container">
-          <button class="carousel-btn prev-btn" aria-label="Previous Recipe" onclick="scrollCarousel('recipeGrid', -1)">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          </button>
-
-          <div class="recipe-grid" id="recipeGrid">
-            <!-- Recipe Card 1 -->
-            <article class="recipe-card" onclick="toggleRecipe(this)">
-              <div class="recipe-card-header">
-                <h3>Dahi Poha Chaat</h3>
-                <p class="recipe-desc">Chilled whisked curd, mint chutney, and a generous layer of crisp Poha Crunch.</p>
-                <div class="recipe-toggle">
-                  <span class="toggle-text">View Recipe</span>
-                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </div>
-              </div>
-              
-              <div class="recipe-details">
-                <h4>Ingredients</h4>
-                <ul>
-                  <li>1 Pouch KB Poha Crunch</li>
-                  <li>1/2 cup Whisked Curd (Dahi)</li>
-                  <li>1 tbsp Mint & Tamarind Chutney</li>
-                  <li>Fresh Coriander</li>
-                </ul>
-                <h4>Preparation</h4>
-                <ol>
-                  <li>Pour chilled curd into a wide bowl.</li>
-                  <li>Drizzle mint and tamarind chutneys over the curd.</li>
-                  <li>Top with KB Poha Crunch right before eating for peak crunch.</li>
-                </ol>
-              </div>
-            </article>
-
-            <!-- Recipe Card 2 -->
-            <article class="recipe-card" onclick="toggleRecipe(this)">
-              <div class="recipe-card-header">
-                <h3>South Indian Bhel Mix</h3>
-                <p class="recipe-desc">Chopped onions, juicy tomatoes, raw mango, and fresh lemon juice combined with Poha Crunch.</p>
-                <div class="recipe-toggle">
-                  <span class="toggle-text">View Recipe</span>
-                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </div>
-              </div>
-              
-              <div class="recipe-details">
-                <h4>Ingredients</h4>
-                <ul>
-                  <li>1 Pouch KB Poha Crunch</li>
-                  <li>1/4 cup Chopped Onions & Tomatoes</li>
-                  <li>1 tbsp Grated Raw Mango</li>
-                  <li>Squeeze of Lemon & Chaat Masala</li>
-                </ul>
-                <h4>Preparation</h4>
-                <ol>
-                  <li>Combine fresh veggies and raw mango in a mixing bowl.</li>
-                  <li>Toss gently with KB Poha Crunch.</li>
-                  <li>Squeeze lemon juice, sprinkle chaat masala, and serve immediately.</li>
-                </ol>
-              </div>
-            </article>
-
-            <!-- Recipe Card 3 -->
-            <article class="recipe-card" onclick="toggleRecipe(this)">
-              <div class="recipe-card-header">
-                <h3>Avocado Toast Topper</h3>
-                <p class="recipe-desc">Smashed avocado on toasted sourdough, finished with spicy, crunchy Poha Crunch.</p>
-                <div class="recipe-toggle">
-                  <span class="toggle-text">View Recipe</span>
-                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </div>
-              </div>
-              
-              <div class="recipe-details">
-                <h4>Ingredients</h4>
-                <ul>
-                  <li>1 Pouch KB Poha Crunch</li>
-                  <li>1 Slice Toasted Sourdough or Whole Wheat</li>
-                  <li>1/2 Ripe Avocado (mashed)</li>
-                  <li>Chili Flakes & Sea Salt</li>
-                </ul>
-                <h4>Preparation</h4>
-                <ol>
-                  <li>Spread ripe mashed avocado onto hot crispy toast.</li>
-                  <li>Season with chili flakes and a pinch of salt.</li>
-                  <li>Cover heavily with KB Poha Crunch for texture contrast.</li>
-                </ol>
-              </div>
-            </article>
-
-            <!-- Recipe Card 4 -->
-            <article class="recipe-card" onclick="toggleRecipe(this)">
-              <div class="recipe-card-header">
-                <h3>Spiced Peanut Butter Toast</h3>
-                <p class="recipe-desc">Creamy peanut butter on crisp toast crowned with a savory, crunchy layer of Poha Crunch.</p>
-                <div class="recipe-toggle">
-                  <span class="toggle-text">View Recipe</span>
-                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </div>
-              </div>
-              
-              <div class="recipe-details">
-                <h4>Ingredients</h4>
-                <ul>
-                  <li>1 Pouch KB Poha Crunch</li>
-                  <li>1 Slice Bread (Toasted)</li>
-                  <li>2 tbsp Natural Peanut Butter</li>
-                  <li>A pinch of Black Pepper or Honey</li>
-                </ul>
-                <h4>Preparation</h4>
-                <ol>
-                  <li>Spread an even layer of creamy peanut butter over warm toast.</li>
-                  <li>Optionally drizzle a tiny drop of honey or pinch of pepper.</li>
-                  <li>Press a generous handful of KB Poha Crunch on top for a sweet-savory crunch.</li>
-                </ol>
-              </div>
-            </article>
-
-            <!-- Recipe Card 5 -->
-            <article class="recipe-card" onclick="toggleRecipe(this)">
-              <div class="recipe-card-header">
-                <h3>Caesar Crunch Salad</h3>
-                <p class="recipe-desc">Crisp romaine lettuce, creamy Caesar dressing, parmesan shavings, and a crown of savory, spiced KB Poha Crunch.</p>
-                <div class="recipe-toggle">
-                  <span class="toggle-text">View Recipe</span>
-                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </div>
-              </div>
-              
-              <div class="recipe-details">
-                <h4>Ingredients</h4>
-                <ul>
-                  <li>1 Pouch KB Poha Crunch</li>
-                  <li>2 cups Chopped Romaine Lettuce</li>
-                  <li>2 tbsp Caesar Dressing</li>
-                  <li>1 tbsp Grated Parmesan Cheese</li>
-                  <li>Freshly cracked black pepper</li>
-                </ul>
-                <h4>Preparation</h4>
-                <ol>
-                  <li>Toss chopped romaine lettuce with Caesar dressing in a mixing bowl until evenly coated.</li>
-                  <li>Transfer to a serving plate and garnish with freshly grated parmesan cheese.</li>
-                  <li>Heap a generous handful of KB Poha Crunch right on top just before serving for the ultimate crunch.</li>
-                </ol>
-              </div>
-            </article>
-          </div>
-
-          <button class="carousel-btn next-btn" aria-label="Next Recipe" onclick="scrollCarousel('recipeGrid', 1)">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
         </div>
