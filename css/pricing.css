@@ -14,6 +14,7 @@
   --text-muted-light: #555E6C;
   --text-muted-dark: #A0A6B2;
   --vegan-green: #16A34A;
+  --whatsapp-green: #25D366;
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -418,12 +419,12 @@ body {
 }
 
 .whatsapp-instruction-box {
-  margin-top: 2rem;
+  margin-top: 1.75rem;
   text-align: center;
   background-color: #F8FAFC;
   border: 1.5px solid var(--border-subtle);
   border-radius: 8px;
-  padding: 1.75rem;
+  padding: 1.5rem;
 }
 
 .whatsapp-instruction-box p {
@@ -431,35 +432,36 @@ body {
   color: var(--text-muted-light);
   margin-bottom: 1.25rem;
   font-weight: 500;
+  line-height: 1.5;
 }
 
-/* Moderately Big WhatsApp Button */
-.whatsapp-giant-btn {
+/* Compact Official WhatsApp Button */
+.whatsapp-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  background-color: #25D366;
+  gap: 0.6rem;
+  background-color: var(--whatsapp-green);
   color: #FFFFFF;
-  font-weight: 800;
-  font-size: 1rem;
-  padding: 0.9rem 2rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 6px;
   text-decoration: none;
-  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
-.whatsapp-giant-btn:hover {
+.whatsapp-btn:hover {
   background-color: #20ba5a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
 }
 
-.whatsapp-large-icon {
-  width: 28px;
-  height: 28px;
-  fill: currentColor;
+.whatsapp-icon {
+  width: 20px;
+  height: 20px;
+  fill: #FFFFFF;
+  flex-shrink: 0;
 }
 
 @keyframes fadeIn {
