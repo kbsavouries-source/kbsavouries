@@ -138,7 +138,7 @@
 
               <div class="form-group">
                 <label for="customer-qty">Quantity Required</label>
-                <input type="number" id="customer-qty" min="1" value="1" oninput="calculateTotal()" required>
+                <input type="number" id="customer-qty" min="1" value="1" required>
               </div>
             </div>
 
@@ -185,6 +185,22 @@
       </div>
     </section>
 
+    <!-- Custom Modal Popup Backdrop -->
+    <div id="custom-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="modal-tag">NOTICE</span>
+          <h3>Minimum Order Value</h3>
+        </div>
+        <div class="modal-body">
+          <p id="modal-message">Minimum order value for online orders is ₹200. Please increase your quantity to proceed.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-modal-close" onclick="closeModal()">GOT IT</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
       <div class="container footer-content">
@@ -211,7 +227,6 @@
 
   </div>
 
-  <!-- Corrected script path pointing to js/order.js -->
   <script src="../js/order.js"></script>
 </body>
 </html>

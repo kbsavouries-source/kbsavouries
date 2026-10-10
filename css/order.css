@@ -435,7 +435,6 @@ body {
   line-height: 1.5;
 }
 
-/* Compact Official WhatsApp Button */
 .whatsapp-btn {
   display: inline-flex;
   align-items: center;
@@ -462,6 +461,109 @@ body {
   height: 20px;
   fill: #FFFFFF;
   flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Custom Editorial Modal Popup Styling (Fixed Viewport Centering)
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(13, 14, 16, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.modal-backdrop.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: none !important;
+}
+
+.modal-card {
+  background-color: #0D0E10;
+  border: 2px solid #22252A;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 440px;
+  padding: 2.25rem;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  animation: modalScaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalScaleUp {
+  from {
+    transform: scale(0.92) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  margin-bottom: 1.25rem;
+}
+
+.modal-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  background-color: #FFBD2E;
+  color: #0D0E10;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  margin-bottom: 0.75rem;
+}
+
+.modal-header h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.5px;
+}
+
+.modal-body {
+  margin-bottom: 2rem;
+}
+
+.modal-body p {
+  color: #A0A6B2;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.btn-modal-close {
+  width: 100%;
+  background-color: #FFFFFF;
+  color: #0D0E10;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 0.85rem;
+  border: 2px solid #FFFFFF;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.25s ease;
+}
+
+.btn-modal-close:hover {
+  background-color: #F4F5F7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15);
 }
 
 @keyframes fadeIn {

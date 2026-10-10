@@ -27,9 +27,31 @@ function updateFormSelection() {
   }
 }
 
-// Dummy calculation hook for real-time quantity input changes
+// Dummy calculation hook for quantity inputs
 function calculateTotal() {
-  // Optional live update logic can be placed here if needed
+  // Optional live update logic
+}
+
+// Custom Modal Popup Handlers with Auto-Scroll to Top
+function showModal(message) {
+  const modal = document.getElementById('custom-modal');
+  const msgEl = document.getElementById('modal-message');
+  if (modal && msgEl) {
+    msgEl.textContent = message;
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    
+    // Automatically scroll to the top so the popup is immediately visible
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function closeModal() {
+  const modal = document.getElementById('custom-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
 }
 
 // Calculate and generate order summary table with minimum order value check (₹200)
@@ -43,13 +65,13 @@ function handleFormSubmit(event) {
   const quantity = parseInt(document.getElementById('customer-qty').value, 10) || 1;
 
   if (address.length < 10) {
-    alert('Please enter a valid address with at least 10 characters.');
+    showModal('Please enter a valid address with at least 10 characters.');
     document.getElementById('customer-address').focus();
     return;
   }
 
   if (!sizeSelect.value) {
-    alert('Please select a pouch size.');
+    showModal('Please select a pouch size.');
     return;
   }
 
@@ -59,9 +81,9 @@ function handleFormSubmit(event) {
   const unitPrice = parseInt(selectedOption.getAttribute('data-price'), 10);
   const totalAmount = unitPrice * quantity;
 
-  // Minimum Order Value Validation (₹200)
+  // Minimum Order Value Validation (₹200) with Custom Modal Popup
   if (totalAmount < 200) {
-    alert(`Minimum order value for online orders is ₹200. Your current order total is ₹${totalAmount}. Please increase your quantity to proceed.`);
+    showModal(`Minimum order value for online orders is ₹200. Your current order total is ₹${totalAmount}. Please increase your quantity to proceed.`);
     document.getElementById('customer-qty').focus();
     return;
   }
