@@ -418,21 +418,43 @@ body {
   text-align: center;
 }
 
+/* Refined Clean WhatsApp Instruction Box & Bullet List */
 .whatsapp-instruction-box {
   margin-top: 1.75rem;
-  text-align: center;
+  text-align: left;
   background-color: #F8FAFC;
   border: 1.5px solid var(--border-subtle);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.75rem 2rem;
 }
 
-.whatsapp-instruction-box p {
+.instruction-title {
   font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-black);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-align: center;
+}
+
+.instruction-list {
+  margin: 0 auto 1.5rem auto;
+  padding-left: 1.5rem;
   color: var(--text-muted-light);
-  margin-bottom: 1.25rem;
-  font-weight: 500;
+  max-width: 650px;
+}
+
+.instruction-list li {
+  margin-bottom: 0.65rem;
+  font-size: 0.95rem;
   line-height: 1.5;
+}
+
+.whatsapp-instruction-box .whatsapp-btn {
+  display: flex;
+  max-width: 280px;
+  margin: 0 auto;
 }
 
 .whatsapp-btn {
