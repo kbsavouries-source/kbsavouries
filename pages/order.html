@@ -65,12 +65,9 @@
                 <td class="suggestion-cell">Perfect binge watching partner</td>
               </tr>
 
-              <!-- Row 3: L (Highlighted Most Popular) -->
+              <!-- Row 3: L -->
               <tr class="pricing-row highlight-row" onclick="selectPackage('L', '200g', 58)">
-                <td class="size-cell">
-                  <span class="size-badge badge-popular">L</span>
-                  <span class="popular-tag">MOST POPULAR</span>
-                </td>
+                <td class="size-cell"><span class="size-badge badge-popular">L</span></td>
                 <td class="qty-cell">200g</td>
                 <td class="price-cell">₹58</td>
                 <td class="suggestion-cell">Get Together Companion</td>
@@ -104,9 +101,9 @@
         <div class="order-card">
           <div class="order-card-header">
             <h2>Complete Your Order</h2>
-            <p id="selected-package-info">
-              Selected Pouch Size: <strong>Size L (200g)</strong> at <strong>₹58</strong> per pack. 
-              <span id="min-qty-hint" style="display: inline-block; margin-left: 0.5rem; color: #16A34A; font-weight: 700;">(Min. Qty for ₹200: 4 packs)</span>
+            <!-- Clean Centered Minimum Quantity Display -->
+            <p id="selected-package-info" style="text-align: center; margin-top: 0.5rem;">
+              <span id="min-qty-hint" style="color: #16A34A; font-weight: 700; font-size: 1rem;">(Min. Qty for ₹200: 4 packs)</span>
             </p>
           </div>
 
@@ -148,7 +145,7 @@
             <button type="submit" class="btn btn-submit-order">GENERATE ORDER SUMMARY</button>
           </form>
 
-          <!-- Order Summary Output Table (Responsive Receipt Card on Mobile) -->
+          <!-- Order Summary Output Table -->
           <div id="summary-container" class="summary-container hidden">
             <h3 class="summary-title">Order Summary</h3>
             <div class="pricing-table-wrapper">

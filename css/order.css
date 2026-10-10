@@ -273,28 +273,17 @@ body {
   color: #FFFFFF;
 }
 
-.popular-tag {
-  display: inline-block;
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  background-color: #000000;
-  color: #FFFFFF;
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-}
-
 .qty-cell {
   font-weight: 600;
   color: var(--text-muted-light);
+  white-space: nowrap; /* Prevents "30 g" from breaking onto two lines */
 }
 
 .price-cell {
   font-size: 1.3rem;
   font-weight: 800;
   color: var(--text-black);
+  white-space: nowrap;
 }
 
 .suggestion-cell {
@@ -341,14 +330,14 @@ body {
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1.75rem; /* Slightly spaced out form fields for cleaner mobile tap UX */
   margin-bottom: 2rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .form-group.full-width {
@@ -492,7 +481,7 @@ body {
 }
 
 /* ==========================================================================
-   Custom Editorial Modal Popup Styling (Fixed Viewport Centering)
+   Custom Editorial Modal Popup Styling
    ========================================================================== */
 
 .modal-backdrop {
@@ -684,7 +673,7 @@ body {
 }
 
 /* ==========================================================================
-   Responsive Adjustments & Mobile Order Summary Receipt Card View
+   Responsive Adjustments & Mobile Formatting Fixes
    ========================================================================== */
 
 @media (max-width: 768px) {
@@ -697,22 +686,36 @@ body {
     padding: 1.25rem 1.5rem;
   }
   .order-card {
-    padding: 1.5rem;
+    padding: 1.75rem 1.25rem;
   }
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
   .form-group.full-width {
     grid-column: span 1;
   }
+  
+  /* Pricing Matrix Table Mobile Spacing & Padding */
   .pricing-table-wrapper {
     overflow-x: auto;
   }
-  .pricing-table th, .pricing-table td {
-    padding: 1rem;
+  .pricing-table th {
+    padding: 1rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  .pricing-table td {
+    padding: 1.15rem 0.75rem;
+    font-size: 0.95rem;
+  }
+  .size-badge {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 0.85rem;
   }
 
-  /* Responsive Receipt Card Layout for Order Summary on Mobile */
+  /* Mobile Receipt View for Order Summary Screenshot */
   .summary-container .pricing-table, 
   .summary-container .pricing-table tbody, 
   .summary-container .pricing-table tr, 
@@ -722,7 +725,7 @@ body {
   }
 
   .summary-container .pricing-table thead {
-    display: none; /* Hide squeezed table headers */
+    display: none;
   }
 
   .summary-container .pricing-table tr {
@@ -733,8 +736,8 @@ body {
   .summary-container .pricing-table td {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    padding: 0.75rem 0;
+    align-items: center;
+    padding: 0.85rem 0;
     border-bottom: 1px dashed var(--border-subtle);
     font-size: 0.95rem;
     text-align: right;
@@ -745,7 +748,6 @@ body {
     padding-top: 1rem;
   }
 
-  /* Use HTML data-label attribute to render prominent left-aligned field headings */
   .summary-container .pricing-table td::before {
     content: attr(data-label);
     font-size: 0.75rem;

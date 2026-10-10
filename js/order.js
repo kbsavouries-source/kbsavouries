@@ -12,24 +12,21 @@ function selectPackage(size, qty, price) {
   }
 }
 
-// Update helper text when dropdown selection changes, including minimum quantity calculation for ₹200
+// Update helper text when dropdown selection changes to show ONLY the centered min quantity callout
 function updateFormSelection() {
   const sizeSelect = document.getElementById('selected-size');
   const infoText = document.getElementById('selected-package-info');
   
   if (sizeSelect && infoText) {
     const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
-    const size = sizeSelect.value;
-    const qty = selectedOption.getAttribute('data-qty');
     const price = parseInt(selectedOption.getAttribute('data-price'), 10);
     
-    // Automatically calculate minimum quantity required to reach ₹200
+    // Calculate minimum quantity required for ₹200
     const minQtyFor200 = Math.ceil(200 / price);
 
-    infoText.innerHTML = `Selected Pouch Size: <strong>Size ${size} (${qty})</strong> at <strong>₹${price}</strong> per pack. ` +
-      `<span id="min-qty-hint" style="display: inline-block; margin-left: 0.5rem; color: #16A34A; font-weight: 700;">(Min. Qty for ₹200: ${minQtyFor200} ${minQtyFor200 === 1 ? 'pack' : 'packs'})</span>`;
+    infoText.innerHTML = `<span id="min-qty-hint" style="color: #16A34A; font-weight: 700; font-size: 1rem;">(Min. Qty for ₹200: ${minQtyFor200} ${minQtyFor200 === 1 ? 'pack' : 'packs'})</span>`;
   
-    // Optionally update the quantity input field to match the minimum required packs if current is lower
+    // Update the quantity input field to match minimum required packs if current value is lower
     const qtyInput = document.getElementById('customer-qty');
     if (qtyInput && parseInt(qtyInput.value || 1, 10) < minQtyFor200) {
       qtyInput.value = minQtyFor200;
@@ -51,7 +48,7 @@ function showModal(message) {
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
     
-    // Automatically scroll to the top so the popup is immediately visible
+    // Automatically scroll to top for popup visibility
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
