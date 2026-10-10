@@ -37,7 +37,7 @@
       </div>
     </nav>
 
-    <!-- Hero & Brand Video Section -->
+    <!-- Hero & Brand Video Showcase Section -->
     <section id="video-story" class="hero-section">
       <div class="container">
         <div class="hero-header">
@@ -45,25 +45,49 @@
           <p class="hero-subtitle">Poha Savoury - From Kitchen, Not Factory.</p>
         </div>
 
-        <!-- Framed Video Container -->
-        <div class="video-frame">
-          <div class="video-bar">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="video-bar-title">KB Savouries Story</span>
+        <!-- Modern Video Grid Stack -->
+        <div class="video-grid-stack">
+          <!-- Video Box 1: KB Savouries Story -->
+          <div class="video-frame">
+            <div class="video-bar">
+              <div class="video-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <span class="video-bar-title">KB Savouries Story</span>
+            </div>
+            <div class="video-wrapper">
+              <video id="brand-video" controls poster="Assets/video-thumbnail.jpg" preload="metadata">
+                <source src="Assets/brand-story.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </div>
-          <div class="video-wrapper">
-            <video id="brand-video" controls poster="Assets/video-thumbnail.jpg" preload="metadata">
-              <source src="Assets/brand-story.mp4" type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
+
+          <!-- Video Box 2: Customer Reviews -->
+          <div class="video-frame">
+            <div class="video-bar">
+              <div class="video-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <span class="video-bar-title">Customer Reviews</span>
+            </div>
+            <div class="video-wrapper">
+              <video id="customer-reviews-video" controls poster="Assets/reviews-thumbnail.jpg" preload="metadata">
+                <source src="Assets/customer-reviews.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </div>
         </div>
+
       </div>
     </section>
 
-    <!-- Recipe Showcase Section with Spaced Out Carousel Arrows -->
+    <!-- Recipe Showcase Section -->
     <section id="recipes" class="recipes-section">
       <div class="container">
         <div class="section-header">

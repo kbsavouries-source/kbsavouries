@@ -1,11 +1,11 @@
 /* ==========================================================================
-   Inverted Light Editorial Theme with Horizontal Recipe Carousel
+   Inverted Light Editorial Theme with Modern Video Layouts
    Brand: KB Savouries
    ========================================================================== */
 
 :root {
   --bg-white: #FFFFFF;
-  --bg-card: #0D0E10; /* Pure Black for Recipe Boxes */
+  --bg-card: #0D0E10;
   --border-black: #000000;
   --border-subtle: #D0D5DD;
   --border-card: #22252A;
@@ -23,7 +23,6 @@
   padding: 0;
 }
 
-/* Enhanced Smooth Scrolling & Feel */
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 80px;
@@ -243,7 +242,7 @@ body {
 }
 
 /* ==========================================================================
-   Hero Section
+   Hero Section & Modern Video Boxes
    ========================================================================== */
 
 .hero-section {
@@ -268,21 +267,43 @@ body {
   font-weight: 400;
 }
 
-.video-frame {
+/* Vertical Stack for Video Cards */
+.video-grid-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
   max-width: 900px;
   margin: 0 auto;
-  background-color: #F4F5F7;
-  border: 1.5px solid var(--border-subtle);
-  border-radius: 8px;
+}
+
+/* Modern Editorial Video Container */
+.video-frame {
+  background-color: #0D0E10;
+  border: 2px solid #000000;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.35s ease;
+}
+
+.video-frame:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
 .video-bar {
   display: flex;
   align-items: center;
-  padding: 0.6rem 1rem;
-  background-color: #E8EBF0;
-  border-bottom: 1.5px solid var(--border-subtle);
+  padding: 0.8rem 1.25rem;
+  background-color: #1A1C20;
+  border-bottom: 1px solid #2A2D34;
+  gap: 12px;
+}
+
+.video-dots {
+  display: flex;
+  align-items: center;
   gap: 6px;
 }
 
@@ -290,19 +311,24 @@ body {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #CBD5E1;
 }
 
+.dot-red { background-color: #FF5F56; }
+.dot-yellow { background-color: #FFBD2E; }
+.dot-green { background-color: #27C93F; }
+
+/* Increased Font Size by 2 points (0.88rem / ~14px bold) */
 .video-bar-title {
-  font-size: 0.75rem;
-  color: var(--text-muted-light);
-  margin-left: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #FFFFFF;
 }
 
 .video-wrapper video {
   width: 100%;
   display: block;
-  background-color: #000;
+  background-color: #000000;
 }
 
 /* ==========================================================================
@@ -331,17 +357,15 @@ body {
   font-size: 1rem;
 }
 
-/* Carousel Layout Wrapper with Extended Padding for Spaced Out Arrows */
 .carousel-container {
   position: relative;
   display: flex;
   align-items: center;
   max-width: 1240px;
   margin: 0 auto;
-  padding: 0 4.5rem; /* Generous breathing room for the side arrows */
+  padding: 0 4.5rem;
 }
 
-/* Horizontal Scrolling Grid */
 .recipe-grid {
   display: flex;
   gap: 1.5rem;
@@ -357,7 +381,6 @@ body {
   display: none;
 }
 
-/* Pure Black Recipe Box Container */
 .recipe-card {
   flex: 0 0 340px;
   scroll-snap-align: start;
@@ -374,7 +397,6 @@ body {
   will-change: transform, box-shadow;
 }
 
-/* Smooth White Glow on Hover */
 .recipe-card:hover {
   transform: translateY(-6px);
   border-color: rgba(255, 255, 255, 0.85);
@@ -419,7 +441,6 @@ body {
   margin-bottom: 0.4rem;
 }
 
-/* Spaced Out Side Carousel Arrow Buttons */
 .carousel-btn {
   position: absolute;
   top: 45%;
@@ -451,13 +472,8 @@ body {
   transform: translateY(-50%) scale(1.08);
 }
 
-.prev-btn {
-  left: 0; /* Positioned cleanly in the outer margin space */
-}
-
-.next-btn {
-  right: 0; /* Positioned cleanly in the outer margin space */
-}
+.prev-btn { left: 0; }
+.next-btn { right: 0; }
 
 /* ==========================================================================
    Solid Black Footer with Scroll-Triggered Fade In
@@ -570,7 +586,7 @@ body {
     flex: 0 0 280px;
   }
   .carousel-btn {
-    display: none; /* Swipe natively on mobile touch screens */
+    display: none;
   }
   .footer-content {
     flex-direction: column;
