@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KB Savouries</title>
+  <title>KB Savouries — Nostalgia Meets Modern Crunch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -25,7 +25,7 @@
   <!-- Main Website Wrapper -->
   <div id="main-content" class="main-content">
 
-    <!-- Minimalist Light Header with Slightly Bolder Black Border -->
+    <!-- Minimalist Light Header with Smooth Hide/Show -->
     <nav class="navbar">
       <a href="#" id="logo-link" class="nav-brand" style="text-decoration: none; color: inherit; cursor: pointer;">
         <img src="Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
@@ -42,7 +42,7 @@
       <div class="container">
         <div class="hero-header">
           <h1 class="hero-title">Nostalgia Meets Modern Crunch</h1>
-          <p class="hero-subtitle">Poha Savoury - From Kitchen, Not Factory</p>
+          <p class="hero-subtitle">Poha Savoury - From Kitchen, Not Factory.</p>
         </div>
 
         <!-- Framed Video Container -->
@@ -63,95 +63,140 @@
       </div>
     </section>
 
-    <!-- Recipe Showcase Section -->
+    <!-- Recipe Showcase Section with Spaced Out Carousel Arrows -->
     <section id="recipes" class="recipes-section">
       <div class="container">
         <div class="section-header">
-          <span class="tag-label"></span>
           <h2>2-Minute Snack Hacks</h2>
-          <p>Elevate your Poha Savoury pouch into a quick, delicious dish</p>
+          <p>Elevate your Poha Savoury pouch into a quick, delicious dish.</p>
         </div>
 
-        <div class="recipe-grid">
-          <!-- Recipe Card 1 -->
-          <article class="recipe-card">
-            <div class="card-meta">
-              <span class="recipe-time">01 / 2-MIN PREP</span>
-            </div>
-            <h3>Dahi Poha Chaat</h3>
-            <p class="recipe-desc">Chilled whisked curd, mint chutney, and a generous layer of crisp Poha Savoury.</p>
-            
-            <div class="recipe-details">
-              <h4>Ingredients</h4>
-              <ul>
-                <li>1 Pouch KB Poha Savoury</li>
-                <li>1/2 cup Whisked Curd (Dahi)</li>
-                <li>1 tbsp Mint & Tamarind Chutney</li>
-                <li>Fresh Coriander</li>
-              </ul>
-              <h4>Preparation</h4>
-              <ol>
-                <li>Pour chilled curd into a wide bowl.</li>
-                <li>Drizzle mint and tamarind chutneys over the curd.</li>
-                <li>Top with KB Poha Savoury right before eating for peak crunch.</li>
-              </ol>
-            </div>
-          </article>
+        <div class="carousel-container">
+          <button class="carousel-btn prev-btn" aria-label="Previous Recipe" onclick="scrollCarousel(-1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
 
-          <!-- Recipe Card 2 -->
-          <article class="recipe-card">
-            <div class="card-meta">
-              <span class="recipe-time">02 / 2-MIN PREP</span>
-            </div>
-            <h3>South Indian Bhel Mix</h3>
-            <p class="recipe-desc">Chopped onions, juicy tomatoes, raw mango, and fresh lemon juice combined with Poha Savoury.</p>
-            
-            <div class="recipe-details">
-              <h4>Ingredients</h4>
-              <ul>
-                <li>1 Pouch KB Poha Savoury</li>
-                <li>1/4 cup Chopped Onions & Tomatoes</li>
-                <li>1 tbsp Grated Raw Mango</li>
-                <li>Squeeze of Lemon & Chaat Masala</li>
-              </ul>
-              <h4>Preparation</h4>
-              <ol>
-                <li>Combine fresh veggies and raw mango in a mixing bowl.</li>
-                <li>Toss gently with KB Poha Savoury.</li>
-                <li>Squeeze lemon juice, sprinkle chaat masala, and serve immediately.</li>
-              </ol>
-            </div>
-          </article>
+          <div class="recipe-grid" id="recipeGrid">
+            <!-- Recipe Card 1 -->
+            <article class="recipe-card">
+              <h3>Dahi Poha Chaat</h3>
+              <p class="recipe-desc">Chilled whisked curd, mint chutney, and a generous layer of crisp Poha Savoury.</p>
+              
+              <div class="recipe-details">
+                <h4>Ingredients</h4>
+                <ul>
+                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>1/2 cup Whisked Curd (Dahi)</li>
+                  <li>1 tbsp Mint & Tamarind Chutney</li>
+                  <li>Fresh Coriander</li>
+                </ul>
+                <h4>Preparation</h4>
+                <ol>
+                  <li>Pour chilled curd into a wide bowl.</li>
+                  <li>Drizzle mint and tamarind chutneys over the curd.</li>
+                  <li>Top with KB Poha Savoury right before eating for peak crunch.</li>
+                </ol>
+              </div>
+            </article>
 
-          <!-- Recipe Card 3 -->
-          <article class="recipe-card">
-            <div class="card-meta">
-              <span class="recipe-time">03 / 1-MIN PREP</span>
-            </div>
-            <h3>Avocado Toast Topper</h3>
-            <p class="recipe-desc">Smashed avocado on toasted sourdough, finished with spicy, crunchy Poha Savoury.</p>
-            
-            <div class="recipe-details">
-              <h4>Ingredients</h4>
-              <ul>
-                <li>1 Pouch KB Poha Savoury</li>
-                <li>1 Slice Toasted Sourdough or Whole Wheat</li>
-                <li>1/2 Ripe Avocado (mashed)</li>
-                <li>Chili Flakes & Sea Salt</li>
-              </ul>
-              <h4>Preparation</h4>
-              <ol>
-                <li>Spread ripe mashed avocado onto hot crispy toast.</li>
-                <li>Season with chili flakes and a pinch of salt.</li>
-                <li>Cover heavily with KB Poha Savoury for texture contrast.</li>
-              </ol>
-            </div>
-          </article>
+            <!-- Recipe Card 2 -->
+            <article class="recipe-card">
+              <h3>South Indian Bhel Mix</h3>
+              <p class="recipe-desc">Chopped onions, juicy tomatoes, raw mango, and fresh lemon juice combined with Poha Savoury.</p>
+              
+              <div class="recipe-details">
+                <h4>Ingredients</h4>
+                <ul>
+                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>1/4 cup Chopped Onions & Tomatoes</li>
+                  <li>1 tbsp Grated Raw Mango</li>
+                  <li>Squeeze of Lemon & Chaat Masala</li>
+                </ul>
+                <h4>Preparation</h4>
+                <ol>
+                  <li>Combine fresh veggies and raw mango in a mixing bowl.</li>
+                  <li>Toss gently with KB Poha Savoury.</li>
+                  <li>Squeeze lemon juice, sprinkle chaat masala, and serve immediately.</li>
+                </ol>
+              </div>
+            </article>
+
+            <!-- Recipe Card 3 -->
+            <article class="recipe-card">
+              <h3>Avocado Toast Topper</h3>
+              <p class="recipe-desc">Smashed avocado on toasted sourdough, finished with spicy, crunchy Poha Savoury.</p>
+              
+              <div class="recipe-details">
+                <h4>Ingredients</h4>
+                <ul>
+                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>1 Slice Toasted Sourdough or Whole Wheat</li>
+                  <li>1/2 Ripe Avocado (mashed)</li>
+                  <li>Chili Flakes & Sea Salt</li>
+                </ul>
+                <h4>Preparation</h4>
+                <ol>
+                  <li>Spread ripe mashed avocado onto hot crispy toast.</li>
+                  <li>Season with chili flakes and a pinch of salt.</li>
+                  <li>Cover heavily with KB Poha Savoury for texture contrast.</li>
+                </ol>
+              </div>
+            </article>
+
+            <!-- Recipe Card 4 -->
+            <article class="recipe-card">
+              <h3>Spiced Peanut Butter Toast</h3>
+              <p class="recipe-desc">Creamy peanut butter on crisp toast crowned with a savory, crunchy layer of Poha Savoury.</p>
+              
+              <div class="recipe-details">
+                <h4>Ingredients</h4>
+                <ul>
+                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>1 Slice Bread (Toasted)</li>
+                  <li>2 tbsp Natural Peanut Butter</li>
+                  <li>A pinch of Black Pepper or Honey</li>
+                </ul>
+                <h4>Preparation</h4>
+                <ol>
+                  <li>Spread an even layer of creamy peanut butter over warm toast.</li>
+                  <li>Optionally drizzle a tiny drop of honey or pinch of pepper.</li>
+                  <li>Press a generous handful of KB Poha Savoury on top for a sweet-savory crunch.</li>
+                </ol>
+              </div>
+            </article>
+
+            <!-- Recipe Card 5 -->
+            <article class="recipe-card">
+              <h3>Caesar Crunch Salad</h3>
+              <p class="recipe-desc">Crisp romaine lettuce, creamy Caesar dressing, parmesan shavings, and a crown of savory, spiced KB Poha Savoury.</p>
+              
+              <div class="recipe-details">
+                <h4>Ingredients</h4>
+                <ul>
+                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>2 cups Chopped Romaine Lettuce</li>
+                  <li>2 tbsp Caesar Dressing</li>
+                  <li>1 tbsp Grated Parmesan Cheese</li>
+                  <li>Freshly cracked black pepper</li>
+                </ul>
+                <h4>Preparation</h4>
+                <ol>
+                  <li>Toss chopped romaine lettuce with Caesar dressing in a mixing bowl until evenly coated.</li>
+                  <li>Transfer to a serving plate and garnish with freshly grated parmesan cheese.</li>
+                  <li>Heap a generous handful of KB Poha Savoury right on top just before serving for the ultimate crunch.</li>
+                </ol>
+              </div>
+            </article>
+          </div>
+
+          <button class="carousel-btn next-btn" aria-label="Next Recipe" onclick="scrollCarousel(1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
       </div>
     </section>
 
-    <!-- Solid Black Footer -->
+    <!-- Solid Black Footer with Scroll-Triggered Fade In -->
     <footer class="footer">
       <div class="container footer-content">
         <div class="footer-left">

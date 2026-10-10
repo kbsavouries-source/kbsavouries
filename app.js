@@ -17,6 +17,18 @@ function enterSite() {
   }
 }
 
+// Smooth Horizontal Carousel Scroll Handler
+function scrollCarousel(direction) {
+  const recipeGrid = document.getElementById('recipeGrid');
+  if (recipeGrid) {
+    const scrollAmount = 364; // card width (340px) + gap (24px)
+    recipeGrid.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth'
+    });
+  }
+}
+
 // Interactive Window Listeners
 document.addEventListener('DOMContentLoaded', () => {
   // Logo Click Handler — Reloads page to reset intro screen

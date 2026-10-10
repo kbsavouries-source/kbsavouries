@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Inverted Light Editorial Theme with Black Recipe Boxes
+   Inverted Light Editorial Theme with Horizontal Recipe Carousel
    Brand: KB Savouries
    ========================================================================== */
 
@@ -7,8 +7,8 @@
   --bg-white: #FFFFFF;
   --bg-card: #0D0E10; /* Pure Black for Recipe Boxes */
   --border-black: #000000;
-  --border-subtle: #D0D5DD; /* Slightly Bolder Light Separator */
-  --border-card: #22252A; /* Bolder Dark Separator inside Cards */
+  --border-subtle: #D0D5DD;
+  --border-card: #22252A;
   --text-black: #0D0E10;
   --text-white: #FFFFFF;
   --text-muted-light: #555E6C;
@@ -164,7 +164,6 @@ body {
   will-change: transform, opacity;
 }
 
-/* Smooth Disappear State when Scrolling Down */
 .navbar.nav-hidden {
   transform: translateY(-100%);
   opacity: 0;
@@ -307,7 +306,7 @@ body {
 }
 
 /* ==========================================================================
-   Recipes Section (Black Recipe Cards with White Glow)
+   Recipes Section & Spaced-Out Horizontal Carousel
    ========================================================================== */
 
 .recipes-section {
@@ -318,16 +317,6 @@ body {
 .section-header {
   text-align: center;
   margin-bottom: 3.5rem;
-}
-
-.tag-label {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--text-muted-light);
-  margin-bottom: 0.5rem;
 }
 
 .section-header h2 {
@@ -342,13 +331,36 @@ body {
   font-size: 1rem;
 }
 
-.recipe-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
+/* Carousel Layout Wrapper with Extended Padding for Spaced Out Arrows */
+.carousel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 4.5rem; /* Generous breathing room for the side arrows */
 }
 
+/* Horizontal Scrolling Grid */
+.recipe-grid {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  padding: 1rem 0.5rem 2rem 0.5rem;
+  width: 100%;
+  scrollbar-width: none;
+}
+
+.recipe-grid::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pure Black Recipe Box Container */
 .recipe-card {
+  flex: 0 0 340px;
+  scroll-snap-align: start;
   background-color: var(--bg-card);
   border: 1.5px solid var(--border-card);
   border-radius: 8px;
@@ -362,6 +374,7 @@ body {
   will-change: transform, box-shadow;
 }
 
+/* Smooth White Glow on Hover */
 .recipe-card:hover {
   transform: translateY(-6px);
   border-color: rgba(255, 255, 255, 0.85);
@@ -369,17 +382,10 @@ body {
               0 12px 24px rgba(0, 0, 0, 0.6);
 }
 
-.recipe-time {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: var(--text-muted-dark);
-}
-
 .recipe-card h3 {
   font-size: 1.4rem;
   font-weight: 700;
-  margin: 0.75rem 0;
+  margin: 0 0 0.75rem 0;
   color: var(--text-white);
 }
 
@@ -411,6 +417,46 @@ body {
 
 .recipe-details li {
   margin-bottom: 0.4rem;
+}
+
+/* Spaced Out Side Carousel Arrow Buttons */
+.carousel-btn {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #0D0E10;
+  color: #FFFFFF;
+  border: 1.5px solid #333842;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.carousel-btn:hover {
+  background-color: #FFFFFF;
+  color: #0D0E10;
+  border-color: #FFFFFF;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.prev-btn {
+  left: 0; /* Positioned cleanly in the outer margin space */
+}
+
+.next-btn {
+  right: 0; /* Positioned cleanly in the outer margin space */
 }
 
 /* ==========================================================================
@@ -516,6 +562,15 @@ body {
     height: 140px;
     min-width: 140px;
     min-height: 140px;
+  }
+  .carousel-container {
+    padding: 0 1rem;
+  }
+  .recipe-card {
+    flex: 0 0 280px;
+  }
+  .carousel-btn {
+    display: none; /* Swipe natively on mobile touch screens */
   }
   .footer-content {
     flex-direction: column;
