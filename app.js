@@ -92,5 +92,30 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ----------------------- //
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent default mini-infobar
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  // Reveal your custom install button if you have one in HTML
+  const installBtn = document.getElementById('pwa-install-btn');
+  if (installBtn) {
+    installBtn.style.display = 'inline-block';
+    
+    installBtn.addEventListener('click', () => {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the PWA install prompt');
+        }
+        deferredPrompt = null;
+      });
+    });
+  }
+});
+
 
 });
