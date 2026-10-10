@@ -104,7 +104,11 @@
         <div class="order-card">
           <div class="order-card-header">
             <h2>Complete Your Order</h2>
-            <p id="selected-package-info">Select a package above or enter your details below.</p>
+            <!-- Updated helper text with dynamic minimum quantity calculation next to it -->
+            <p id="selected-package-info">
+              Selected Pouch Size: <strong>Size L (200g)</strong> at <strong>₹58</strong> per pack. 
+              <span id="min-qty-hint" style="display: inline-block; margin-left: 0.5rem; color: #16A34A; font-weight: 700;">(Min. Qty for ₹200: 4 packs)</span>
+            </p>
           </div>
 
           <form id="order-form" class="order-form" onsubmit="handleFormSubmit(event)">
@@ -127,10 +131,10 @@
               <div class="form-group">
                 <label for="selected-size">Selected Size</label>
                 <select id="selected-size" onchange="updateFormSelection()" required>
-                  <option value="" disabled selected>Select size</option>
+                  <option value="" disabled>Select size</option>
                   <option value="S" data-qty="30g" data-price="10">Size S (30g - ₹10)</option>
                   <option value="M" data-qty="50g" data-price="15">Size M (50g - ₹15)</option>
-                  <option value="L" data-qty="200g" data-price="58">Size L (200g - ₹58)</option>
+                  <option value="L" data-qty="200g" data-price="58" selected>Size L (200g - ₹58)</option>
                   <option value="XL" data-qty="500g" data-price="120">Size XL (500g - ₹120)</option>
                   <option value="XXL" data-qty="1 Kg" data-price="230">Size XXL (1 Kg - ₹230)</option>
                 </select>
@@ -138,7 +142,7 @@
 
               <div class="form-group">
                 <label for="customer-qty">Quantity Required</label>
-                <input type="number" id="customer-qty" min="1" value="1" required>
+                <input type="number" id="customer-qty" min="1" value="4" required>
               </div>
             </div>
 

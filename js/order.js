@@ -12,7 +12,7 @@ function selectPackage(size, qty, price) {
   }
 }
 
-// Update helper text when dropdown selection changes
+// Update helper text when dropdown selection changes, including minimum quantity calculation for ₹200
 function updateFormSelection() {
   const sizeSelect = document.getElementById('selected-size');
   const infoText = document.getElementById('selected-package-info');
@@ -21,9 +21,19 @@ function updateFormSelection() {
     const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
     const size = sizeSelect.value;
     const qty = selectedOption.getAttribute('data-qty');
-    const price = selectedOption.getAttribute('data-price');
+    const price = parseInt(selectedOption.getAttribute('data-price'), 10);
     
-    infoText.innerHTML = `Selected Pouch Size: <strong>Size ${size} (${qty})</strong> at <strong>₹${price}</strong> per pack.`;
+    // Automatically calculate minimum quantity required to reach ₹200
+    const minQtyFor200 = Math.ceil(200 / price);
+
+    infoText.innerHTML = `Selected Pouch Size: <strong>Size ${size} (${qty})</strong> at <strong>₹${price}</strong> per pack. ` +
+      `<span id="min-qty-hint" style="display: inline-block; margin-left: 0.5rem; color: #16A34A; font-weight: 700;">(Min. Qty for ₹200: ${minQtyFor200} ${minQtyFor200 === 1 ? 'pack' : 'packs'})</span>`;
+  
+    // Optionally update the quantity input field to match the minimum required packs if current is lower
+    const qtyInput = document.getElementById('customer-qty');
+    if (qtyInput && parseInt(qtyInput.value || 1, 10) < minQtyFor200) {
+      qtyInput.value = minQtyFor200;
+    }
   }
 }
 
@@ -107,6 +117,9 @@ function escapeHtml(str) {
 
 // Interactive Window Listeners for Order Page
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize minimum quantity display on load
+  updateFormSelection();
+
   // Smooth Header Scroll Disappear / Reveal Handler
   const navbar = document.querySelector('.navbar');
   let lastScrollY = window.scrollY;
