@@ -3,20 +3,25 @@ function toggleRecipe(cardElement) {
   if (cardElement) {
     cardElement.classList.toggle('expanded');
     
-    // Update toggle text
+    // Update toggle text dynamically based on section
     const toggleText = cardElement.querySelector('.toggle-text');
     if (toggleText) {
-      toggleText.textContent = cardElement.classList.contains('expanded') ? 'Hide Recipe' : 'View Recipe';
+      const isBenefit = cardElement.closest('#benefitGrid') !== null;
+      if (isBenefit) {
+        toggleText.textContent = cardElement.classList.contains('expanded') ? 'Show Less' : 'Learn More';
+      } else {
+        toggleText.textContent = cardElement.classList.contains('expanded') ? 'Hide Recipe' : 'View Recipe';
+      }
     }
   }
 }
 
-// Smooth Horizontal Carousel Scroll Handler
-function scrollCarousel(direction) {
-  const recipeGrid = document.getElementById('recipeGrid');
-  if (recipeGrid) {
+// Smooth Horizontal Carousel Scroll Handler for Multiple Grids
+function scrollCarousel(gridId, direction) {
+  const grid = document.getElementById(gridId);
+  if (grid) {
     const scrollAmount = 364; // card width (340px) + gap (24px)
-    recipeGrid.scrollBy({
+    grid.scrollBy({
       left: direction * scrollAmount,
       behavior: 'smooth'
     });

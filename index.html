@@ -31,7 +31,7 @@
       <div class="container">
         <div class="hero-header">
           <h1 class="hero-title">Nostalgia Meets Modern Crunch</h1>
-          <p class="hero-subtitle">Poha Savoury - From Kitchen, Not Factory</p>
+          <p class="hero-subtitle">Poha Crunch - From Kitchen, Not Factory</p>
         </div>
 
         <!-- Modern Video Grid Stack -->
@@ -76,16 +76,118 @@
       </div>
     </section>
 
+    <!-- Health Benefits Section -->
+    <section id="benefits" class="recipes-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Wholesome Goodness</h2>
+          <p>Discover why our traditional preparation is good for your everyday snacking.</p>
+        </div>
+
+        <div class="carousel-container">
+          <button class="carousel-btn prev-btn" aria-label="Previous Benefit" onclick="scrollCarousel('benefitGrid', -1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+
+          <div class="recipe-grid" id="benefitGrid">
+            <!-- Benefit Card 1 -->
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>100% Vegan & Plant-Based</h3>
+                <p class="recipe-desc">Crafted completely free from dairy and animal products, keeping it clean and natural.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Zero animal fats or milk solids.</li>
+                  <li>Ethically prepared with plant-based ingredients.</li>
+                  <li>Light on the stomach for clean daily snacking.</li>
+                </ul>
+              </div>
+            </article>
+
+            <!-- Benefit Card 2 -->
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Light & Easily Digestible</h3>
+                <p class="recipe-desc">Flattened rice is naturally gentle on your digestive system compared to heavy fried snacks.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Quickly breaks down to provide sustained energy.</li>
+                  <li>Low gluten profile compared to wheat-based savouries.</li>
+                  <li>No bloating after a satisfying tea-time session.</li>
+                </ul>
+              </div>
+            </article>
+
+            <!-- Benefit Card 3 -->
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Zero Artificial Preservatives</h3>
+                <p class="recipe-desc">Made in small batches right from our kitchen, avoiding chemical additives and enhancers.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Authentic homemade taste without shelf-life chemicals.</li>
+                  <li>Seasoned with real, traditional spices.</li>
+                  <li>Fresh batches prepared with care and hygiene.</li>
+                </ul>
+              </div>
+            </article>
+
+            <!-- Benefit Card 4 -->
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Rich in Iron & Minerals</h3>
+                <p class="recipe-desc">Poha is a wholesome source of essential iron, supporting vitality and daily wellness.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Helps prevent iron deficiency fatigue.</li>
+                  <li>Good source of healthy carbohydrates for energy.</li>
+                  <li>Nutritious snack option for all age groups.</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+
+          <button class="carousel-btn next-btn" aria-label="Next Benefit" onclick="scrollCarousel('benefitGrid', 1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- Recipe Showcase Section -->
     <section id="recipes" class="recipes-section">
       <div class="container">
         <div class="section-header">
           <h2>2-Minute Snack Hacks</h2>
-          <p>Elevate your Poha Savoury pouch into a quick, delicious dish.</p>
+          <p>Elevate your Poha Crunch pouch into a quick, delicious dish.</p>
         </div>
 
         <div class="carousel-container">
-          <button class="carousel-btn prev-btn" aria-label="Previous Recipe" onclick="scrollCarousel(-1)">
+          <button class="carousel-btn prev-btn" aria-label="Previous Recipe" onclick="scrollCarousel('recipeGrid', -1)">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
 
@@ -94,7 +196,7 @@
             <article class="recipe-card" onclick="toggleRecipe(this)">
               <div class="recipe-card-header">
                 <h3>Dahi Poha Chaat</h3>
-                <p class="recipe-desc">Chilled whisked curd, mint chutney, and a generous layer of crisp Poha Savoury.</p>
+                <p class="recipe-desc">Chilled whisked curd, mint chutney, and a generous layer of crisp Poha Crunch.</p>
                 <div class="recipe-toggle">
                   <span class="toggle-text">View Recipe</span>
                   <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -104,7 +206,7 @@
               <div class="recipe-details">
                 <h4>Ingredients</h4>
                 <ul>
-                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>1 Pouch KB Poha Crunch</li>
                   <li>1/2 cup Whisked Curd (Dahi)</li>
                   <li>1 tbsp Mint & Tamarind Chutney</li>
                   <li>Fresh Coriander</li>
@@ -113,7 +215,7 @@
                 <ol>
                   <li>Pour chilled curd into a wide bowl.</li>
                   <li>Drizzle mint and tamarind chutneys over the curd.</li>
-                  <li>Top with KB Poha Savoury right before eating for peak crunch.</li>
+                  <li>Top with KB Poha Crunch right before eating for peak crunch.</li>
                 </ol>
               </div>
             </article>
@@ -122,7 +224,7 @@
             <article class="recipe-card" onclick="toggleRecipe(this)">
               <div class="recipe-card-header">
                 <h3>South Indian Bhel Mix</h3>
-                <p class="recipe-desc">Chopped onions, juicy tomatoes, raw mango, and fresh lemon juice combined with Poha Savoury.</p>
+                <p class="recipe-desc">Chopped onions, juicy tomatoes, raw mango, and fresh lemon juice combined with Poha Crunch.</p>
                 <div class="recipe-toggle">
                   <span class="toggle-text">View Recipe</span>
                   <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -132,7 +234,7 @@
               <div class="recipe-details">
                 <h4>Ingredients</h4>
                 <ul>
-                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>1 Pouch KB Poha Crunch</li>
                   <li>1/4 cup Chopped Onions & Tomatoes</li>
                   <li>1 tbsp Grated Raw Mango</li>
                   <li>Squeeze of Lemon & Chaat Masala</li>
@@ -140,7 +242,7 @@
                 <h4>Preparation</h4>
                 <ol>
                   <li>Combine fresh veggies and raw mango in a mixing bowl.</li>
-                  <li>Toss gently with KB Poha Savoury.</li>
+                  <li>Toss gently with KB Poha Crunch.</li>
                   <li>Squeeze lemon juice, sprinkle chaat masala, and serve immediately.</li>
                 </ol>
               </div>
@@ -150,7 +252,7 @@
             <article class="recipe-card" onclick="toggleRecipe(this)">
               <div class="recipe-card-header">
                 <h3>Avocado Toast Topper</h3>
-                <p class="recipe-desc">Smashed avocado on toasted sourdough, finished with spicy, crunchy Poha Savoury.</p>
+                <p class="recipe-desc">Smashed avocado on toasted sourdough, finished with spicy, crunchy Poha Crunch.</p>
                 <div class="recipe-toggle">
                   <span class="toggle-text">View Recipe</span>
                   <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -160,7 +262,7 @@
               <div class="recipe-details">
                 <h4>Ingredients</h4>
                 <ul>
-                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>1 Pouch KB Poha Crunch</li>
                   <li>1 Slice Toasted Sourdough or Whole Wheat</li>
                   <li>1/2 Ripe Avocado (mashed)</li>
                   <li>Chili Flakes & Sea Salt</li>
@@ -169,7 +271,7 @@
                 <ol>
                   <li>Spread ripe mashed avocado onto hot crispy toast.</li>
                   <li>Season with chili flakes and a pinch of salt.</li>
-                  <li>Cover heavily with KB Poha Savoury for texture contrast.</li>
+                  <li>Cover heavily with KB Poha Crunch for texture contrast.</li>
                 </ol>
               </div>
             </article>
@@ -178,7 +280,7 @@
             <article class="recipe-card" onclick="toggleRecipe(this)">
               <div class="recipe-card-header">
                 <h3>Spiced Peanut Butter Toast</h3>
-                <p class="recipe-desc">Creamy peanut butter on crisp toast crowned with a savory, crunchy layer of Poha Savoury.</p>
+                <p class="recipe-desc">Creamy peanut butter on crisp toast crowned with a savory, crunchy layer of Poha Crunch.</p>
                 <div class="recipe-toggle">
                   <span class="toggle-text">View Recipe</span>
                   <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -188,7 +290,7 @@
               <div class="recipe-details">
                 <h4>Ingredients</h4>
                 <ul>
-                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>1 Pouch KB Poha Crunch</li>
                   <li>1 Slice Bread (Toasted)</li>
                   <li>2 tbsp Natural Peanut Butter</li>
                   <li>A pinch of Black Pepper or Honey</li>
@@ -197,7 +299,7 @@
                 <ol>
                   <li>Spread an even layer of creamy peanut butter over warm toast.</li>
                   <li>Optionally drizzle a tiny drop of honey or pinch of pepper.</li>
-                  <li>Press a generous handful of KB Poha Savoury on top for a sweet-savory crunch.</li>
+                  <li>Press a generous handful of KB Poha Crunch on top for a sweet-savory crunch.</li>
                 </ol>
               </div>
             </article>
@@ -206,7 +308,7 @@
             <article class="recipe-card" onclick="toggleRecipe(this)">
               <div class="recipe-card-header">
                 <h3>Caesar Crunch Salad</h3>
-                <p class="recipe-desc">Crisp romaine lettuce, creamy Caesar dressing, parmesan shavings, and a crown of savory, spiced KB Poha Savoury.</p>
+                <p class="recipe-desc">Crisp romaine lettuce, creamy Caesar dressing, parmesan shavings, and a crown of savory, spiced KB Poha Crunch.</p>
                 <div class="recipe-toggle">
                   <span class="toggle-text">View Recipe</span>
                   <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -216,7 +318,7 @@
               <div class="recipe-details">
                 <h4>Ingredients</h4>
                 <ul>
-                  <li>1 Pouch KB Poha Savoury</li>
+                  <li>1 Pouch KB Poha Crunch</li>
                   <li>2 cups Chopped Romaine Lettuce</li>
                   <li>2 tbsp Caesar Dressing</li>
                   <li>1 tbsp Grated Parmesan Cheese</li>
@@ -226,13 +328,13 @@
                 <ol>
                   <li>Toss chopped romaine lettuce with Caesar dressing in a mixing bowl until evenly coated.</li>
                   <li>Transfer to a serving plate and garnish with freshly grated parmesan cheese.</li>
-                  <li>Heap a generous handful of KB Poha Savoury right on top just before serving for the ultimate crunch.</li>
+                  <li>Heap a generous handful of KB Poha Crunch right on top just before serving for the ultimate crunch.</li>
                 </ol>
               </div>
             </article>
           </div>
 
-          <button class="carousel-btn next-btn" aria-label="Next Recipe" onclick="scrollCarousel(1)">
+          <button class="carousel-btn next-btn" aria-label="Next Recipe" onclick="scrollCarousel('recipeGrid', 1)">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
         </div>

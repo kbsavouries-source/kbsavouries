@@ -30,7 +30,10 @@ html {
 }
 
 body {
-  background-color: var(--bg-white);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), url('../Assets/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--text-black);
   font-family: var(--font-family);
   line-height: 1.6;
@@ -67,7 +70,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 2.5rem;
-  background-color: rgba(255, 255, 255, 0.98);
+  background-color: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   position: sticky;
@@ -143,7 +146,7 @@ body {
 }
 
 .btn-home:hover {
-  background-color: #F4F5F7;
+  background-color: rgba(244, 245, 247, 0.8);
   transform: translateY(-1px);
 }
 
@@ -196,7 +199,8 @@ body {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-  background-color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.88); /* Slightly translucent container */
+  backdrop-filter: blur(8px);
 }
 
 .pricing-table {
@@ -230,7 +234,7 @@ body {
 }
 
 .pricing-row:hover {
-  background-color: #F8FAFC;
+  background-color: rgba(248, 250, 252, 0.9);
   transform: scale(1.008);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
 }
@@ -256,11 +260,11 @@ body {
 }
 
 .highlight-row {
-  background-color: #FFFDF0;
+  background-color: rgba(255, 253, 240, 0.9);
 }
 
 .highlight-row:hover {
-  background-color: #FFF9D6;
+  background-color: rgba(255, 249, 214, 0.95);
 }
 
 .badge-popular {
@@ -308,7 +312,8 @@ body {
 .order-card {
   max-width: 860px;
   margin: 0 auto;
-  background-color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.88); /* Slightly translucent container */
+  backdrop-filter: blur(8px);
   border: 2px solid #000000;
   border-radius: 12px;
   padding: 2.5rem;
@@ -365,7 +370,7 @@ body {
   font-family: var(--font-family);
   border: 1.5px solid var(--border-subtle);
   border-radius: 6px;
-  background-color: #F8FAFC;
+  background-color: rgba(248, 250, 252, 0.9);
   color: var(--text-black);
   transition: all 0.2s ease;
 }
@@ -422,7 +427,7 @@ body {
 .whatsapp-instruction-box {
   margin-top: 1.75rem;
   text-align: left;
-  background-color: #F8FAFC;
+  background-color: rgba(248, 250, 252, 0.9);
   border: 1.5px solid var(--border-subtle);
   border-radius: 8px;
   padding: 1.75rem 2rem;
