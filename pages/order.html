@@ -104,7 +104,6 @@
         <div class="order-card">
           <div class="order-card-header">
             <h2>Complete Your Order</h2>
-            <!-- Updated helper text with dynamic minimum quantity calculation next to it -->
             <p id="selected-package-info">
               Selected Pouch Size: <strong>Size L (200g)</strong> at <strong>₹58</strong> per pack. 
               <span id="min-qty-hint" style="display: inline-block; margin-left: 0.5rem; color: #16A34A; font-weight: 700;">(Min. Qty for ₹200: 4 packs)</span>
@@ -149,7 +148,7 @@
             <button type="submit" class="btn btn-submit-order">GENERATE ORDER SUMMARY</button>
           </form>
 
-          <!-- Order Summary Output Table -->
+          <!-- Order Summary Output Table (Responsive Receipt Card on Mobile) -->
           <div id="summary-container" class="summary-container hidden">
             <h3 class="summary-title">Order Summary</h3>
             <div class="pricing-table-wrapper">
@@ -164,21 +163,20 @@
                 </thead>
                 <tbody>
                   <tr class="pricing-row">
-                    <td id="summary-contact">-</td>
-                    <td><strong id="summary-size-qty">-</strong></td>
-                    <td id="summary-address">-</td>
-                    <td id="summary-total" class="price-cell">-</td>
+                    <td id="summary-contact" data-label="Name / Mobile">-</td>
+                    <td data-label="Size & Qty"><strong id="summary-size-qty">-</strong></td>
+                    <td id="summary-address" data-label="Address">-</td>
+                    <td id="summary-total" data-label="Total Amount" class="price-cell">-</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <!-- Refined Bulleted Instructions & Button -->
+            <!-- Bulleted Instructions & WhatsApp Button -->
             <div class="whatsapp-instruction-box">
               <p class="instruction-title">Next Steps to Confirm Your Order:</p>
               <ul class="instruction-list">
-                <li>Take a screenshot of the <strong>Order Summary</strong> table above.</li>
-                <li>On mobile devices, kindly capture the screenshot in <strong>landscape mode.</strong></li>
+                <li>Take a screenshot of the <strong>Order Summary</strong> above.</li>
                 <li>Save your <strong>UPI payment success screenshot</strong>.</li>
                 <li>Click the WhatsApp button below to share both screenshots.</li>
               </ul>

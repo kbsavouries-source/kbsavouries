@@ -199,7 +199,7 @@ body {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-  background-color: rgba(255, 255, 255, 0.88); /* Slightly translucent container */
+  background-color: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(8px);
 }
 
@@ -244,6 +244,7 @@ body {
   font-size: 1.05rem;
   color: var(--text-black);
   vertical-align: middle;
+  word-break: break-word;
 }
 
 .size-badge {
@@ -312,7 +313,7 @@ body {
 .order-card {
   max-width: 860px;
   margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.88); /* Slightly translucent container */
+  background-color: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(8px);
   border: 2px solid #000000;
   border-radius: 12px;
@@ -683,7 +684,7 @@ body {
 }
 
 /* ==========================================================================
-   Responsive Adjustments
+   Responsive Adjustments & Mobile Order Summary Receipt Card View
    ========================================================================== */
 
 @media (max-width: 768px) {
@@ -694,6 +695,9 @@ body {
     flex-direction: column;
     gap: 1rem;
     padding: 1.25rem 1.5rem;
+  }
+  .order-card {
+    padding: 1.5rem;
   }
   .form-grid {
     grid-template-columns: 1fr;
@@ -707,6 +711,53 @@ body {
   .pricing-table th, .pricing-table td {
     padding: 1rem;
   }
+
+  /* Responsive Receipt Card Layout for Order Summary on Mobile */
+  .summary-container .pricing-table, 
+  .summary-container .pricing-table tbody, 
+  .summary-container .pricing-table tr, 
+  .summary-container .pricing-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .summary-container .pricing-table thead {
+    display: none; /* Hide squeezed table headers */
+  }
+
+  .summary-container .pricing-table tr {
+    padding: 1.25rem;
+    background-color: #FFFFFF;
+  }
+
+  .summary-container .pricing-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px dashed var(--border-subtle);
+    font-size: 0.95rem;
+    text-align: right;
+  }
+
+  .summary-container .pricing-table td:last-child {
+    border-bottom: none;
+    padding-top: 1rem;
+  }
+
+  /* Use HTML data-label attribute to render prominent left-aligned field headings */
+  .summary-container .pricing-table td::before {
+    content: attr(data-label);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-black);
+    text-align: left;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+
   .footer-content {
     flex-direction: column;
     align-items: center;
