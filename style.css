@@ -45,83 +45,6 @@ body {
   padding: 0 1.5rem;
 }
 
-/* ==========================================================================
-   Pure Black Intro Splash Overlay Animation
-   ========================================================================== */
-
-.intro-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #0D0E10;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  cursor: pointer;
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.intro-content {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  animation: introPulse 3s infinite ease-in-out;
-}
-
-.intro-logo-circle {
-  width: 180px;
-  height: 180px;
-  min-width: 180px;
-  min-height: 180px;
-  border-radius: 50%;
-  background-color: #FFFFFF;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
-}
-
-.intro-logo {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-.intro-content:hover .intro-logo-circle {
-  transform: scale(1.05);
-}
-
-.intro-fallback {
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: #0D0E10;
-  display: none;
-}
-
-.intro-hint {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: #FFFFFF;
-  font-weight: 800;
-}
-
-.intro-screen.fade-out {
-  opacity: 0;
-  transform: translateY(-20px);
-  pointer-events: none;
-}
-
 .main-content {
   opacity: 0;
   transform: translateY(20px);
@@ -131,15 +54,6 @@ body {
 .main-content.visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-@keyframes introPulse {
-  0%, 100% {
-    opacity: 0.88;
-  }
-  50% {
-    opacity: 1;
-  }
 }
 
 /* ==========================================================================
@@ -317,7 +231,6 @@ body {
 .dot-yellow { background-color: #FFBD2E; }
 .dot-green { background-color: #27C93F; }
 
-/* Increased Font Size by 2 points (0.88rem / ~14px bold) */
 .video-bar-title {
   font-size: 0.88rem;
   font-weight: 700;
@@ -332,7 +245,7 @@ body {
 }
 
 /* ==========================================================================
-   Recipes Section & Spaced-Out Horizontal Carousel
+   Recipes Section & Dynamic Uniform-when-Collapsed Cards
    ========================================================================== */
 
 .recipes-section {
@@ -375,53 +288,112 @@ body {
   padding: 1rem 0.5rem 2rem 0.5rem;
   width: 100%;
   scrollbar-width: none;
+  align-items: flex-start; /* Allows expanded cards to grow independently without stretching neighbors */
 }
 
 .recipe-grid::-webkit-scrollbar {
   display: none;
 }
 
+/* Recipe Card Container */
 .recipe-card {
   flex: 0 0 340px;
+  width: 340px;
+  height: 250px; /* Fixed height for uniform look when collapsed */
   scroll-snap-align: start;
   background-color: var(--bg-card);
   border: 1.5px solid var(--border-card);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
               border-color 0.35s ease, 
-              box-shadow 0.35s ease;
-  will-change: transform, box-shadow;
+              box-shadow 0.35s ease,
+              height 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, box-shadow, height;
 }
 
 .recipe-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 25px 4px rgba(255, 255, 255, 0.3), 
-              0 12px 24px rgba(0, 0, 0, 0.6);
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.recipe-card-header {
+  display: flex;
+  flex-direction: column;
 }
 
 .recipe-card h3 {
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 1.45rem;
+  font-weight: 800;
   margin: 0 0 0.75rem 0;
   color: var(--text-white);
+  letter-spacing: -0.3px;
+  min-height: 3.2rem;
 }
 
 .recipe-desc {
   color: var(--text-muted-dark);
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
 }
 
+/* Expand Indicator Pill */
+.recipe-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+
+.toggle-icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.35s ease;
+}
+
+/* Collapsible Content Area */
 .recipe-details {
-  margin-top: 1rem;
-  padding-top: 1.2rem;
-  border-top: 1.5px solid var(--border-card);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.35s ease, 
+              margin-top 0.35s ease, 
+              padding-top 0.35s ease;
+  border-top: 1px solid transparent;
   font-size: 0.85rem;
+}
+
+/* Expanded Card State (Reverts to flowing natural height) */
+.recipe-card.expanded {
+  height: auto;
+  border-color: #FFFFFF;
+}
+
+.recipe-card.expanded .toggle-icon {
+  transform: rotate(180deg);
+}
+
+.recipe-card.expanded .recipe-details {
+  max-height: 600px;
+  opacity: 1;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top-color: var(--border-card);
 }
 
 .recipe-details h4 {
@@ -573,17 +545,13 @@ body {
     gap: 1rem;
     padding: 1.25rem 1.5rem;
   }
-  .intro-logo-circle {
-    width: 140px;
-    height: 140px;
-    min-width: 140px;
-    min-height: 140px;
-  }
   .carousel-container {
     padding: 0 1rem;
   }
   .recipe-card {
     flex: 0 0 280px;
+    width: 280px;
+    height: 270px;
   }
   .carousel-btn {
     display: none;

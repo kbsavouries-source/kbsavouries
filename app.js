@@ -1,3 +1,16 @@
+// Toggle Collapsible Recipe Card Details
+function toggleRecipe(cardElement) {
+  if (cardElement) {
+    cardElement.classList.toggle('expanded');
+    
+    // Update toggle text
+    const toggleText = cardElement.querySelector('.toggle-text');
+    if (toggleText) {
+      toggleText.textContent = cardElement.classList.contains('expanded') ? 'Hide Recipe' : 'View Recipe';
+    }
+  }
+}
+
 // Smooth Horizontal Carousel Scroll Handler
 function scrollCarousel(direction) {
   const recipeGrid = document.getElementById('recipeGrid');
