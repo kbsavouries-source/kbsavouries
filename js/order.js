@@ -27,6 +27,11 @@ function updateFormSelection() {
   }
 }
 
+// Dummy calculation hook for real-time quantity input changes
+function calculateTotal() {
+  // Optional live update logic can be placed here if needed
+}
+
 // Calculate and generate order summary table with minimum order value check (₹200)
 function handleFormSubmit(event) {
   event.preventDefault();
@@ -78,10 +83,10 @@ function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-// Interactive Window Listeners for Pricing Page
+// Interactive Window Listeners for Order Page
 document.addEventListener('DOMContentLoaded', () => {
   // Smooth Header Scroll Disappear / Reveal Handler
-  const navbar = document.navbar || document.querySelector('.navbar');
+  const navbar = document.querySelector('.navbar');
   let lastScrollY = window.scrollY;
 
   if (navbar) {
