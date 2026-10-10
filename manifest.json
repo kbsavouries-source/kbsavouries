@@ -1,0 +1,23 @@
+{
+  "name": "KB Savouries",
+  "short_name": "KB Savouries",
+  "description": "Nostalgia Meets Modern Crunch — 100% Vegan Poha Savouries",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0D0E10",
+  "icons": [
+    {
+      "src": "Assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "Assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
