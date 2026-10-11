@@ -276,7 +276,7 @@ body {
 .qty-cell {
   font-weight: 600;
   color: var(--text-muted-light);
-  white-space: nowrap; /* Prevents "30 g" from breaking onto two lines */
+  white-space: nowrap;
 }
 
 .price-cell {
@@ -330,7 +330,7 @@ body {
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.75rem; /* Slightly spaced out form fields for cleaner mobile tap UX */
+  gap: 1.75rem;
   margin-bottom: 2rem;
 }
 
@@ -393,7 +393,10 @@ body {
   transform: translateY(-1px);
 }
 
-/* Summary Output Table & WhatsApp Callout */
+/* ==========================================================================
+   Order Summary / Receipt Card Styling
+   ========================================================================== */
+
 .summary-container {
   margin-top: 2.5rem;
   padding-top: 2.5rem;
@@ -408,12 +411,99 @@ body {
 .summary-title {
   font-size: 1.3rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   color: var(--text-black);
   text-align: center;
 }
 
-/* Refined Clean WhatsApp Instruction Box & Bullet List */
+.receipt-card {
+  max-width: 580px;
+  margin: 0 auto;
+  background-color: #FFFFFF;
+  border: 2px solid #000000;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.85rem 0;
+  border-bottom: 1px dashed var(--border-subtle);
+  font-size: 0.98rem;
+}
+
+.receipt-row:last-of-type {
+  border-bottom: none;
+}
+
+.receipt-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted-light);
+  flex-shrink: 0;
+  margin-right: 1.5rem;
+}
+
+.receipt-value {
+  color: var(--text-black);
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.receipt-value.highlight-val {
+  font-weight: 800;
+  color: #000000;
+}
+
+.receipt-divider {
+  height: 2px;
+  background-color: #0D0E10;
+  margin: 1.25rem 0;
+  border-radius: 1px;
+}
+
+.receipt-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-top: 0.25rem;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: var(--text-muted-light);
+}
+
+.breakdown-item span:last-child {
+  font-weight: 700;
+  color: var(--text-black);
+}
+
+.breakdown-item.total-row {
+  margin-top: 0.5rem;
+  padding-top: 0.85rem;
+  border-top: 2px dashed #000000;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-black);
+}
+
+.breakdown-item.total-row span:last-child {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--vegan-green);
+}
+
+/* WhatsApp Instructions & Button */
 .whatsapp-instruction-box {
   margin-top: 1.75rem;
   text-align: left;
@@ -464,7 +554,7 @@ body {
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .whatsapp-btn:hover {
@@ -696,7 +786,6 @@ body {
     grid-column: span 1;
   }
   
-  /* Pricing Matrix Table Mobile Spacing & Padding */
   .pricing-table-wrapper {
     overflow-x: auto;
   }
@@ -715,49 +804,16 @@ body {
     font-size: 0.85rem;
   }
 
-  /* Mobile Receipt View for Order Summary Screenshot */
-  .summary-container .pricing-table, 
-  .summary-container .pricing-table tbody, 
-  .summary-container .pricing-table tr, 
-  .summary-container .pricing-table td {
-    display: block;
-    width: 100%;
+  .receipt-card {
+    padding: 1.25rem 1.25rem;
   }
-
-  .summary-container .pricing-table thead {
-    display: none;
+  .receipt-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
   }
-
-  .summary-container .pricing-table tr {
-    padding: 1.25rem;
-    background-color: #FFFFFF;
-  }
-
-  .summary-container .pricing-table td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.85rem 0;
-    border-bottom: 1px dashed var(--border-subtle);
-    font-size: 0.95rem;
-    text-align: right;
-  }
-
-  .summary-container .pricing-table td:last-child {
-    border-bottom: none;
-    padding-top: 1rem;
-  }
-
-  .summary-container .pricing-table td::before {
-    content: attr(data-label);
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-black);
+  .receipt-value {
     text-align: left;
-    margin-right: 1rem;
-    flex-shrink: 0;
   }
 
   .footer-content {

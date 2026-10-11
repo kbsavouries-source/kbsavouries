@@ -12,7 +12,7 @@ function selectPackage(size, qty, price) {
   }
 }
 
-// Update helper text when dropdown selection changes to show ONLY the centered min quantity callout
+// Update helper text when dropdown selection changes to show centered min quantity callout
 function updateFormSelection() {
   const sizeSelect = document.getElementById('selected-size');
   const infoText = document.getElementById('selected-package-info');
@@ -21,22 +21,16 @@ function updateFormSelection() {
     const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
     const price = parseInt(selectedOption.getAttribute('data-price'), 10);
     
-    // Calculate minimum quantity required for ₹200
+    // Calculate minimum quantity required for ₹200 items subtotal
     const minQtyFor200 = Math.ceil(200 / price);
 
     infoText.innerHTML = `<span id="min-qty-hint" style="color: #16A34A; font-weight: 700; font-size: 1rem;">(Min. Qty for ₹200: ${minQtyFor200} ${minQtyFor200 === 1 ? 'pack' : 'packs'})</span>`;
   
-    // Update the quantity input field to match minimum required packs if current value is lower
     const qtyInput = document.getElementById('customer-qty');
     if (qtyInput && parseInt(qtyInput.value || 1, 10) < minQtyFor200) {
       qtyInput.value = minQtyFor200;
     }
   }
-}
-
-// Dummy calculation hook for quantity inputs
-function calculateTotal() {
-  // Optional live update logic
 }
 
 // Custom Modal Popup Handlers with Auto-Scroll to Top
@@ -47,8 +41,6 @@ function showModal(message) {
     msgEl.textContent = message;
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
-    
-    // Automatically scroll to top for popup visibility
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
@@ -61,7 +53,7 @@ function closeModal() {
   }
 }
 
-// Calculate and generate order summary table with minimum order value check (₹200)
+// Calculate and generate order receipt with delivery charge and minimum order validation
 function handleFormSubmit(event) {
   event.preventDefault();
 
@@ -86,20 +78,35 @@ function handleFormSubmit(event) {
   const sizeLetter = sizeSelect.value;
   const pouchQty = selectedOption.getAttribute('data-qty');
   const unitPrice = parseInt(selectedOption.getAttribute('data-price'), 10);
-  const totalAmount = unitPrice * quantity;
+  
+  const itemsTotal = unitPrice * quantity;
 
-  // Minimum Order Value Validation (₹200) with Custom Modal Popup
-  if (totalAmount < 200) {
-    showModal(`Minimum order value for online orders is ₹200. Your current order total is ₹${totalAmount}. Please increase your quantity to proceed.`);
+  // Minimum Order Value Validation (₹200 items subtotal)
+  if (itemsTotal < 200) {
+    showModal(`Minimum order value for online orders is ₹200. Your current items total is ₹${itemsTotal}. Please increase your quantity to proceed.`);
     document.getElementById('customer-qty').focus();
     return;
   }
 
-  // Populate Summary Table Fields
-  document.getElementById('summary-contact').innerHTML = `${escapeHtml(name)}<br><small style="color: #555E6C;">${escapeHtml(phone)}</small>`;
-  document.getElementById('summary-size-qty').innerHTML = `Size ${sizeLetter} (${pouchQty}) × ${quantity} unit(s)`;
+  const deliveryCharge = 50;
+  const grandTotal = itemsTotal + deliveryCharge;
+
+  // Populate Receipt Fields
+  document.getElementById('summary-contact').innerHTML = `${escapeHtml(name)} (${escapeHtml(phone)})`;
+  document.getElementById('summary-size-qty').textContent = `Size ${sizeLetter} (${pouchQty}) × ${quantity} unit(s)`;
   document.getElementById('summary-address').textContent = address;
-  document.getElementById('summary-total').textContent = `₹${totalAmount}`;
+  
+  // Breakdown Values
+  document.getElementById('summary-items-subtotal').textContent = `₹${itemsTotal}`;
+  document.getElementById('summary-delivery-charge').textContent = `₹${deliveryCharge}`;
+  document.getElementById('summary-grand-total').textContent = `₹${grandTotal}`;
+
+  // Dynamically update WhatsApp button pre-filled text
+  const whatsappMsg = `Hi! I placed an order on KB Savouries:\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Order:* Size ${sizeLetter} (${pouchQty}) x ${quantity}\n*Items Subtotal:* ₹${itemsTotal}\n*Delivery Charge:* ₹${deliveryCharge}\n*Grand Total:* ₹${grandTotal}\n*Address:* ${address}\n\nHere are my Order Summary and UPI Payment screenshots:`;
+  const whatsappBtn = document.getElementById('whatsapp-link');
+  if (whatsappBtn) {
+    whatsappBtn.href = `https://wa.me/919884049021?text=${encodeURIComponent(whatsappMsg)}`;
+  }
 
   // Reveal summary container smoothly
   const summaryContainer = document.getElementById('summary-container');
@@ -114,10 +121,8 @@ function escapeHtml(str) {
 
 // Interactive Window Listeners for Order Page
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize minimum quantity display on load
   updateFormSelection();
 
-  // Smooth Header Scroll Disappear / Reveal Handler
   const navbar = document.querySelector('.navbar');
   let lastScrollY = window.scrollY;
 
@@ -135,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Footer Content Scroll Fade-In Observer
   const footerContent = document.querySelector('.footer-content');
   if (footerContent) {
     const observer = new IntersectionObserver((entries) => {
