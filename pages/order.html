@@ -52,42 +52,42 @@
             </thead>
             <tbody>
               <!-- Row 1: S -->
-              <tr class="pricing-row" onclick="selectPackage('S', '30g', 10)">
+              <tr class="pricing-row" onclick="selectPackage('S', '30g', 15)">
                 <td class="size-cell"><span class="size-badge">S</span></td>
                 <td class="qty-cell">30g</td>
-                <td class="price-cell">₹10</td>
+                <td class="price-cell">₹15</td>
                 <td class="suggestion-cell">Perfect tea-time Companion</td>
               </tr>
 
               <!-- Row 2: M -->
-              <tr class="pricing-row" onclick="selectPackage('M', '50g', 15)">
+              <tr class="pricing-row" onclick="selectPackage('M', '50g', 25)">
                 <td class="size-cell"><span class="size-badge">M</span></td>
                 <td class="qty-cell">50g</td>
-                <td class="price-cell">₹15</td>
+                <td class="price-cell">₹25</td>
                 <td class="suggestion-cell">Perfect binge watching partner</td>
               </tr>
 
               <!-- Row 3: L -->
-              <tr class="pricing-row highlight-row" onclick="selectPackage('L', '200g', 58)">
+              <tr class="pricing-row highlight-row" onclick="selectPackage('L', '250g', 110)">
                 <td class="size-cell"><span class="size-badge badge-popular">L</span></td>
-                <td class="qty-cell">200g</td>
-                <td class="price-cell">₹58</td>
+                <td class="qty-cell">250g</td>
+                <td class="price-cell">₹110</td>
                 <td class="suggestion-cell">Get Together Companion</td>
               </tr>
 
               <!-- Row 4: XL -->
-              <tr class="pricing-row" onclick="selectPackage('XL', '500g', 120)">
+              <tr class="pricing-row" onclick="selectPackage('XL', '500g', 210)">
                 <td class="size-cell"><span class="size-badge">XL</span></td>
                 <td class="qty-cell">500g</td>
-                <td class="price-cell">₹120</td>
+                <td class="price-cell">₹210</td>
                 <td class="suggestion-cell">Best Party Mate</td>
               </tr>
 
               <!-- Row 5: XXL -->
-              <tr class="pricing-row" onclick="selectPackage('XXL', '1 Kg', 230)">
+              <tr class="pricing-row" onclick="selectPackage('XXL', '1 Kg', 400)">
                 <td class="size-cell"><span class="size-badge">XXL</span></td>
                 <td class="qty-cell">1 Kg</td>
-                <td class="price-cell">₹230</td>
+                <td class="price-cell">₹400</td>
                 <td class="suggestion-cell">Lasts for a month at least</td>
               </tr>
             </tbody>
@@ -105,7 +105,7 @@
             <h2>Complete Your Order</h2>
             <!-- Clean Centered Minimum Quantity Display -->
             <p id="selected-package-info" style="text-align: center; margin-top: 0.5rem;">
-              <span id="min-qty-hint" style="color: #16A34A; font-weight: 700; font-size: 1rem;">(Min. Qty for ₹200: 4 packs)</span>
+              <span id="min-qty-hint" style="color: #16A34A; font-weight: 700; font-size: 1rem;">(Min. Qty for ₹200: 2 packs)</span>
             </p>
           </div>
 
@@ -130,17 +130,17 @@
                 <label for="selected-size">Selected Size</label>
                 <select id="selected-size" onchange="updateFormSelection()" required>
                   <option value="" disabled>Select size</option>
-                  <option value="S" data-qty="30g" data-price="10">Size S (30g - ₹10)</option>
-                  <option value="M" data-qty="50g" data-price="15">Size M (50g - ₹15)</option>
-                  <option value="L" data-qty="200g" data-price="58" selected>Size L (200g - ₹58)</option>
-                  <option value="XL" data-qty="500g" data-price="120">Size XL (500g - ₹120)</option>
-                  <option value="XXL" data-qty="1 Kg" data-price="230">Size XXL (1 Kg - ₹230)</option>
+                  <option value="S" data-qty="30g" data-price="15">Size S (30g - ₹15)</option>
+                  <option value="M" data-qty="50g" data-price="25">Size M (50g - ₹25)</option>
+                  <option value="L" data-qty="250g" data-price="110" selected>Size L (250g - ₹110)</option>
+                  <option value="XL" data-qty="500g" data-price="210">Size XL (500g - ₹210)</option>
+                  <option value="XXL" data-qty="1 Kg" data-price="400">Size XXL (1 Kg - ₹400)</option>
                 </select>
               </div>
 
               <div class="form-group">
                 <label for="customer-qty">Quantity Required</label>
-                <input type="number" id="customer-qty" min="1" value="4" required>
+                <input type="number" id="customer-qty" min="1" value="2" required>
               </div>
             </div>
 
