@@ -863,7 +863,7 @@ window.switchTab = function(tabId, event) {
     if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('open');
     }
-
+};
 window.addPurchase = addPurchase;
 window.addSale = addSale;
 window.addBatch = addBatch;
@@ -879,5 +879,11 @@ window.clearPurchaseFilters = clearPurchaseFilters;
 window.exportCSV = exportCSV;
 window.exportJSON = exportJSON;
 
-}
+
+window.toggleSidebar = function() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.toggle('open');
+};
+
+
 

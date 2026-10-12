@@ -38,6 +38,16 @@ const defaultChartOfAccounts = [
 let chartOfAccounts = [...defaultChartOfAccounts];
 let accountsData = { journal: [] };
 
+// Helper function to convert YYYY-MM-DD to DD-MM-YYYY for display
+function formatDate(dateStr) {
+    if (!dateStr) return 'N/A';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateStr;
+}
+
 function showModal(title, message, isConfirm = false, onConfirm = null) {
     const modal = document.getElementById('custom-modal');
     const modalTitle = document.getElementById('modal-title');
@@ -375,6 +385,9 @@ function renderJournal() {
         return true;
     });
 
+    // Sort transactions chronologically (earliest to latest)
+    filtered.sort((a, b) => a.date.localeCompare(b.date));
+
     tbody.innerHTML = filtered.map((j) => {
         let debitVal = j.type === 'Debit' ? `₹${j.amount.toFixed(2)}` : '';
         let creditVal = j.type === 'Credit' ? `₹${j.amount.toFixed(2)}` : '';
@@ -383,7 +396,7 @@ function renderJournal() {
         let actualIndex = accountsData.journal.indexOf(j);
         return `
             <tr>
-                <td data-label="Date">${j.date}</td>
+                <td data-label="Date">${formatDate(j.date)}</td>
                 <td data-label="Account"><strong>${j.account}</strong></td>
                 <td data-label="Debit">${debitVal}</td>
                 <td data-label="Credit">${creditVal}</td>
@@ -414,6 +427,9 @@ function renderLedger() {
         return true;
     });
 
+    // Sort ledger entries chronologically (earliest to latest)
+    entries.sort((a, b) => a.date.localeCompare(b.date));
+
     let rowsHtml = [];
 
     entries.forEach(j => {
@@ -422,7 +438,7 @@ function renderLedger() {
 
         rowsHtml.push(`
             <tr>
-                <td data-label="Date">${j.date}</td>
+                <td data-label="Date">${formatDate(j.date)}</td>
                 <td data-label="Account Head"><strong>${j.account}</strong></td>
                 <td data-label="Comments">${j.comments}</td>
                 <td data-label="Debit">${dr ? '₹' + dr.toFixed(2) : ''}</td>
@@ -628,7 +644,7 @@ function exportCSV(type) {
         }
         csv = "Date,Account,Type,Amount,Comments\n";
         entries.forEach(j => {
-            csv += `${j.date},"${j.account}",${j.type},${j.amount},"${j.comments}"\n`;
+            csv += `${formatDate(j.date)},"${j.account}",${j.type},${j.amount},"${j.comments}"\n`;
         });
     } else if (type === 'chart') {
         csv = "Account Name,Sub Account,Type,Normal Balance,Financial Statement\n";
@@ -653,7 +669,7 @@ function exportCSV(type) {
         entries.forEach(j => {
             let dr = j.type === 'Debit' ? j.amount : 0;
             let cr = j.type === 'Credit' ? j.amount : 0;
-            csv += `${j.date},"${j.account}","${j.comments}",${dr},${cr}\n`;
+            csv += `${formatDate(j.date)},"${j.account}","${j.comments}",${dr},${cr}\n`;
         });
     } else if (type === 'trial') {
         csv = "Account,Debit,Credit,Balance\n";
@@ -717,3 +733,8 @@ window.deleteJournalItem = deleteJournalItem;
 window.clearDateFilter = clearDateFilter;
 window.updateFileName = updateFileName;
 window.exportCSV = exportCSV;
+
+window.renderJournal = renderJournal;
+window.renderLedger = renderLedger;
+window.renderIncomeStatement = renderIncomeStatement;
+window.renderBalanceSheet = renderBalanceSheet;
