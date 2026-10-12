@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB Savouries - Business Workspace</title>
+    <link rel="stylesheet" href="../css/books.css">
+</head>
+<body>
+
+    <!-- Passcode Modal Overlay -->
+    <div id="passcode-modal" class="passcode-overlay">
+        <div class="passcode-card">
+            <h2>KB Savouries Secured</h2>
+            <p>Enter 4-digit passcode to unlock workspace</p>
+            <form id="passcode-form" onsubmit="verifyPasscode(event)">
+                <input type="password" id="passcode-input" maxlength="4" pattern="[0-9]{4}" placeholder="••••" autocomplete="off" required autofocus>
+                <div id="passcode-error" class="passcode-error"></div>
+                <button type="submit" class="btn-primary">Unlock Workspace</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+        <div class="brand">
+            <img src="../Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'">
+            <span>KB SAVOURIES</span>
+        </div>
+        <ul class="nav-links">
+            <li class="active" onclick="switchTab('dashboard', event)">Dashboard</li>
+            <li onclick="switchTab('sales', event)">Sales Register</li>
+            <li onclick="switchTab('batches', event)">Batch Log</li>
+            <li onclick="switchTab('samples', event)">Samples & Marketing</li>
+            <li onclick="switchTab('inventory', event)">Inventory Tracker</li>
+            <li onclick="switchTab('purchases', event)">Purchase Log</li>
+            <li><a href="accounts.html" style="color: inherit; text-decoration: none; display: block;">Accounting & Reports</a></li>
+        </ul>
+        <div class="backup-section">
+            <button class="btn-outline" onclick="exportJSON()">Download JSON Backup</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">Dashboard</h1>
+            <span id="current-date" class="date-display"></span>
+        </header>
+
+        <div class="content-area">
+
+            <!-- DASHBOARD TAB -->
+            <div id="dashboard" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h3>Total Revenue</h3>
+                        <div class="value" id="stat-revenue">₹0</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Orders Completed</h3>
+                        <div class="value" id="stat-orders">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Active Batches</h3>
+                        <div class="value" id="stat-batches">0</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Welcome to KB Savouries Workspace</h2>
+                    <p class="subtitle">
+                        Manage your home-based savory production, track raw ingredients, log direct sales, and manage marketing samples with zero friction. All records persist locally on your laptop.
+                    </p>
+                </div>
+            </div>
+
+            <!-- SALES REGISTER TAB -->
+            <div id="sales" class="tab-content">
+                <div class="card sale-form-card">
+                    <h2 class="card-title">Record New Sale</h2>
+                    <form id="sales-form" onsubmit="addSale(event)">
+                        <div class="spacious-form-grid">
+                            <div class="form-group">
+                                <label for="sale-date">Date</label>
+                                <input type="date" id="sale-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-customer">Customer Name</label>
+                                <input type="text" id="sale-customer" placeholder="e.g. Arjun" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-product">Product & Size</label>
+                                <select id="sale-product" onchange="onProductChange()">
+                                    <option value="Poha Crunch - 30g">Poha Crunch - 30g</option>
+                                    <option value="Poha Crunch - 50g" selected>Poha Crunch - 50g</option>
+                                    <option value="Poha Crunch - 250g">Poha Crunch - 250g</option>
+                                    <option value="Poha Crunch - 500g">Poha Crunch - 500g</option>
+                                    <option value="Poha Crunch - 1 Kg">Poha Crunch - 1 Kg</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-batch">Batch Code (Bulk Linked)</label>
+                                <select id="sale-batch">
+                                    <option value="">No Stock</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-qty">Quantity (Pkts)</label>
+                                <input type="number" id="sale-qty" value="1" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-price">Unit Price (₹)</label>
+                                <input type="number" id="sale-price" value="25" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-pay">Payment Method</label>
+                                <select id="sale-pay">
+                                    <option value="UPI">UPI</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" id="sale-submit-btn" class="btn-primary">Add Sale Entry</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <div class="title-filter-group">
+                            <h2>Sales History</h2>
+                            <div class="date-filter-wrapper">
+                                <input type="text" id="sales-search-filter" oninput="renderSales()" placeholder="Search Customer / Product..." class="filter-search-input">
+                                <label for="sales-date-filter" class="filter-label">Filter Date:</label>
+                                <input type="date" id="sales-date-filter" onchange="renderSales()" class="filter-date-input">
+                                <button type="button" class="btn-clear-filter" onclick="clearSalesFilters()">Clear</button>
+                            </div>
+                        </div>
+                        <div class="action-header-right">
+                            <button type="button" class="btn-outline" onclick="exportCSV('sales')">Export Sales CSV</button>
+                            <div class="total-value-box">
+                                <span id="sales-total-label">Total Sales Value:</span> <strong id="sales-total-value">₹0</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Batch Code</th>
+                                    <th>Qty</th>
+                                    <th>Total (₹)</th>
+                                    <th>Method</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BATCH LOG TAB -->
+            <div id="batches" class="tab-content">
+                <div class="card">
+                    <h2>New Production Batch</h2>
+                    <form id="batch-form" onsubmit="addBatch(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="batch-date">Mfg Date</label>
+                                <input type="date" id="batch-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="batch-product">Product Line</label>
+                                <select id="batch-product">
+                                    <option value="Poha Crunch" selected>Poha Crunch</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="batch-shift">Shift</label>
+                                <select id="batch-shift">
+                                    <option value="01 - Morning">01 - Morning</option>
+                                    <option value="02 - Afternoon">02 - Afternoon</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="batch-weight">Batch Weight Output</label>
+                                <input type="number" id="batch-weight" placeholder="e.g. 500" min="1" step="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="batch-unit">Unit</label>
+                                <select id="batch-unit">
+                                    <option value="Gms" selected>Grams (gms)</option>
+                                    <option value="Kg">Kilograms (Kg)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Generate Batch Code & Log</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <h2>Batch Log History</h2>
+                        <button type="button" class="btn-outline" onclick="exportCSV('batches')">Export Batches CSV</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Batch Code</th>
+                                    <th>Mfg Date</th>
+                                    <th>Expiry Date</th>
+                                    <th>Product Line</th>
+                                    <th>Shift</th>
+                                    <th>Available Bulk Stock</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-table-body">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAMPLES & MARKETING TAB -->
+            <div id="samples" class="tab-content">
+                <div class="card">
+                    <h2>Log Loose Tasting Sample (YouTube Shorts / Promo)</h2>
+                    <form id="sample-form" onsubmit="addSample(event)">
+                        <div class="spacious-form-grid">
+                            <div class="form-group">
+                                <label for="sample-date">Date</label>
+                                <input type="date" id="sample-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sample-recipient">Shoot / Event / Recipient</label>
+                                <input type="text" id="sample-recipient" placeholder="e.g. YouTube Shorts Tasting" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sample-batch">Batch Code (Bulk Linked)</label>
+                                <select id="sample-batch">
+                                    <option value="">No Stock</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sample-qty">Sample Weight Amount</label>
+                                <input type="number" id="sample-qty" placeholder="e.g. 500" step="0.01" min="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sample-unit">Unit</label>
+                                <select id="sample-unit">
+                                    <option value="Gms" selected>Grams (gms)</option>
+                                    <option value="Kg">Kilograms (Kg)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sample-purpose">Purpose</label>
+                                <select id="sample-purpose">
+                                    <option value="YouTube Shorts Tasting" selected>YouTube Shorts Tasting</option>
+                                    <option value="Sample Based Marketing">Sample Based Marketing</option>
+                                    <option value="Retail Store Trial">Retail Store Trial</option>
+                                    <option value="Friend & Family Feedback">Friend & Family Feedback</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" id="sample-submit-btn" class="btn-primary">Log Loose Tasting Sample</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <div class="title-filter-group">
+                            <h2>Marketing & Sampling History</h2>
+                        </div>
+                        <div class="action-header-right">
+                            <button type="button" class="btn-outline" onclick="exportCSV('samples')">Export Samples CSV</button>
+                            <div class="total-value-box">
+                                <span>Total Sample Weight Given:</span> <strong id="sample-total-weight">0 gms</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Shoot / Event / Recipient</th>
+                                    <th>Batch Code</th>
+                                    <th>Quantity Given</th>
+                                    <th>Purpose</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sample-table-body">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAW MATERIAL INVENTORY TRACKER TAB -->
+            <div id="inventory" class="tab-content">
+                <div class="card">
+                    <div class="section-header-flex">
+                        <h2>Raw Material Inventory Tracker</h2>
+                        <button type="button" class="btn-outline" onclick="exportCSV('inventory')">Export Inventory CSV</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Raw Ingredient</th>
+                                    <th>Category</th>
+                                    <th>Total Purchased</th>
+                                    <th>Consumed (Batches)</th>
+                                    <th>Current Balance Stock</th>
+                                    <th>Stock Level Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table-body">
+                                <!-- Dynamic Raw Materials Only -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PURCHASES TAB -->
+            <div id="purchases" class="tab-content">
+                <div class="card">
+                    <h2>Log Purchase (Raw Material or Supplies)</h2>
+                    <form id="purchase-form" onsubmit="addPurchase(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="pur-date">Date</label>
+                                <input type="date" id="pur-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-vendor">Vendor Name</label>
+                                <input type="text" id="pur-vendor" placeholder="e.g. H&H Distributors" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-item">Item Name</label>
+                                <select id="pur-item" onchange="checkCustomItem(this)" required>
+                                    <option value="Poha" selected>Poha</option>
+                                    <option value="Peanut">Peanut</option>
+                                    <option value="Roasted Channa">Roasted Channa</option>
+                                    <option value="Rice Bran Oil">Rice Bran Oil</option>
+                                    <option value="Curry Leaves">Curry Leaves</option>
+                                    <option value="Turmeric">Turmeric</option>
+                                    <option value="Chilli Powder">Chilli Powder</option>
+                                    <option value="Salt">Salt</option>
+                                    <option value="Aluminium Pouch (Small)">Aluminium Pouch (Small)</option>
+                                    <option value="Aluminium Pouch (Medium)">Aluminium Pouch (Medium)</option>
+                                    <option value="Aluminium Pouch (Large)">Aluminium Pouch (Large)</option>
+                                    <option value="Tissue Paper">Tissue Paper</option>
+                                    <option value="Sticker">Sticker</option>
+                                    <option value="LPG Gas Cylinder">LPG Gas Cylinder</option>
+                                    <option value="-- ADD NEW ITEM --" style="font-weight: bold; color: var(--accent-primary);">+ Add New Custom Item...</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="custom-item-wrapper" style="display: none;">
+                                <label for="pur-custom-item">Enter New Item Name</label>
+                                <input type="text" id="pur-custom-item" placeholder="e.g. Cardamom">
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-qty">Qty Bought</label>
+                                <input type="number" id="pur-qty" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-unit">Unit</label>
+                                <select id="pur-unit">
+                                    <option value="Kg" selected>Kg</option>
+                                    <option value="Gms">Gms</option>
+                                    <option value="Ltrs">Ltrs</option>
+                                    <option value="ML">ML</option>
+                                    <option value="Pkts">Pkts</option>
+                                    <option value="Units">Units</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-amt">Total Amount (₹)</label>
+                                <input type="number" id="pur-amt" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Record Purchase</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <div class="title-filter-group">
+                            <h2>Purchase History</h2>
+                            <div class="date-filter-wrapper">
+                                <input type="text" id="pur-search-filter" oninput="renderPurchases()" placeholder="Search Item..." class="filter-search-input">
+                                <label for="pur-date-filter" class="filter-label">Filter Date:</label>
+                                <input type="date" id="pur-date-filter" onchange="renderPurchases()" class="filter-date-input">
+                                <button type="button" class="btn-clear-filter" onclick="clearPurchaseFilters()">Clear</button>
+                            </div>
+                        </div>
+                        <div class="action-header-right">
+                            <button type="button" class="btn-outline" onclick="exportCSV('purchases')">Export Purchases CSV</button>
+                            <div class="total-value-box">
+                                <span id="purchase-total-label">Total Purchase Outflow:</span> <strong id="purchase-total-value">₹0</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Vendor</th>
+                                    <th>Item</th>
+                                    <th>Qty & Unit</th>
+                                    <th>Total Amt (₹)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchase-table-body">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="../js/books.js"></script>
+</body>
+</html>

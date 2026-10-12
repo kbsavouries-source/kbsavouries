@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB Savouries - Financial Accounting & Reports</title>
+    <link rel="stylesheet" href="../css/accounts.css">
+</head>
+<body>
+
+    <!-- Modern Custom Modal Dialog -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 id="modal-title">Notification</h3>
+            <p id="modal-message">Message goes here...</p>
+            <div id="modal-actions" class="modal-actions">
+                <button type="button" id="modal-btn-primary" class="btn-primary" onclick="closeModal()">Okay</button>
+                <button type="button" id="modal-btn-cancel" class="btn-outline" style="display: none;" onclick="closeModal(false)">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+        <div class="brand">
+            <span>KB SAVOURIES</span>
+        </div>
+        <ul class="nav-links">
+            <li class="active" onclick="switchTab('journal', event)">Transaction Log</li>
+            <li onclick="switchTab('chart', event)">Chart of Accounts</li>
+            <li onclick="switchTab('ledger', event)">General Ledger</li>
+            <li onclick="switchTab('trial', event)">Trial Balance</li>
+            <li onclick="switchTab('income', event)">Income Statement (P&L)</li>
+            <li onclick="switchTab('balance', event)">Balance Sheet</li>
+        </ul>
+        <div class="backup-section">
+            <a href="books.html" class="btn-outline" style="text-decoration:none; text-align:center; display:block;">Back to Main Workspace</a>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">Transaction Log</h1>
+            <span id="current-date" class="date-display"></span>
+        </header>
+
+        <div class="content-area">
+
+            <!-- TRANSACTION LOG TAB -->
+            <div id="journal" class="tab-content active">
+                <div class="card">
+                    <h2>Record Double-Entry Voucher</h2>
+                    <form id="journal-form" onsubmit="addJournalEntry(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="j-date">Date</label>
+                                <input type="date" id="j-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="j-debit-account">Debit Account (Dr)</label>
+                                <select id="j-debit-account" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="j-credit-account">Credit Account (Cr)</label>
+                                <select id="j-credit-account" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="j-amount">Amount (₹)</label>
+                                <input type="number" id="j-amount" step="0.01" min="0.01" placeholder="0.00" required>
+                            </div>
+                        </div>
+                        <div class="form-grid" style="margin-top: 16px;">
+                            <div class="form-group">
+                                <label for="j-comments">Comments / Particulars</label>
+                                <input type="text" id="j-comments" placeholder="e.g. Initial Equity introduced" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Attach Bill (Optional - PDF/JPG/PNG)</label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="j-bill" accept=".pdf,image/jpeg,image/png" onchange="updateFileName(this)">
+                                    <label for="j-bill" class="file-upload-btn">Choose File</label>
+                                    <span id="file-chosen-name" class="file-chosen-text">No file chosen</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="margin-top: 20px;">
+                            <button type="submit" class="btn-primary">Post Balanced Entry</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <div class="title-filter-group">
+                            <h2>Transaction Ledger History</h2>
+                            <div class="date-filter-wrapper">
+                                <label class="filter-label">From:</label>
+                                <input type="date" id="filter-from-date" onchange="renderJournal()" class="filter-date-input">
+                                <label class="filter-label">To:</label>
+                                <input type="date" id="filter-to-date" onchange="renderJournal()" class="filter-date-input">
+                                <button type="button" class="btn-clear-filter" onclick="clearDateFilter('journal')">Clear</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-outline" onclick="exportCSV('journal')">Export CSV</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Account</th>
+                                    <th>Debit (₹)</th>
+                                    <th>Credit (₹)</th>
+                                    <th>Comments</th>
+                                    <th>Bill</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="journal-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHART OF ACCOUNTS TAB -->
+            <div id="chart" class="tab-content">
+                <div class="card">
+                    <h2>Add New Account Head</h2>
+                    <form id="account-form" onsubmit="addNewAccount(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="acc-name">Account Name</label>
+                                <input type="text" id="acc-name" placeholder="e.g. Office Rent" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="acc-sub">Sub Account Category</label>
+                                <select id="acc-sub" required>
+                                    <option value="Current Assets">Current Assets</option>
+                                    <option value="Fixed Assets">Fixed Assets</option>
+                                    <option value="Current Liabilities">Current Liabilities</option>
+                                    <option value="Long -Term Liabilities">Long -Term Liabilities</option>
+                                    <option value="Equity">Equity</option>
+                                    <option value="Expense" selected>Expense</option>
+                                    <option value="Revenue">Revenue</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="acc-type">Account Type</label>
+                                <select id="acc-type" required>
+                                    <option value="Assets">Assets</option>
+                                    <option value="Liabilities">Liabilities</option>
+                                    <option value="Equity">Equity</option>
+                                    <option value="Expense" selected>Expense</option>
+                                    <option value="Revenue">Revenue</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="acc-normal">Normal Balance</label>
+                                <select id="acc-normal" required>
+                                    <option value="Debit" selected>Debit</option>
+                                    <option value="Credit">Credit</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="acc-statement">Financial Statement</label>
+                                <select id="acc-statement" required>
+                                    <option value="Income Statement" selected>Income Statement</option>
+                                    <option value="Balance Sheet">Balance Sheet</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="margin-top: 20px;">
+                            <button type="submit" class="btn-primary">Save Account Head</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <h2>Master Chart of Accounts</h2>
+                        <button type="button" class="btn-outline" onclick="exportCSV('chart')">Export CSV</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Account Name</th>
+                                    <th>Sub Account</th>
+                                    <th>Type</th>
+                                    <th>Normal Balance</th>
+                                    <th>Financial Statement</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chart-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEDGER TAB -->
+            <div id="ledger" class="tab-content">
+                <div class="card">
+                    <div class="section-header-flex">
+                        <div class="title-filter-group">
+                            <h2>General Ledger Account View</h2>
+                            <div class="date-filter-wrapper">
+                                <label for="ledger-account-select" class="filter-label">Account:</label>
+                                <select id="ledger-account-select" onchange="renderLedger()" class="filter-search-input"></select>
+                                <label class="filter-label">From:</label>
+                                <input type="date" id="ledger-from-date" onchange="renderLedger()" class="filter-date-input">
+                                <label class="filter-label">To:</label>
+                                <input type="date" id="ledger-to-date" onchange="renderLedger()" class="filter-date-input">
+                                <button type="button" class="btn-clear-filter" onclick="clearDateFilter('ledger')">Clear</button>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap: 12px; align-items:center;">
+                            <div class="total-value-box">
+                                <span>Summary:</span> <strong id="ledger-closing-balance">₹0</strong>
+                            </div>
+                            <button type="button" class="btn-outline" onclick="exportCSV('ledger')">Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Account Head</th>
+                                    <th>Comments</th>
+                                    <th>Debit (₹)</th>
+                                    <th>Credit (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledger-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRIAL BALANCE TAB -->
+            <div id="trial" class="tab-content">
+                <div class="card">
+                    <div class="section-header-flex">
+                        <h2>Trial Balance</h2>
+                        <div class="action-header-right" style="display:flex; gap:12px; align-items:center;">
+                            <div class="total-value-box" id="tb-status-box">
+                                Status: <strong id="tb-status">Balanced</strong>
+                            </div>
+                            <button type="button" class="btn-outline" onclick="exportCSV('trial')">Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Account</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trial-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INCOME STATEMENT TAB -->
+            <div id="income" class="tab-content">
+                <div class="card">
+                    <div class="section-header-flex">
+                        <div class="title-filter-group">
+                            <h2>Income Statement (Profit & Loss)</h2>
+                            <div class="date-filter-wrapper">
+                                <label class="filter-label">From:</label>
+                                <input type="date" id="income-from-date" onchange="renderIncomeStatement()" class="filter-date-input">
+                                <label class="filter-label">To:</label>
+                                <input type="date" id="income-to-date" onchange="renderIncomeStatement()" class="filter-date-input">
+                                <button type="button" class="btn-clear-filter" onclick="clearDateFilter('income')">Clear</button>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <div class="total-value-box">
+                                <span>Net Profit / (Loss):</span> <strong id="net-profit-val">₹0</strong>
+                            </div>
+                            <button type="button" class="btn-outline" onclick="exportCSV('income')">Export CSV</button>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-bottom: 12px; font-size: 1rem; color: var(--text-secondary);">REVENUES</h3>
+                    <div class="table-responsive" style="margin-bottom: 24px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Account Head</th>
+                                    <th>Total Amount (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="income-revenue-body"></tbody>
+                        </table>
+                    </div>
+
+                    <h3 style="margin-bottom: 12px; font-size: 1rem; color: var(--text-secondary);">EXPENSES (INCLUDING COGS)</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Account Head</th>
+                                    <th>Total Amount (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="income-expense-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BALANCE SHEET TAB -->
+            <div id="balance" class="tab-content">
+                <div class="card">
+                    <div class="section-header-flex">
+                        <div class="title-filter-group">
+                            <h2>Balance Sheet</h2>
+                            <div class="date-filter-wrapper">
+                                <label class="filter-label">As of / To:</label>
+                                <input type="date" id="balance-to-date" onchange="renderBalanceSheet()" class="filter-date-input">
+                                <button type="button" class="btn-clear-filter" onclick="clearDateFilter('balance')">Clear</button>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <div class="total-value-box" id="bs-status-box">
+                                Status: <strong id="bs-status">Balanced</strong>
+                            </div>
+                            <button type="button" class="btn-outline" onclick="exportCSV('balance')">Export CSV</button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                        <div>
+                            <h3 style="margin-bottom: 12px; font-size: 1rem; color: var(--text-secondary);">ASSETS</h3>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Account Head</th>
+                                            <th>Sub Account</th>
+                                            <th>Balance (₹)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bs-assets-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style="margin-bottom: 12px; font-size: 1rem; color: var(--text-secondary);">LIABILITIES & EQUITY</h3>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Account Head</th>
+                                            <th>Sub Account</th>
+                                            <th>Balance (₹)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bs-liab-equity-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="../js/accounts.js"></script>
+</body>
+</html>
