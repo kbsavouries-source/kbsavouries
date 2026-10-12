@@ -1,12 +1,27 @@
-// LocalStorage initialized data store
-let appData = JSON.parse(localStorage.getItem('kb_savouries_data')) || {
+// Import Firebase SDKs
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+// Your Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCullX49Und6AmRgg8UL9hP1cLvQ-KVnEI",
+    authDomain: "kb-savouries.firebaseapp.com",
+    projectId: "kb-savouries",
+    storageBucket: "kb-savouries.firebasestorage.app",
+    messagingSenderId: "805966330754",
+    appId: "1:805966330754:web:22cf30e2499298e4456d9b"
+};
+
+// Initialize Firebase & Firestore
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
+let appData = {
     sales: [],
     batches: [],
     purchases: [],
     samples: []
 };
-
-if (!appData.samples) appData.samples = [];
 
 // Standard product prices and unit weight mapping in grams
 const productConfig = {
@@ -43,7 +58,6 @@ function normalizeIngredientName(rawName) {
     if (lower.includes("chilli") || lower.includes("chili")) return "Chilli Powder";
     if (lower.includes("salt")) return "Salt";
     
-    // Capitalize properly if custom item
     return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
@@ -56,7 +70,6 @@ function formatDate(dateStr) {
     return dateStr;
 }
 
-// Smart, context-aware unit formatter for inventory rows
 function formatDynamicValue(val, preferredUnit) {
     const v = Number(val) || 0;
     const unit = (preferredUnit || '').toLowerCase();
@@ -84,7 +97,7 @@ function formatGrams(grams) {
     return `${g.toFixed(g % 1 === 0 ? 0 : 1)} gms`;
 }
 
-function verifyPasscode(e) {
+window.verifyPasscode = function(e) {
     e.preventDefault();
     const inputVal = document.getElementById('passcode-input').value;
     const errorDiv = document.getElementById('passcode-error');
@@ -97,6 +110,55 @@ function verifyPasscode(e) {
         document.getElementById('passcode-input').value = '';
         document.getElementById('passcode-input').focus();
     }
+}
+
+// Load data from Firestore cloud collections
+async function loadCloudData() {
+    try {
+        const collections = ['sales', 'batches', 'purchases', 'samples'];
+        for (const colName of collections) {
+            const querySnapshot = await getDocs(collection(db, colName));
+            appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        }
+
+        // Migration fallback: If cloud is empty and localStorage has data, migrate it once
+        const localData = JSON.parse(localStorage.getItem('kb_savouries_data'));
+        if (localData && appData.sales.length === 0 && appData.batches.length === 0) {
+            if (localData.sales) {
+                for (let s of localData.sales) await addDoc(collection(db, 'sales'), s);
+            }
+            if (localData.batches) {
+                for (let b of localData.batches) await addDoc(collection(db, 'batches'), b);
+            }
+            if (localData.purchases) {
+                for (let p of localData.purchases) await addDoc(collection(db, 'purchases'), p);
+            }
+            if (localData.samples) {
+                for (let sm of localData.samples) await addDoc(collection(db, 'samples'), sm);
+            }
+            // Reload cloud data after migration
+            for (const colName of collections) {
+                const querySnapshot = await getDocs(collection(db, colName));
+                appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+            }
+        }
+    } catch (err) {
+        console.error("Error loading cloud data, falling back to local storage:", err);
+        appData = JSON.parse(localStorage.getItem('kb_savouries_data')) || { sales: [], batches: [], purchases: [], samples: [] };
+    }
+
+    if (!appData.samples) appData.samples = [];
+
+    onProductChange();
+    populateSampleBatchOptions();
+    updatePurchaseDropdownOptions();
+
+    renderSales();
+    renderBatches();
+    renderPurchases();
+    renderSamples();
+    renderInventory();
+    updateDashboard();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,16 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(el) el.value = todayStr;
     });
 
-    onProductChange();
-    populateSampleBatchOptions();
-    updatePurchaseDropdownOptions();
-
-    renderSales();
-    renderBatches();
-    renderPurchases();
-    renderSamples();
-    renderInventory();
-    updateDashboard();
+    loadCloudData();
 });
 
 function toggleSidebar() {
@@ -146,11 +199,26 @@ function switchTab(tabId, event) {
     }
 }
 
-function saveData() {
-    localStorage.setItem('kb_savouries_data', JSON.stringify(appData));
+async function saveData(collectionName, dataObj) {
+    try {
+        const docRef = await addDoc(collection(db, collectionName), dataObj);
+        dataObj.firebaseId = docRef.id;
+    } catch (e) {
+        console.error("Error writing to Firestore: ", e);
+    }
     updateDashboard();
     renderInventory();
     updatePurchaseDropdownOptions();
+}
+
+async function deleteDataDoc(collectionName, firebaseId, localIndex) {
+    try {
+        if (firebaseId) {
+            await deleteDoc(doc(db, collectionName, firebaseId));
+        }
+    } catch (e) {
+        console.error("Error deleting from Firestore: ", e);
+    }
 }
 
 function updateDashboard() {
@@ -162,7 +230,6 @@ function updateDashboard() {
     document.getElementById('stat-batches').innerText = activeBatches;
 }
 
-// --- Dynamic Item Dropdown Management for Purchases ---
 function checkCustomItem(selectEl) {
     const customWrapper = document.getElementById('custom-item-wrapper');
     const customInput = document.getElementById('pur-custom-item');
@@ -181,7 +248,6 @@ function updatePurchaseDropdownOptions() {
     const selectEl = document.getElementById('pur-item');
     if (!selectEl) return;
 
-    // Collect all unique item names from existing purchases + standard recipe items
     let knownItems = new Set([
         "Poha", "Peanut", "Roasted Channa", "Rice Bran Oil", "Curry Leaves", "Turmeric", "Chilli Powder", "Salt",
         "Aluminium Pouch (Small)", "Aluminium Pouch (Medium)", "Aluminium Pouch (Large)", "Tissue Paper", "Sticker", "LPG Gas Cylinder"
@@ -204,7 +270,6 @@ function updatePurchaseDropdownOptions() {
     }
 }
 
-// --- Sales Functions ---
 function onProductChange() {
     updateProductPrice();
     populateBatchOptions();
@@ -222,10 +287,9 @@ function updateProductPrice() {
 }
 
 function populateBatchOptions() {
-    const productSelect = document.getElementById('sale-product');
     const batchSelect = document.getElementById('sale-batch');
     const submitBtn = document.getElementById('sale-submit-btn');
-    if (!productSelect || !batchSelect) return;
+    if (!batchSelect) return;
 
     const matchingBatches = appData.batches.filter(b => Number(b.remainingGrams) > 0);
 
@@ -240,7 +304,7 @@ function populateBatchOptions() {
     }
 }
 
-function addSale(e) {
+async function addSale(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
     const sku = document.getElementById('sale-product').value;
@@ -281,7 +345,7 @@ function addSale(e) {
     };
 
     appData.sales.push(sale);
-    saveData();
+    await saveData('sales', sale);
     renderSales();
     renderBatches();
     populateSampleBatchOptions();
@@ -347,7 +411,7 @@ function renderSales() {
     }).join('');
 }
 
-function deleteSaleItem(index) {
+async function deleteSaleItem(index) {
     const saleToDelete = appData.sales[index];
     
     if (saleToDelete && saleToDelete.batchCode && saleToDelete.batchCode !== 'N/A') {
@@ -360,15 +424,14 @@ function deleteSaleItem(index) {
         }
     }
 
+    await deleteDataDoc('sales', saleToDelete.firebaseId, index);
     appData.sales.splice(index, 1);
-    saveData();
     renderSales();
     renderBatches();
     populateBatchOptions();
     populateSampleBatchOptions();
 }
 
-// --- Samples & Marketing Functions ---
 function populateSampleBatchOptions() {
     const batchSelect = document.getElementById('sample-batch');
     const submitBtn = document.getElementById('sample-submit-btn');
@@ -387,7 +450,7 @@ function populateSampleBatchOptions() {
     }
 }
 
-function addSample(e) {
+async function addSample(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
     const qtyVal = Number(document.getElementById('sample-qty').value);
@@ -425,7 +488,7 @@ function addSample(e) {
     };
 
     appData.samples.push(sample);
-    saveData();
+    await saveData('samples', sample);
     renderSamples();
     renderBatches();
     populateBatchOptions();
@@ -458,7 +521,7 @@ function renderSamples() {
     }).join('');
 }
 
-function deleteSampleItem(index) {
+async function deleteSampleItem(index) {
     const sampleToDelete = appData.samples[index];
     
     if (sampleToDelete && sampleToDelete.batchCode && sampleToDelete.batchCode !== 'N/A') {
@@ -469,16 +532,15 @@ function deleteSampleItem(index) {
         }
     }
 
+    await deleteDataDoc('samples', sampleToDelete.firebaseId, index);
     appData.samples.splice(index, 1);
-    saveData();
     renderSamples();
     renderBatches();
     populateBatchOptions();
     populateSampleBatchOptions();
 }
 
-// --- Batch Log Functions ---
-function addBatch(e) {
+async function addBatch(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
     const dateVal = document.getElementById('batch-date').value;
@@ -506,7 +568,7 @@ function addBatch(e) {
         status: 'Available'
     };
     appData.batches.push(batch);
-    saveData();
+    await saveData('batches', batch);
     renderBatches();
     populateBatchOptions();
     populateSampleBatchOptions();
@@ -536,25 +598,22 @@ function renderBatches() {
     }).join('');
 }
 
-function deleteBatchItem(index) {
+async function deleteBatchItem(index) {
+    const batchToDelete = appData.batches[index];
+    await deleteDataDoc('batches', batchToDelete.firebaseId, index);
     appData.batches.splice(index, 1);
-    saveData();
     renderBatches();
     populateBatchOptions();
     populateSampleBatchOptions();
 }
 
-// --- Raw Material Inventory Calculations Only ---
 function renderInventory() {
     const tbody = document.getElementById('inventory-table-body');
     if (!tbody) return;
 
-    // 1. Calculate Purchased Totals for Raw Food Ingredients (in base units: gms/ml)
     let purchasedMap = {};
     appData.purchases.forEach(p => {
         let masterName = normalizeIngredientName(p.item);
-        
-        // Skip packaging and non-raw inventory items from tracker as requested
         if (!pohaCrunchRecipePer500g[masterName]) return;
 
         let qty = Number(p.qty) || 0;
@@ -570,11 +629,10 @@ function renderInventory() {
         purchasedMap[masterName].total += qtyInBase;
     });
 
-    // 2. Calculate Consumed Totals via Production Batches
     let consumedMap = {};
     appData.batches.forEach(b => {
         let batchGrams = Number(b.totalGrams) || 0;
-        let scaleFactor = batchGrams / 500; // Base recipe is per 500g output[cite: 6]
+        let scaleFactor = batchGrams / 500;
 
         for (let [ingredient, data] of Object.entries(pohaCrunchRecipePer500g)) {
             let masterName = normalizeIngredientName(ingredient);
@@ -583,10 +641,9 @@ function renderInventory() {
         }
     });
 
-    // Only render raw ingredients defined in recipe BOM
     let rawIngredients = Object.keys(pohaCrunchRecipePer500g);
-
     let rowsHtml = [];
+
     rawIngredients.forEach(item => {
         let boughtInfo = purchasedMap[item] || { total: 0, unit: pohaCrunchRecipePer500g[item].unit };
         let totalBought = boughtInfo.total;
@@ -619,8 +676,7 @@ function renderInventory() {
     tbody.innerHTML = rowsHtml.join('');
 }
 
-// --- Purchase Log Functions ---
-function addPurchase(e) {
+async function addPurchase(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
     
@@ -644,7 +700,7 @@ function addPurchase(e) {
         amt: document.getElementById('pur-amt').value
     };
     appData.purchases.push(pur);
-    saveData();
+    await saveData('purchases', pur);
     renderPurchases();
     document.getElementById('purchase-form').reset();
     document.getElementById('pur-date').value = todayStr;
@@ -706,13 +762,13 @@ function renderPurchases() {
     }).join('');
 }
 
-function deletePurchaseItem(index) {
+async function deletePurchaseItem(index) {
+    const purchaseToDelete = appData.purchases[index];
+    await deleteDataDoc('purchases', purchaseToDelete.firebaseId, index);
     appData.purchases.splice(index, 1);
-    saveData();
     renderPurchases();
 }
 
-// --- Backup & Export ---
 function exportJSON() {
     const todayStr = new Date().toISOString().split('T')[0];
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
@@ -794,3 +850,34 @@ function exportCSV(type) {
     link.click();
     link.remove();
 }
+
+window.switchTab = function(tabId, event) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+    
+    document.getElementById('page-title').innerText = event.currentTarget.innerText;
+
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+    }
+
+window.addPurchase = addPurchase;
+window.addSale = addSale;
+window.addBatch = addBatch;
+window.addSample = addSample;
+window.deletePurchaseItem = deletePurchaseItem;
+window.deleteSaleItem = deleteSaleItem;
+window.deleteBatchItem = deleteBatchItem;
+window.deleteSampleItem = deleteSampleItem;
+window.checkCustomItem = checkCustomItem;
+window.onProductChange = onProductChange;
+window.clearSalesFilters = clearSalesFilters;
+window.clearPurchaseFilters = clearPurchaseFilters;
+window.exportCSV = exportCSV;
+window.exportJSON = exportJSON;
+
+}
+

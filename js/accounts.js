@@ -1,3 +1,21 @@
+// Import Firebase SDKs
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+// Your Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCullX49Und6AmRgg8UL9hP1cLvQ-KVnEI",
+    authDomain: "kb-savouries.firebaseapp.com",
+    projectId: "kb-savouries",
+    storageBucket: "kb-savouries.firebasestorage.app",
+    messagingSenderId: "805966330754",
+    appId: "1:805966330754:web:22cf30e2499298e4456d9b"
+};
+
+// Initialize Firebase & Firestore
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
 const defaultChartOfAccounts = [
     { account: "Cash", subAccount: "Current Assets", type: "Assets", normal: "Debit", statement: "Balance Sheet" },
     { account: "Equity", subAccount: "Equity", type: "Equity", normal: "Credit", statement: "Balance Sheet" },
@@ -17,8 +35,8 @@ const defaultChartOfAccounts = [
     { account: "Travelling Exp", subAccount: "Expense", type: "Expense", normal: "Debit", statement: "Income Statement" }
 ];
 
-let chartOfAccounts = JSON.parse(localStorage.getItem('kb_chart_of_accounts')) || defaultChartOfAccounts;
-let accountsData = JSON.parse(localStorage.getItem('kb_accounting_data')) || { journal: [] };
+let chartOfAccounts = [...defaultChartOfAccounts];
+let accountsData = { journal: [] };
 
 function showModal(title, message, isConfirm = false, onConfirm = null) {
     const modal = document.getElementById('custom-modal');
@@ -26,6 +44,7 @@ function showModal(title, message, isConfirm = false, onConfirm = null) {
     const modalMsg = document.getElementById('modal-message');
     const btnPrimary = document.getElementById('modal-btn-primary');
     const btnCancel = document.getElementById('modal-btn-cancel');
+    if (!modal) return;
 
     modalTitle.innerText = title;
     modalMsg.innerText = message;
@@ -51,6 +70,7 @@ function showModal(title, message, isConfirm = false, onConfirm = null) {
 
 function closeModal() {
     const modal = document.getElementById('custom-modal');
+    if (!modal) return;
     modal.classList.remove('active');
     setTimeout(() => {
         modal.style.display = 'none';
@@ -59,6 +79,7 @@ function closeModal() {
 
 function updateFileName(input) {
     const fileNameSpan = document.getElementById('file-chosen-name');
+    if (!fileNameSpan) return;
     if (input.files && input.files[0]) {
         fileNameSpan.innerText = input.files[0].name;
         fileNameSpan.style.color = "var(--text-primary)";
@@ -89,44 +110,83 @@ function clearDateFilter(type) {
     }
 }
 
+// Load accounting data from Firestore cloud collections
+async function loadCloudAccountingData() {
+    try {
+        const coaSnapshot = await getDocs(collection(db, 'chart_of_accounts'));
+        if (!coaSnapshot.empty) {
+            chartOfAccounts = coaSnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        } else {
+            for (let ac of defaultChartOfAccounts) {
+                await addDoc(collection(db, 'chart_of_accounts'), ac);
+            }
+            const reloadedCoa = await getDocs(collection(db, 'chart_of_accounts'));
+            chartOfAccounts = reloadedCoa.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        }
+
+        const journalSnapshot = await getDocs(collection(db, 'journal_entries'));
+        accountsData.journal = journalSnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+
+        const localAccData = JSON.parse(localStorage.getItem('kb_accounting_data'));
+        if (accountsData.journal.length === 0 && localAccData && localAccData.journal && localAccData.journal.length > 0) {
+            for (let j of localAccData.journal) {
+                await addDoc(collection(db, 'journal_entries'), j);
+            }
+            const reloadedJournal = await getDocs(collection(db, 'journal_entries'));
+            accountsData.journal = reloadedJournal.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        }
+    } catch (err) {
+        console.error("Error loading cloud accounting data, falling back to local storage:", err);
+        chartOfAccounts = JSON.parse(localStorage.getItem('kb_chart_of_accounts')) || defaultChartOfAccounts;
+        accountsData = JSON.parse(localStorage.getItem('kb_accounting_data')) || { journal: [] };
+    }
+
+    refreshUI();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-IN', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
+    const currentDateEl = document.getElementById('current-date');
+    if (currentDateEl) {
+        currentDateEl.innerText = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+    }
 
     const todayStr = new Date().toISOString().split('T')[0];
     const dateEl = document.getElementById('j-date');
     if(dateEl) dateEl.value = todayStr;
 
-    populateAccountDropdowns();
-    renderChartOfAccounts();
-    renderJournal();
-    renderLedger();
-    renderTrialBalance();
-    renderIncomeStatement();
-    renderBalanceSheet();
+    loadCloudAccountingData().catch(err => {
+        console.error("Cloud initialization error:", err);
+        refreshUI();
+    });
 });
 
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.toggle('open');
 }
 
 function switchTab(tabId, event) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
     
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.classList.add('active');
     
-    document.getElementById('page-title').innerText = event.currentTarget.innerText;
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) pageTitle.innerText = event.currentTarget.innerText;
+    }
+
     if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.remove('open');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.remove('open');
     }
 }
 
-function saveAllData() {
-    localStorage.setItem('kb_chart_of_accounts', JSON.stringify(chartOfAccounts));
-    localStorage.setItem('kb_accounting_data', JSON.stringify(accountsData));
+function refreshUI() {
     populateAccountDropdowns();
     renderChartOfAccounts();
     renderJournal();
@@ -148,7 +208,7 @@ function populateAccountDropdowns() {
     lSelect.innerHTML = `<option value="ALL">-- All Transactions (Master Ledger) --</option>` + options;
 }
 
-function addNewAccount(e) {
+async function addNewAccount(e) {
     e.preventDefault();
     const newAcc = {
         account: document.getElementById('acc-name').value.trim(),
@@ -163,24 +223,37 @@ function addNewAccount(e) {
         return;
     }
 
-    chartOfAccounts.push(newAcc);
-    saveAllData();
-    document.getElementById('account-form').reset();
-    showModal('Success', 'New account head added successfully!');
+    try {
+        const docRef = await addDoc(collection(db, 'chart_of_accounts'), newAcc);
+        newAcc.firebaseId = docRef.id;
+        chartOfAccounts.push(newAcc);
+        refreshUI();
+        document.getElementById('account-form').reset();
+        showModal('Success', 'New account head added successfully!');
+    } catch (err) {
+        console.error("Error adding account head:", err);
+    }
 }
 
 function deleteAccountHead(index) {
-    const accName = chartOfAccounts[index].account;
-    const isUsed = accountsData.journal.some(j => j.account === accName);
+    const acc = chartOfAccounts[index];
+    const isUsed = accountsData.journal.some(j => j.account === acc.account);
 
     if (isUsed) {
-        showModal('Action Blocked', `Cannot delete "${accName}" because it has recorded transactions. Please delete those transaction entries first.`);
+        showModal('Action Blocked', `Cannot delete "${acc.account}" because it has recorded transactions. Please delete those transaction entries first.`);
         return;
     }
 
-    showModal('Confirm Deletion', `Are you sure you want to delete account head "${accName}"?`, true, () => {
-        chartOfAccounts.splice(index, 1);
-        saveAllData();
+    showModal('Confirm Deletion', `Are you sure you want to delete account head "${acc.account}"?`, true, async () => {
+        try {
+            if (acc.firebaseId) {
+                await deleteDoc(doc(db, 'chart_of_accounts', acc.firebaseId));
+            }
+            chartOfAccounts.splice(index, 1);
+            refreshUI();
+        } catch (err) {
+            console.error("Error deleting account head:", err);
+        }
     });
 }
 
@@ -200,7 +273,7 @@ function renderChartOfAccounts() {
     `).join('');
 }
 
-function addJournalEntry(e) {
+async function addJournalEntry(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
     const dateVal = document.getElementById('j-date').value;
@@ -208,7 +281,6 @@ function addJournalEntry(e) {
     const creditAcc = document.getElementById('j-credit-account').value;
     const amountVal = Number(document.getElementById('j-amount').value) || 0;
     const commentsVal = document.getElementById('j-comments').value;
-    const fileInput = document.getElementById('j-bill');
 
     if (debitAcc === creditAcc) {
         showModal('Invalid Entry', 'Debit and Credit accounts cannot be the same in a single transaction.');
@@ -217,59 +289,77 @@ function addJournalEntry(e) {
 
     const txnId = 'TXN-' + Date.now();
 
-    const processEntryWithFile = (fileDataUrl, fileName) => {
-        const debitEntry = {
-            id: txnId,
-            date: dateVal,
-            account: debitAcc,
-            type: 'Debit',
-            amount: amountVal,
-            comments: commentsVal,
-            billData: fileDataUrl || null,
-            billName: fileName || null
-        };
+    const debitEntry = {
+        id: txnId,
+        date: dateVal,
+        account: debitAcc,
+        type: 'Debit',
+        amount: amountVal,
+        comments: commentsVal,
+        billUrl: null,
+        billName: null
+    };
 
-        const creditEntry = {
-            id: txnId,
-            date: dateVal,
-            account: creditAcc,
-            type: 'Credit',
-            amount: amountVal,
-            comments: commentsVal,
-            billData: fileDataUrl || null,
-            billName: fileName || null
-        };
+    const creditEntry = {
+        id: txnId,
+        date: dateVal,
+        account: creditAcc,
+        type: 'Credit',
+        amount: amountVal,
+        comments: commentsVal,
+        billUrl: null,
+        billName: null
+    };
+
+    try {
+        const docRefDr = await addDoc(collection(db, 'journal_entries'), debitEntry);
+        debitEntry.firebaseId = docRefDr.id;
+
+        const docRefCr = await addDoc(collection(db, 'journal_entries'), creditEntry);
+        creditEntry.firebaseId = docRefCr.id;
 
         accountsData.journal.push(debitEntry);
         accountsData.journal.push(creditEntry);
 
-        saveAllData();
+        refreshUI();
         document.getElementById('journal-form').reset();
         document.getElementById('j-date').value = todayStr;
-        document.getElementById('file-chosen-name').innerText = "No file chosen";
-        document.getElementById('file-chosen-name').style.color = "var(--text-secondary)";
-        document.getElementById('file-chosen-name').style.fontWeight = "normal";
-    };
-
-    if (fileInput.files && fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function (uploadEvent) {
-            processEntryWithFile(uploadEvent.target.result, fileInput.files[0].name);
-        };
-        reader.readAsDataURL(fileInput.files[0]);
-    } else {
-        processEntryWithFile(null, null);
+        const fileNameSpan = document.getElementById('file-chosen-name');
+        if (fileNameSpan) {
+            fileNameSpan.innerText = "No file chosen";
+            fileNameSpan.style.color = "var(--text-secondary)";
+            fileNameSpan.style.fontWeight = "normal";
+        }
+    } catch (err) {
+        console.error("Error adding journal entry:", err);
     }
 }
 
-function deleteJournalItem(index) {
+async function deleteJournalItem(index) {
     const item = accountsData.journal[index];
-    if (item.id) {
-        accountsData.journal = accountsData.journal.filter(j => j.id !== item.id);
-    } else {
-        accountsData.journal.splice(index, 1);
-    }
-    saveAllData();
+    if (!item) return;
+
+    let entriesToDelete = item.id 
+        ? accountsData.journal.filter(j => j.id === item.id) 
+        : [item];
+
+    showModal('Confirm Deletion', `Are you sure you want to delete this transaction entry?`, true, async () => {
+        try {
+            for (let entry of entriesToDelete) {
+                if (entry.firebaseId) {
+                    await deleteDoc(doc(db, 'journal_entries', entry.firebaseId));
+                }
+            }
+            if (item.id) {
+                accountsData.journal = accountsData.journal.filter(j => j.id !== item.id);
+            } else {
+                accountsData.journal.splice(index, 1);
+            }
+            refreshUI();
+        } catch (err) {
+            console.error("Error deleting journal entry:", err);
+        }
+    });
 }
 
 function renderJournal() {
@@ -285,10 +375,10 @@ function renderJournal() {
         return true;
     });
 
-    tbody.innerHTML = filtered.map((j, index) => {
+    tbody.innerHTML = filtered.map((j) => {
         let debitVal = j.type === 'Debit' ? `₹${j.amount.toFixed(2)}` : '';
         let creditVal = j.type === 'Credit' ? `₹${j.amount.toFixed(2)}` : '';
-        let billLink = j.billData ? `<a href="${j.billData}" target="_blank" style="color:var(--text-primary); font-weight:600; text-decoration:underline;">View Bill</a>` : '<span style="color:var(--text-secondary);">-</span>';
+        let billLink = j.billUrl ? `<a href="${j.billUrl}" target="_blank" style="color:var(--text-primary); font-weight:600; text-decoration:underline;">View Bill</a>` : '<span style="color:var(--text-secondary);">-</span>';
         
         let actualIndex = accountsData.journal.indexOf(j);
         return `
@@ -345,7 +435,7 @@ function renderLedger() {
     
     let totalDr = entries.filter(j => j.type === 'Debit').reduce((sum, j) => sum + j.amount, 0);
     let totalCr = entries.filter(j => j.type === 'Credit').reduce((sum, j) => sum + j.amount, 0);
-    closingEl.innerText = `Total Dr: ₹${totalDr.toFixed(2)} | Total Cr: ₹${totalCr.toFixed(2)}`;
+    if (closingEl) closingEl.innerText = `Total Dr: ₹${totalDr.toFixed(2)} | Total Cr: ₹${totalCr.toFixed(2)}`;
 }
 
 function renderTrialBalance() {
@@ -399,8 +489,10 @@ function renderTrialBalance() {
     tbody.innerHTML = rows.join('');
     
     let isBalanced = Math.abs(totalDrAll - totalCrAll) < 0.01;
-    statusEl.innerText = isBalanced ? "Balanced ✅" : "Out of Balance ⚠️";
-    statusEl.style.color = isBalanced ? "var(--success)" : "var(--danger)";
+    if (statusEl) {
+        statusEl.innerText = isBalanced ? "Balanced ✅" : "Out of Balance ⚠️";
+        statusEl.style.color = isBalanced ? "var(--success)" : "var(--danger)";
+    }
 }
 
 function getFilteredJournalForPeriod(fromDate, toDate) {
@@ -469,8 +561,10 @@ function renderIncomeStatement() {
     expBody.innerHTML = expHtml.length ? expHtml.join('') : `<tr><td colspan="2" style="text-align:center; color:var(--text-secondary);">No expenses recorded for this period</td></tr>`;
 
     let netProfit = totRev - totExp;
-    netProfitEl.innerText = `₹${netProfit.toFixed(2)}`;
-    netProfitEl.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+    if (netProfitEl) {
+        netProfitEl.innerText = `₹${netProfit.toFixed(2)}`;
+        netProfitEl.style.color = netProfit >= 0 ? "var(--success)" : "var(--danger)";
+    }
 }
 
 function renderBalanceSheet() {
@@ -480,7 +574,6 @@ function renderBalanceSheet() {
     if (!assetBody || !liabEquityBody) return;
 
     const toDate = document.getElementById('balance-to-date').value;
-    // Balance Sheet is cumulative up to the 'To' date
     let cumulativeEntries = getFilteredJournalForPeriod('', toDate);
 
     let assetRows = [];
@@ -515,8 +608,10 @@ function renderBalanceSheet() {
     liabEquityBody.innerHTML = liabEquityRows.length ? liabEquityRows.join('') : `<tr><td colspan="3" style="text-align:center; color:var(--text-secondary);">No liability/equity accounts with balance</td></tr>`;
 
     let isBalanced = Math.abs(totalAssets - totalLiabEquity) < 0.01;
-    bsStatus.innerText = isBalanced ? "Balanced ✅" : "Out of Balance ⚠️";
-    bsStatus.style.color = isBalanced ? "var(--success)" : "var(--danger)";
+    if (bsStatus) {
+        bsStatus.innerText = isBalanced ? "Balanced ✅" : "Out of Balance ⚠️";
+        bsStatus.style.color = isBalanced ? "var(--success)" : "var(--danger)";
+    }
 }
 
 function exportCSV(type) {
@@ -611,3 +706,14 @@ function exportCSV(type) {
     a.setAttribute('download', filename);
     a.click();
 }
+
+// Expose all necessary functions to global window object for ES module compatibility
+window.switchTab = switchTab;
+window.toggleSidebar = toggleSidebar;
+window.addNewAccount = addNewAccount;
+window.deleteAccountHead = deleteAccountHead;
+window.addJournalEntry = addJournalEntry;
+window.deleteJournalItem = deleteJournalItem;
+window.clearDateFilter = clearDateFilter;
+window.updateFileName = updateFileName;
+window.exportCSV = exportCSV;
