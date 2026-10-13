@@ -446,8 +446,7 @@ body {
   background: #FFFFFF;
   border: 2px solid #FED7AA;
   border-radius: 20px;
-  padding: 3rem 2.5rem;
-  position: relative;
+  padding: 2.5rem 2.25rem 2.25rem 2.25rem;
   box-shadow: 0 20px 40px rgba(234, 88, 12, 0.06);
   transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
   display: flex;
@@ -461,10 +460,26 @@ body {
   border-color: var(--accent-orange);
 }
 
+/* Flexbox Header Container for Mobile Alignment */
+.snack-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+.snack-card-top h3 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
 .snack-badge {
-  position: absolute;
-  top: 1.75rem;
-  right: 1.75rem;
+  position: static;
+  flex-shrink: 0;
   background-color: var(--vegan-green);
   color: #FFFFFF;
   font-size: 0.7rem;
@@ -474,14 +489,7 @@ body {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
-}
-
-.snack-info h3 {
-  font-size: 1.65rem;
-  font-weight: 800;
-  color: var(--text-dark);
-  margin-bottom: 0.3rem;
-  letter-spacing: -0.5px;
+  display: inline-block;
 }
 
 .snack-weight {
