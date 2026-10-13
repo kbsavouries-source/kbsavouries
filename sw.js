@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kb-savouries-v14';
+const CACHE_NAME = 'kb-savouries-v15';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -21,7 +21,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate Event — Clean up old caches
+// Activate Event — Clean up old caches immediately and claim clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -37,11 +37,24 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-// Fetch Event — Serve from cache, fallback to network
+// Fetch Event — Network-first strategy with cache fallback
+// This ensures you always get fresh updates immediately while keeping offline support.
 self.addEventListener('fetch', (event) => {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request);
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        // If fetch is successful, clone it and update the cache in the background
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        });
+      })
+      .catch(() => {
+        // If offline or network fails, fallback to the cached response
+        return caches.match(event.request);
+      })
   );
 });
