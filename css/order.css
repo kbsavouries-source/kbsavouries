@@ -1,14 +1,19 @@
 /* ==========================================================================
-   Vibrant Gourmet D2C Theme (Order Page)
+   Vibrant Gourmet D2C Theme with Full Glassmorphism (Order Page)
    Brand: KB Savouries
    ========================================================================== */
 
 :root {
   --bg-vibrant: #FFF7ED;
-  --card-dark: #0F172A;
   --accent-orange: #EA580C;
   --accent-amber: #F59E0B;
-  --border-subtle: #FED7AA;
+  
+  /* Glassmorphism Token Palette */
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-hover: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+
   --text-dark: #0F172A;
   --text-light: #F8FAFC;
   --text-muted: #475569;
@@ -29,13 +34,28 @@ html {
 }
 
 body {
-  background: linear-gradient(135deg, #FFFBEB 0%, #FFF1F2 50%, #FEF3C7 100%);
-  background-attachment: fixed;
+  background: url('../Assets/bg.png') no-repeat center center fixed;
+  background-size: cover;
+  background-color: var(--bg-vibrant);
   color: var(--text-dark);
   font-family: var(--font-family);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  position: relative;
+}
+
+/* Warm tint overlay for readability over background image */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.45) 0%, rgba(254, 243, 199, 0.55) 100%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .container {
@@ -58,7 +78,7 @@ body {
 }
 
 /* ==========================================================================
-   Navbar
+   Frosted Glass Navbar
    ========================================================================== */
 
 .navbar {
@@ -66,13 +86,14 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 3rem;
-  background-color: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 2px solid #FED7AA;
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
@@ -182,11 +203,13 @@ body {
 .pricing-table-wrapper {
   max-width: 900px;
   margin: 0 auto;
-  border: 2px solid #FED7AA;
+  border: 1.5px solid var(--glass-border);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(234, 88, 12, 0.06);
-  background-color: #FFFFFF;
+  box-shadow: var(--glass-shadow);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .pricing-table {
@@ -196,7 +219,7 @@ body {
 }
 
 .pricing-table thead tr {
-  background-color: var(--card-dark);
+  background-color: rgba(15, 23, 42, 0.85);
   color: #FFFFFF;
 }
 
@@ -206,12 +229,12 @@ body {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
 }
 
 .pricing-row {
-  border-bottom: 1px solid #FED7AA;
+  border-bottom: 1px solid var(--glass-border);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
@@ -221,7 +244,7 @@ body {
 }
 
 .pricing-row:hover {
-  background-color: #FFFBEB;
+  background-color: var(--glass-bg-hover);
   transform: scale(1.008);
   box-shadow: 0 4px 18px rgba(234, 88, 12, 0.08);
 }
@@ -242,18 +265,18 @@ body {
   height: 40px;
   line-height: 40px;
   text-align: center;
-  background-color: #FFF7ED;
+  background-color: rgba(255, 255, 255, 0.7);
   border: 2px solid var(--accent-orange);
   color: var(--accent-orange);
   border-radius: 10px;
 }
 
 .highlight-row {
-  background-color: #FEF3C7;
+  background-color: rgba(254, 243, 199, 0.5);
 }
 
 .highlight-row:hover {
-  background-color: #FDE68A;
+  background-color: rgba(253, 230, 138, 0.7);
 }
 
 .badge-popular {
@@ -291,11 +314,13 @@ body {
 .order-card {
   max-width: 900px;
   margin: 0 auto;
-  background-color: #FFFFFF;
-  border: 2px solid #FED7AA;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--glass-border);
   border-radius: 20px;
   padding: 3rem;
-  box-shadow: 0 20px 40px rgba(234, 88, 12, 0.06);
+  box-shadow: var(--glass-shadow);
 }
 
 .order-card-header {
@@ -347,9 +372,9 @@ body {
   padding: 1rem 1.25rem;
   font-size: 1rem;
   font-family: var(--font-family);
-  border: 2px solid #E2E8F0;
+  border: 1.5px solid var(--glass-border);
   border-radius: 12px;
-  background-color: #F8FAFC;
+  background-color: rgba(255, 255, 255, 0.7);
   color: var(--text-dark);
   transition: all 0.25s ease;
 }
@@ -384,13 +409,13 @@ body {
 }
 
 /* ==========================================================================
-   Order Summary / Receipt Card Styling
+   Order Summary / Receipt Card & UPI Payment Styling
    ========================================================================== */
 
 .summary-container {
   margin-top: 3rem;
   padding-top: 3rem;
-  border-top: 2px dashed #FED7AA;
+  border-top: 1.5px solid var(--glass-border);
   animation: fadeIn 0.5s ease forwards;
 }
 
@@ -409,11 +434,13 @@ body {
 .receipt-card {
   max-width: 600px;
   margin: 0 auto;
-  background-color: #FFFBEB;
-  border: 2px solid #FED7AA;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid var(--glass-border);
   border-radius: 16px;
   padding: 2rem 2.5rem;
-  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--glass-shadow);
 }
 
 .receipt-row {
@@ -421,7 +448,7 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   padding: 1rem 0;
-  border-bottom: 1px dashed #FED7AA;
+  border-bottom: 1px solid var(--glass-border);
   font-size: 1rem;
 }
 
@@ -452,10 +479,10 @@ body {
 }
 
 .receipt-divider {
-  height: 2px;
-  background-color: var(--accent-orange);
-  margin: 1.5rem 0;
-  border-radius: 1px;
+  height: 0;
+  border: none;
+  border-top: 2px solid rgba(234, 88, 12, 0.3);
+  margin: 1.75rem 0;
 }
 
 .receipt-breakdown {
@@ -480,7 +507,7 @@ body {
 .breakdown-item.total-row {
   margin-top: 0.75rem;
   padding-top: 1rem;
-  border-top: 2px dashed var(--accent-orange);
+  border-top: 2px solid rgba(234, 88, 12, 0.3);
   font-size: 1.25rem;
   font-weight: 800;
   color: var(--text-dark);
@@ -496,10 +523,12 @@ body {
 .whatsapp-instruction-box {
   margin-top: 2rem;
   text-align: left;
-  background-color: #F8FAFC;
-  border: 2px solid #E2E8F0;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  border: 1.5px solid var(--glass-border);
   border-radius: 16px;
   padding: 2rem;
+  box-shadow: var(--glass-shadow);
 }
 
 .instruction-title {
@@ -569,7 +598,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(15, 23, 42, 0.8);
+  background-color: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
@@ -587,8 +616,9 @@ body {
 }
 
 .modal-card {
-  background-color: var(--card-dark);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   width: 90%;
   max-width: 440px;
@@ -667,13 +697,15 @@ body {
 }
 
 /* ==========================================================================
-   Vibrant Dark Footer
+   Frosted Glass Footer Container
    ========================================================================== */
 
 .footer {
-  border-top: 3px solid #1E293B;
+  border-top: 1px solid var(--glass-border);
   padding: 5rem 0;
-  background-color: #0F172A;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   color: #F8FAFC;
 }
 

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Vibrant Gourmet D2C Theme (Bold, Modern & High-End Snack Aesthetic)
+   Vibrant Gourmet D2C Theme with Background Artwork & Full Glassmorphism
    Brand: KB Savouries
    ========================================================================== */
 
@@ -10,6 +10,13 @@
   --accent-amber: #F59E0B;  /* Vibrant golden amber */
   --accent-coral: #FB7185;  /* Playful modern pop color */
   --border-subtle: #FED7AA;
+  
+  /* Glassmorphism Token Palette */
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-hover: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+
   --text-dark: #0F172A;
   --text-light: #F8FAFC;
   --text-muted: #475569;
@@ -29,13 +36,28 @@ html {
 }
 
 body {
-  background: linear-gradient(135deg, #FFFBEB 0%, #FFF1F2 50%, #FEF3C7 100%);
-  background-attachment: fixed;
+  background: url('Assets/bg.png') no-repeat center center fixed;
+  background-size: cover;
+  background-color: var(--bg-vibrant);
   color: var(--text-dark);
   font-family: var(--font-family);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  position: relative;
+}
+
+/* Warm appetizing background gradient overlay for readability over bg.png */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.45) 0%, rgba(254, 243, 199, 0.55) 100%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .container {
@@ -56,7 +78,7 @@ body {
 }
 
 /* ==========================================================================
-   Bold Navbar
+   Frosted Glass Navbar
    ========================================================================== */
 
 .navbar {
@@ -64,13 +86,14 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 3rem;
-  background-color: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 2px solid #FED7AA;
+  border-bottom: 1.5px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
@@ -256,7 +279,7 @@ body {
 
 .recipes-section {
   padding: 6rem 0;
-  border-top: 2px solid #FED7AA;
+  border-top: 1.5px solid var(--glass-border);
 }
 
 .carousel-container {
@@ -426,12 +449,12 @@ body {
 .next-btn { right: 0; }
 
 /* ==========================================================================
-   Featured Snack Showcase (Graze Style Vibrant Cards)
+   Featured Snack Showcase (Frosted Glass Cards)
    ========================================================================== */
 
 .snacks-showcase-section {
   padding: 6rem 0;
-  border-top: 2px solid #FED7AA;
+  border-top: 1.5px solid var(--glass-border);
 }
 
 .snack-cards-grid {
@@ -443,12 +466,14 @@ body {
 }
 
 .snack-card {
-  background: #FFFFFF;
-  border: 2px solid #FED7AA;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--glass-border);
   border-radius: 20px;
   padding: 2.5rem 2.25rem 2.25rem 2.25rem;
-  box-shadow: 0 20px 40px rgba(234, 88, 12, 0.06);
-  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -456,6 +481,7 @@ body {
 
 .snack-card:hover {
   transform: translateY(-8px);
+  background: var(--glass-bg-hover);
   box-shadow: 0 30px 60px rgba(234, 88, 12, 0.15);
   border-color: var(--accent-orange);
 }
@@ -512,7 +538,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 2px solid #FEF3C7;
+  border-top: 1.5px solid var(--glass-border);
   padding-top: 1.5rem;
 }
 
@@ -535,13 +561,15 @@ body {
 }
 
 /* ==========================================================================
-   Vibrant Dark Footer
+   Frosted Glass Dark Footer
    ========================================================================== */
 
 .footer {
-  border-top: 3px solid #1E293B;
+  border-top: 1px solid var(--glass-border);
   padding: 5rem 0;
-  background-color: #0F172A;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   color: #F8FAFC;
 }
 
