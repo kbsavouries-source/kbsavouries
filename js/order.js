@@ -53,6 +53,34 @@ function closeModal() {
   }
 }
 
+// Copy UPI ID to Clipboard Handler
+function copyUpi(upiText, btnElement) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(upiText);
+  } else {
+    // Fallback for non-HTTPS or older environments
+    const textArea = document.createElement("textarea");
+    textArea.value = upiText;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+  }
+
+  // Visual Feedback (Change icon to checkmark temporarily)
+  if (btnElement) {
+    const originalHTML = btnElement.innerHTML;
+    btnElement.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    `;
+    setTimeout(() => {
+      btnElement.innerHTML = originalHTML;
+    }, 1800);
+  }
+}
+
 // Calculate and generate order receipt with delivery charge and minimum order validation
 function handleFormSubmit(event) {
   event.preventDefault();
@@ -102,7 +130,7 @@ function handleFormSubmit(event) {
   document.getElementById('summary-grand-total').textContent = `₹${grandTotal}`;
 
   // Dynamically update WhatsApp button pre-filled text
-  const whatsappMsg = `Hi! I placed an order on KB Savouries:\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Order:* Size ${sizeLetter} (${pouchQty}) x ${quantity}\n*Items Subtotal:* ₹${itemsTotal}\n*Delivery Charge:* ₹${deliveryCharge}\n*Grand Total:* ₹${grandTotal}\n*Address:* ${address}\n\nHere are my Order Summary and UPI Payment screenshots:`;
+  const whatsappMsg = `Hi! I placed an order on KB Savouries:\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Order:* Size ${sizeLetter} (${pouchQty}) x ${quantity}\n*Items Subtotal:* ₹${itemsTotal}\n*Delivery Charge:* ₹${deliveryCharge}\n*Grand Total:* ₹${grandTotal}\n*Address:* ${address}\n\nI am paying via UPI (kbsavouries@upi / kbsavouries@cnrb). Here are my Order Summary and UPI Payment screenshots:`;
   const whatsappBtn = document.getElementById('whatsapp-link');
   if (whatsappBtn) {
     whatsappBtn.href = `https://wa.me/919884049021?text=${encodeURIComponent(whatsappMsg)}`;

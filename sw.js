@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kb-savouries-v15';
+const CACHE_NAME = 'kb-savouries-v18';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,7 +8,9 @@ const ASSETS_TO_CACHE = [
   './css/order.css',
   './js/order.js',
   './Assets/logo.png',
-  './Assets/bg.png'
+  './Assets/bg.png',
+  './Assets/crunch sfx.wav',
+  './Assets/payment-qr.jpeg'
 ];
 
 // Install Event — Caches core assets
@@ -38,7 +40,6 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch Event — Network-first strategy with cache fallback
-// This ensures you always get fresh updates immediately while keeping offline support.
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
@@ -46,14 +47,12 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // If fetch is successful, clone it and update the cache in the background
         return caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, networkResponse.clone());
           return networkResponse;
         });
       })
       .catch(() => {
-        // If offline or network fails, fallback to the cached response
         return caches.match(event.request);
       })
   );
