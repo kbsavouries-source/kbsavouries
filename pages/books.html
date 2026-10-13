@@ -36,6 +36,7 @@
         </div>
         <ul class="nav-links">
             <li class="active" onclick="switchTab('dashboard', event)">Dashboard</li>
+            <li onclick="switchTab('skus', event)">SKU Catalog</li>
             <li onclick="switchTab('sales', event)">Sales Register</li>
             <li onclick="switchTab('batches', event)">Batch Log</li>
             <li onclick="switchTab('samples', event)">Samples & Marketing</li>
@@ -82,10 +83,88 @@
                 </div>
             </div>
 
+            <!-- SKU CATALOG TAB -->
+            <div id="skus" class="tab-content">
+                <div class="card">
+                    <h2 id="sku-form-title">Create New SKU (Raw Material or Finished Inventory)</h2>
+                    <form id="sku-form" onsubmit="addSKU(event)">
+                        <input type="hidden" id="sku-edit-index" value="">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="sku-name">SKU Name</label>
+                                <input type="text" id="sku-name" placeholder="e.g. Masala Balls - 10 pcs or Poha Crunch - 250g" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sku-type">SKU Classification</label>
+                                <select id="sku-type" onchange="onSKUTypeChange(this)">
+                                    <option value="Finished Inventory" selected>Finished Inventory</option>
+                                    <option value="Raw Material">Raw Material</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="sku-grams-group">
+                                <label for="sku-grams">Base Equivalent Weight in Grams (Per Unit)</label>
+                                <input type="number" id="sku-grams" placeholder="e.g. 100" min="1" value="100">
+                            </div>
+                            <div class="form-group" id="sku-price-group">
+                                <label for="sku-price">Standard Selling Price (₹)</label>
+                                <input type="number" id="sku-price" placeholder="e.g. 50" min="0" value="50">
+                            </div>
+                            <div class="form-group" id="sku-measure-group">
+                                <label for="sku-measure">Sales Unit Type</label>
+                                <select id="sku-measure">
+                                    <option value="Pkts" selected>Packets / Pkts</option>
+                                    <option value="Pieces">Pieces / Pcs</option>
+                                    <option value="Boxes">Boxes</option>
+                                    <option value="Units">Units</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="sku-unit-group" style="display: none;">
+                                <label for="sku-unit">Preferred Base Unit</label>
+                                <select id="sku-unit">
+                                    <option value="Kg" selected>Kg</option>
+                                    <option value="Gms">Gms</option>
+                                    <option value="Ltrs">Ltrs</option>
+                                    <option value="ML">ML</option>
+                                    <option value="Pkts">Pkts</option>
+                                    <option value="Units">Units</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="display: flex; gap: 12px;">
+                            <button type="submit" id="sku-submit-btn" class="btn-primary">Register SKU</button>
+                            <button type="button" id="sku-cancel-btn" class="btn-outline" style="display: none;" onclick="cancelSKUEdit()">Cancel Edit</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <h2>Active SKU Master Directory</h2>
+                        <button type="button" class="btn-outline" onclick="exportCSV('skus')">Export SKUs CSV</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>SKU Name</th>
+                                    <th>Classification</th>
+                                    <th>Details / Specs</th>
+                                    <th>Price / Unit</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sku-table-body">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- SALES REGISTER TAB -->
             <div id="sales" class="tab-content">
                 <div class="card sale-form-card">
-                    <h2 class="card-title">Record New Sale</h2>
+                    <h2 class="card-title">Record New Sale (Retail or Custom Bulk Order)</h2>
                     <form id="sales-form" onsubmit="addSale(event)">
                         <div class="spacious-form-grid">
                             <div class="form-group">
@@ -97,13 +176,9 @@
                                 <input type="text" id="sale-customer" placeholder="e.g. Arjun" required>
                             </div>
                             <div class="form-group">
-                                <label for="sale-product">Product & Size</label>
+                                <label for="sale-product">Product / SKU</label>
                                 <select id="sale-product" onchange="onProductChange()">
-                                    <option value="Poha Crunch - 30g">Poha Crunch - 30g</option>
-                                    <option value="Poha Crunch - 50g" selected>Poha Crunch - 50g</option>
-                                    <option value="Poha Crunch - 250g">Poha Crunch - 250g</option>
-                                    <option value="Poha Crunch - 500g">Poha Crunch - 500g</option>
-                                    <option value="Poha Crunch - 1 Kg">Poha Crunch - 1 Kg</option>
+                                    <!-- Populated dynamically from finished SKUs -->
                                 </select>
                             </div>
                             <div class="form-group">
@@ -113,12 +188,29 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="sale-qty">Quantity (Pkts)</label>
-                                <input type="number" id="sale-qty" value="1" min="1" required>
+                                <label for="sale-mode">Sale Mode</label>
+                                <select id="sale-mode" onchange="onSaleModeChange(this)">
+                                    <option value="Packets" selected>Packets / Units</option>
+                                    <option value="BulkWeight">Bulk Weight (Custom Order / Kg)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="sale-qty-group">
+                                <label for="sale-qty" id="sale-qty-label">Quantity (Units)</label>
+                                <input type="number" id="sale-qty" value="1" min="1" oninput="updateProductPrice()">
+                            </div>
+                            <div class="form-group" id="sale-bulk-group" style="display: none;">
+                                <label for="sale-bulk-qty">Bulk Quantity</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="number" id="sale-bulk-qty" value="1" step="0.1" min="0.1" oninput="updateProductPrice()">
+                                    <select id="sale-bulk-unit" style="width: 100px;" onchange="updateProductPrice()">
+                                        <option value="Kg" selected>Kg</option>
+                                        <option value="Gms">Gms</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="sale-price">Unit Price (₹)</label>
-                                <input type="number" id="sale-price" value="25" required>
+                                <label for="sale-price">Total Price (₹)</label>
+                                <input type="number" id="sale-price" required>
                             </div>
                             <div class="form-group">
                                 <label for="sale-pay">Payment Method</label>
@@ -161,7 +253,7 @@
                                     <th>Customer</th>
                                     <th>Product</th>
                                     <th>Batch Code</th>
-                                    <th>Qty</th>
+                                    <th>Qty Sold</th>
                                     <th>Total (₹)</th>
                                     <th>Method</th>
                                     <th>Action</th>
@@ -178,7 +270,7 @@
             <!-- BATCH LOG TAB -->
             <div id="batches" class="tab-content">
                 <div class="card">
-                    <h2>New Production Batch</h2>
+                    <h2>New Production Batch (Bulk Pool)</h2>
                     <form id="batch-form" onsubmit="addBatch(event)">
                         <div class="form-grid">
                             <div class="form-group">
@@ -187,8 +279,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="batch-product">Product Line</label>
-                                <select id="batch-product">
-                                    <option value="Poha Crunch" selected>Poha Crunch</option>
+                                <select id="batch-product" onchange="onBatchProductChange()">
+                                    <!-- Populated dynamically from finished SKUs -->
                                 </select>
                             </div>
                             <div class="form-group">
@@ -200,13 +292,13 @@
                             </div>
                             <div class="form-group">
                                 <label for="batch-weight">Batch Weight Output</label>
-                                <input type="number" id="batch-weight" placeholder="e.g. 500" min="1" step="1" required>
+                                <input type="number" id="batch-weight" placeholder="e.g. 5000 for 5Kg" min="1" step="1" required>
                             </div>
                             <div class="form-group">
                                 <label for="batch-unit">Unit</label>
                                 <select id="batch-unit">
-                                    <option value="Gms" selected>Grams (gms)</option>
                                     <option value="Kg">Kilograms (Kg)</option>
+                                    <option value="Gms" selected>Grams (gms)</option>
                                 </select>
                             </div>
                         </div>
@@ -365,27 +457,9 @@
                             </div>
                             <div class="form-group">
                                 <label for="pur-item">Item Name</label>
-                                <select id="pur-item" onchange="checkCustomItem(this)" required>
-                                    <option value="Poha" selected>Poha</option>
-                                    <option value="Peanut">Peanut</option>
-                                    <option value="Roasted Channa">Roasted Channa</option>
-                                    <option value="Rice Bran Oil">Rice Bran Oil</option>
-                                    <option value="Curry Leaves">Curry Leaves</option>
-                                    <option value="Turmeric">Turmeric</option>
-                                    <option value="Chilli Powder">Chilli Powder</option>
-                                    <option value="Salt">Salt</option>
-                                    <option value="Aluminium Pouch (Small)">Aluminium Pouch (Small)</option>
-                                    <option value="Aluminium Pouch (Medium)">Aluminium Pouch (Medium)</option>
-                                    <option value="Aluminium Pouch (Large)">Aluminium Pouch (Large)</option>
-                                    <option value="Tissue Paper">Tissue Paper</option>
-                                    <option value="Sticker">Sticker</option>
-                                    <option value="LPG Gas Cylinder">LPG Gas Cylinder</option>
-                                    <option value="-- ADD NEW ITEM --" style="font-weight: bold; color: var(--accent-primary);">+ Add New Custom Item...</option>
+                                <select id="pur-item" required>
+                                    <!-- Populated dynamically from raw material SKUs -->
                                 </select>
-                            </div>
-                            <div class="form-group" id="custom-item-wrapper" style="display: none;">
-                                <label for="pur-custom-item">Enter New Item Name</label>
-                                <input type="text" id="pur-custom-item" placeholder="e.g. Cardamom">
                             </div>
                             <div class="form-group">
                                 <label for="pur-qty">Qty Bought</label>

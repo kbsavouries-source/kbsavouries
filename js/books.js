@@ -1,6 +1,6 @@
 // Import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -17,23 +17,32 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 let appData = {
+    skus: [],
     sales: [],
     batches: [],
     purchases: [],
     samples: []
 };
 
-// Standard product prices and unit weight mapping in grams
-const productConfig = {
-    "Poha Crunch - 30g": { price: 15, grams: 30, line: "Poha Crunch" },
-    "Poha Crunch - 50g": { price: 25, grams: 50, line: "Poha Crunch" },
-    "Poha Crunch - 250g": { price: 110, grams: 250, line: "Poha Crunch" },
-    "Poha Crunch - 500g": { price: 210, grams: 500, line: "Poha Crunch" },
-    "Poha Crunch - 1 Kg": { price: 400, grams: 1000, line: "Poha Crunch" }
-};
+// Default initial SKUs seeded if collection is empty
+const defaultSKUs = [
+    { name: "Poha Crunch - 30g", type: "Finished Inventory", grams: 30, price: 15, measure: "Pkts", unit: "Pkts" },
+    { name: "Poha Crunch - 50g", type: "Finished Inventory", grams: 50, price: 25, measure: "Pkts", unit: "Pkts" },
+    { name: "Poha Crunch - 250g", type: "Finished Inventory", grams: 250, price: 110, measure: "Pkts", unit: "Pkts" },
+    { name: "Poha Crunch - 500g", type: "Finished Inventory", grams: 500, price: 210, measure: "Pkts", unit: "Pkts" },
+    { name: "Poha Crunch - 1 Kg", type: "Finished Inventory", grams: 1000, price: 400, measure: "Pkts", unit: "Pkts" },
+    { name: "Poha", type: "Raw Material", grams: 0, price: 0, unit: "Kg" },
+    { name: "Peanut", type: "Raw Material", grams: 0, price: 0, unit: "Kg" },
+    { name: "Roasted Channa", type: "Raw Material", grams: 0, price: 0, unit: "Kg" },
+    { name: "Rice Bran Oil", type: "Raw Material", grams: 0, price: 0, unit: "Ltrs" },
+    { name: "Curry Leaves", type: "Raw Material", grams: 0, price: 0, unit: "Gms" },
+    { name: "Turmeric", type: "Raw Material", grams: 0, price: 0, unit: "Gms" },
+    { name: "Chilli Powder", type: "Raw Material", grams: 0, price: 0, unit: "Gms" },
+    { name: "Salt", type: "Raw Material", grams: 0, price: 0, unit: "Kg" }
+];
 
-// Recipe BOM proportions per 500g of finished Poha Crunch inventory (Raw Ingredients Only)
-const pohaCrunchRecipePer500g = {
+// Universal Recipe BOM proportions per 500g output (extensible for any product line)
+const defaultRecipePer500g = {
     "Poha": { qty: 250, unit: "gms", category: "Raw Food Ingredient" },
     "Peanut": { qty: 63, unit: "gms", category: "Raw Food Ingredient" },
     "Roasted Channa": { qty: 63, unit: "gms", category: "Raw Food Ingredient" },
@@ -112,47 +121,30 @@ window.verifyPasscode = function(e) {
     }
 }
 
-// Load data from Firestore cloud collections
 async function loadCloudData() {
     try {
-        const collections = ['sales', 'batches', 'purchases', 'samples'];
+        const collections = ['skus', 'sales', 'batches', 'purchases', 'samples'];
         for (const colName of collections) {
             const querySnapshot = await getDocs(collection(db, colName));
             appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
         }
 
-        // Migration fallback: If cloud is empty and localStorage has data, migrate it once
-        const localData = JSON.parse(localStorage.getItem('kb_savouries_data'));
-        if (localData && appData.sales.length === 0 && appData.batches.length === 0) {
-            if (localData.sales) {
-                for (let s of localData.sales) await addDoc(collection(db, 'sales'), s);
-            }
-            if (localData.batches) {
-                for (let b of localData.batches) await addDoc(collection(db, 'batches'), b);
-            }
-            if (localData.purchases) {
-                for (let p of localData.purchases) await addDoc(collection(db, 'purchases'), p);
-            }
-            if (localData.samples) {
-                for (let sm of localData.samples) await addDoc(collection(db, 'samples'), sm);
-            }
-            // Reload cloud data after migration
-            for (const colName of collections) {
-                const querySnapshot = await getDocs(collection(db, colName));
-                appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        if (appData.skus.length === 0) {
+            for (let sku of defaultSKUs) {
+                const docRef = await addDoc(collection(db, 'skus'), sku);
+                sku.firebaseId = docRef.id;
+                appData.skus.push(sku);
             }
         }
     } catch (err) {
-        console.error("Error loading cloud data, falling back to local storage:", err);
-        appData = JSON.parse(localStorage.getItem('kb_savouries_data')) || { sales: [], batches: [], purchases: [], samples: [] };
+        console.error("Error loading cloud data:", err);
+        appData = JSON.parse(localStorage.getItem('kb_savouries_data')) || { skus: defaultSKUs, sales: [], batches: [], purchases: [], samples: [] };
     }
 
     if (!appData.samples) appData.samples = [];
 
-    onProductChange();
-    populateSampleBatchOptions();
-    updatePurchaseDropdownOptions();
-
+    refreshDynamicDropdowns();
+    renderSKUs();
     renderSales();
     renderBatches();
     renderPurchases();
@@ -186,6 +178,15 @@ function toggleSidebar() {
 }
 
 function switchTab(tabId, event) {
+    const finishedSKUs = appData.skus.filter(s => s.type === 'Finished Inventory');
+    const rawSKUs = appData.skus.filter(s => s.type === 'Raw Material');
+
+    if (tabId !== 'dashboard' && tabId !== 'skus' && (finishedSKUs.length === 0 || rawSKUs.length === 0)) {
+        alert("Please create at least one 'Finished Inventory' SKU and one 'Raw Material' SKU in the SKU Catalog before accessing operations.");
+        switchTab('skus', { currentTarget: document.querySelector('.nav-links li:nth-child(2)') });
+        return;
+    }
+
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
     
@@ -208,10 +209,10 @@ async function saveData(collectionName, dataObj) {
     }
     updateDashboard();
     renderInventory();
-    updatePurchaseDropdownOptions();
+    refreshDynamicDropdowns();
 }
 
-async function deleteDataDoc(collectionName, firebaseId, localIndex) {
+async function deleteDataDoc(collectionName, firebaseId) {
     try {
         if (firebaseId) {
             await deleteDoc(doc(db, collectionName, firebaseId));
@@ -230,59 +231,279 @@ function updateDashboard() {
     document.getElementById('stat-batches').innerText = activeBatches;
 }
 
-function checkCustomItem(selectEl) {
-    const customWrapper = document.getElementById('custom-item-wrapper');
-    const customInput = document.getElementById('pur-custom-item');
-    if (selectEl.value === "-- ADD NEW ITEM --") {
-        customWrapper.style.display = 'block';
-        customInput.required = true;
-        customInput.focus();
+// --- SKU Management Functions ---
+function onSKUTypeChange(selectEl) {
+    const type = selectEl.value;
+    const gramsGroup = document.getElementById('sku-grams-group');
+    const priceGroup = document.getElementById('sku-price-group');
+    const measureGroup = document.getElementById('sku-measure-group');
+    const unitGroup = document.getElementById('sku-unit-group');
+
+    if (type === 'Finished Inventory') {
+        gramsGroup.style.display = 'flex';
+        priceGroup.style.display = 'flex';
+        measureGroup.style.display = 'flex';
+        unitGroup.style.display = 'none';
     } else {
-        customWrapper.style.display = 'none';
-        customInput.required = false;
-        customInput.value = '';
+        gramsGroup.style.display = 'none';
+        priceGroup.style.display = 'none';
+        measureGroup.style.display = 'none';
+        unitGroup.style.display = 'flex';
     }
 }
 
-function updatePurchaseDropdownOptions() {
-    const selectEl = document.getElementById('pur-item');
-    if (!selectEl) return;
+async function addSKU(e) {
+    e.preventDefault();
+    const editIndex = document.getElementById('sku-edit-index').value;
+    const name = document.getElementById('sku-name').value.trim();
+    const type = document.getElementById('sku-type').value;
 
-    let knownItems = new Set([
-        "Poha", "Peanut", "Roasted Channa", "Rice Bran Oil", "Curry Leaves", "Turmeric", "Chilli Powder", "Salt",
-        "Aluminium Pouch (Small)", "Aluminium Pouch (Medium)", "Aluminium Pouch (Large)", "Tissue Paper", "Sticker", "LPG Gas Cylinder"
-    ]);
+    if (editIndex === "") {
+        if (appData.skus.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+            alert("An SKU with this name already exists.");
+            return;
+        }
+    }
 
-    appData.purchases.forEach(p => {
-        if (p.item) knownItems.add(normalizeIngredientName(p.item));
+    const skuObj = {
+        name: name,
+        type: type,
+        grams: type === 'Finished Inventory' ? Number(document.getElementById('sku-grams').value) || 0 : 0,
+        price: type === 'Finished Inventory' ? Number(document.getElementById('sku-price').value) || 0 : 0,
+        measure: type === 'Finished Inventory' ? document.getElementById('sku-measure').value : 'Pkts',
+        unit: type === 'Raw Material' ? document.getElementById('sku-unit').value : 'Pkts'
+    };
+
+    if (editIndex !== "") {
+        // Edit existing
+        const index = Number(editIndex);
+        skuObj.firebaseId = appData.skus[index].firebaseId;
+        appData.skus[index] = skuObj;
+
+        if (skuObj.firebaseId) {
+            try {
+                await updateDoc(doc(db, 'skus', skuObj.firebaseId), {
+                    name: skuObj.name,
+                    type: skuObj.type,
+                    grams: skuObj.grams,
+                    price: skuObj.price,
+                    measure: skuObj.measure,
+                    unit: skuObj.unit
+                });
+            } catch (err) {
+                console.error("Error updating SKU in Firestore:", err);
+            }
+        }
+        cancelSKUEdit();
+    } else {
+        // Create new
+        appData.skus.push(skuObj);
+        await saveData('skus', skuObj);
+        document.getElementById('sku-form').reset();
+        onSKUTypeChange(document.getElementById('sku-type'));
+    }
+
+    renderSKUs();
+    refreshDynamicDropdowns();
+}
+
+function editSKUItem(index) {
+    const sku = appData.skus[index];
+    if (!sku) return;
+
+    document.getElementById('sku-edit-index').value = index;
+    document.getElementById('sku-name').value = sku.name;
+    document.getElementById('sku-type').value = sku.type;
+    onSKUTypeChange(document.getElementById('sku-type'));
+
+    if (sku.type === 'Finished Inventory') {
+        document.getElementById('sku-grams').value = sku.grams;
+        document.getElementById('sku-price').value = sku.price;
+        document.getElementById('sku-measure').value = sku.measure || 'Pkts';
+    } else {
+        document.getElementById('sku-unit').value = sku.unit || 'Kg';
+    }
+
+    document.getElementById('sku-form-title').innerText = `Edit SKU: ${sku.name}`;
+    document.getElementById('sku-submit-btn').innerText = 'Update SKU';
+    document.getElementById('sku-cancel-btn').style.display = 'inline-flex';
+
+    document.getElementById('sku-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function cancelSKUEdit() {
+    document.getElementById('sku-edit-index').value = '';
+    document.getElementById('sku-form').reset();
+    onSKUTypeChange(document.getElementById('sku-type'));
+    document.getElementById('sku-form-title').innerText = 'Create New SKU (Raw Material or Finished Inventory)';
+    document.getElementById('sku-submit-btn').innerText = 'Register SKU';
+    document.getElementById('sku-cancel-btn').style.display = 'none';
+}
+
+function renderSKUs() {
+    const tbody = document.getElementById('sku-table-body');
+    if (!tbody) return;
+
+    const sortedSKUs = [...appData.skus].sort((a, b) => {
+        if (a.type === b.type) return 0;
+        return a.type === 'Finished Inventory' ? -1 : 1;
     });
 
-    let currentVal = selectEl.value;
-    let optionsHtml = '';
-    knownItems.forEach(item => {
-        optionsHtml += `<option value="${item}">${item}</option>`;
-    });
-    optionsHtml += `<option value="-- ADD NEW ITEM --" style="font-weight: bold; color: var(--accent-primary);">+ Add New Custom Item...</option>`;
+    tbody.innerHTML = sortedSKUs.map((s) => {
+        const index = appData.skus.indexOf(s);
+        let details = s.type === 'Finished Inventory' ? `${s.grams}g equivalent (${s.measure || 'Pkts'})` : `Preferred Unit: ${s.unit}`;
+        let pricing = s.type === 'Finished Inventory' ? `₹${s.price}` : `N/A (Raw Material)`;
+        return `
+            <tr>
+                <td data-label="SKU Name"><strong>${s.name}</strong></td>
+                <td data-label="Classification"><span class="status-badge" style="background: ${s.type === 'Finished Inventory' ? '#dcfce7' : '#e0f2fe'}; color: ${s.type === 'Finished Inventory' ? '#15803d' : '#0369a1'};">${s.type}</span></td>
+                <td data-label="Details / Specs">${details}</td>
+                <td data-label="Price / Unit">${pricing}</td>
+                <td data-label="Action" style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button class="btn-outline" style="padding: 6px 12px; font-size: 0.8rem; min-height: 36px;" onclick="editSKUItem(${index})">Edit</button>
+                    <button class="btn-danger" onclick="deleteSKUItem(${index})">Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function deleteSKUItem(index) {
+    const skuToDelete = appData.skus[index];
+    await deleteDataDoc('skus', skuToDelete.firebaseId);
+    appData.skus.splice(index, 1);
+    renderSKUs();
+    refreshDynamicDropdowns();
+}
+
+function refreshDynamicDropdowns() {
+    populateFinishedSKUDropdowns();
+    populateRawMaterialSKUDropdowns();
+    populateBatchOptions();
+    populateSampleBatchOptions();
+}
+
+function populateFinishedSKUDropdowns() {
+    const saleProductSelect = document.getElementById('sale-product');
+    const batchProductSelect = document.getElementById('batch-product');
+    const finishedSKUs = appData.skus.filter(s => s.type === 'Finished Inventory');
+
+    if (saleProductSelect) {
+        saleProductSelect.innerHTML = finishedSKUs.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+        updateProductPrice();
+    }
+
+    if (batchProductSelect) {
+        const uniqueProductLines = [...new Set(finishedSKUs.map(s => {
+            return s.name.includes(' - ') ? s.name.split(' - ')[0].trim() : s.name;
+        }))];
+
+        batchProductSelect.innerHTML = uniqueProductLines.map(line => `<option value="${line}">${line}</option>`).join('');
+        onBatchProductChange();
+    }
+}
+
+function onBatchProductChange() {
+    const productLineSelect = document.getElementById('batch-product');
+    const weightLabel = document.querySelector('label[for="batch-weight"]');
+    const unitSelect = document.getElementById('batch-unit');
     
-    selectEl.innerHTML = optionsHtml;
-    if (knownItems.has(currentVal)) {
-        selectEl.value = currentVal;
+    if (!productLineSelect || !unitSelect) return;
+    const selectedLine = productLineSelect.value.toLowerCase();
+
+    const matchingSKUs = appData.skus.filter(s => s.name.toLowerCase().includes(selectedLine));
+    const isCountBased = matchingSKUs.some(s => s.measure && s.measure !== 'Pkts' && s.measure !== 'Kg' && s.measure !== 'Gms');
+
+    if (isCountBased || selectedLine.includes('ball') || selectedLine.includes('piece') || selectedLine.includes('pc')) {
+        if (weightLabel) weightLabel.innerText = "Batch Quantity Output (Pieces)";
+        unitSelect.innerHTML = `
+            <option value="Pcs" selected>Pieces (Pcs)</option>
+            <option value="Boxes">Boxes</option>
+            <option value="Units">Units</option>
+        `;
+    } else {
+        if (weightLabel) weightLabel.innerText = "Batch Weight Output";
+        unitSelect.innerHTML = `
+            <option value="Gms" selected>Grams (gms)</option>
+            <option value="Kg">Kilograms (Kg)</option>
+        `;
+    }
+}
+
+function populateRawMaterialSKUDropdowns() {
+    const purItemSelect = document.getElementById('pur-item');
+    const rawSKUs = appData.skus.filter(s => s.type === 'Raw Material');
+
+    if (purItemSelect) {
+        purItemSelect.innerHTML = rawSKUs.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
     }
 }
 
 function onProductChange() {
     updateProductPrice();
+    updateSaleQuantityLabel();
     populateBatchOptions();
+}
+
+function updateSaleQuantityLabel() {
+    const productSelect = document.getElementById('sale-product');
+    const qtyLabel = document.getElementById('sale-qty-label');
+    if (productSelect && qtyLabel) {
+        const sku = appData.skus.find(s => s.name === productSelect.value);
+        const measure = sku ? (sku.measure || 'Pkts') : 'Pkts';
+        qtyLabel.innerText = `Quantity (${measure})`;
+    }
 }
 
 function updateProductPrice() {
     const productSelect = document.getElementById('sale-product');
     const priceInput = document.getElementById('sale-price');
+    const saleMode = document.getElementById('sale-mode').value;
+
     if (productSelect && priceInput) {
-        const selectedSKU = productSelect.value;
-        if (productConfig[selectedSKU]) {
-            priceInput.value = productConfig[selectedSKU].price;
+        const selectedSKUName = productSelect.value;
+        const matchingSKU = appData.skus.find(s => s.name === selectedSKUName);
+        if (matchingSKU) {
+            if (saleMode === 'Packets') {
+                const qty = Number(document.getElementById('sale-qty').value) || 1;
+                priceInput.value = matchingSKU.price * qty;
+            } else {
+                const bulkGrams = getSaleGrams();
+                const pricePerGram = matchingSKU.grams > 0 ? (matchingSKU.price / matchingSKU.grams) : 0.4;
+                priceInput.value = Math.round(bulkGrams * pricePerGram);
+            }
         }
+    }
+}
+
+function onSaleModeChange(selectEl) {
+    const mode = selectEl.value;
+    const qtyGroup = document.getElementById('sale-qty-group');
+    const bulkGroup = document.getElementById('sale-bulk-group');
+
+    if (mode === 'Packets') {
+        qtyGroup.style.display = 'flex';
+        bulkGroup.style.display = 'none';
+    } else {
+        qtyGroup.style.display = 'none';
+        bulkGroup.style.display = 'flex';
+    }
+    updateProductPrice();
+}
+
+function getSaleGrams() {
+    const mode = document.getElementById('sale-mode').value;
+    const skuName = document.getElementById('sale-product').value;
+    const skuRecord = appData.skus.find(s => s.name === skuName);
+
+    if (mode === 'Packets') {
+        const units = Number(document.getElementById('sale-qty').value) || 1;
+        const singleGrams = skuRecord ? skuRecord.grams : 50;
+        return units * singleGrams;
+    } else {
+        const bulkVal = Number(document.getElementById('sale-bulk-qty').value) || 0;
+        const bulkUnit = document.getElementById('sale-bulk-unit').value;
+        return bulkUnit === 'Kg' ? bulkVal * 1000 : bulkVal;
     }
 }
 
@@ -307,19 +528,20 @@ function populateBatchOptions() {
 async function addSale(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
-    const sku = document.getElementById('sale-product').value;
-    const pktsSold = Number(document.getElementById('sale-qty').value);
+    const skuName = document.getElementById('sale-product').value;
     const selectedBatchCode = document.getElementById('sale-batch').value;
+    const saleMode = document.getElementById('sale-mode').value;
+    const skuRecord = appData.skus.find(s => s.name === skuName);
+    const measure = skuRecord ? (skuRecord.measure || 'Pkts') : 'Pkts';
 
     if (!selectedBatchCode) {
         alert("Cannot complete sale. No stock available.");
         return;
     }
 
-    const singlePktGrams = productConfig[sku] ? productConfig[sku].grams : 50;
-    const totalGramsSold = pktsSold * singlePktGrams;
-
+    const totalGramsSold = getSaleGrams();
     const batch = appData.batches.find(b => b.code === selectedBatchCode);
+
     if (batch) {
         if (Number(batch.remainingGrams) < totalGramsSold) {
             alert(`Cannot complete sale. Selected batch only has ${formatGrams(batch.remainingGrams)} remaining, but this sale requires ${formatGrams(totalGramsSold)}.`);
@@ -332,15 +554,16 @@ async function addSale(e) {
         }
     }
 
+    let qtyDisplayStr = saleMode === 'Packets' ? `${document.getElementById('sale-qty').value} ${measure}` : `${formatGrams(totalGramsSold)}`;
+
     const sale = {
         date: document.getElementById('sale-date').value,
         customer: document.getElementById('sale-customer').value,
-        product: sku,
+        product: skuName,
         batchCode: selectedBatchCode,
-        qty: pktsSold,
+        qtyDisplay: qtyDisplayStr,
         gramsSold: totalGramsSold,
-        price: document.getElementById('sale-price').value,
-        total: pktsSold * document.getElementById('sale-price').value,
+        total: document.getElementById('sale-price').value,
         method: document.getElementById('sale-pay').value
     };
 
@@ -351,7 +574,7 @@ async function addSale(e) {
     populateSampleBatchOptions();
     document.getElementById('sales-form').reset();
     document.getElementById('sale-date').value = todayStr;
-    onProductChange();
+    onSaleModeChange(document.getElementById('sale-mode'));
 }
 
 function clearSalesFilters() {
@@ -402,7 +625,7 @@ function renderSales() {
                 <td data-label="Customer">${s.customer}</td>
                 <td data-label="Product">${s.product}</td>
                 <td data-label="Batch Code"><code>${s.batchCode || 'N/A'}</code></td>
-                <td data-label="Qty">${s.qty} Pkts</td>
+                <td data-label="Qty Sold">${s.qtyDisplay || `${s.qty} Pkts`}</td>
                 <td data-label="Total (₹)">₹${s.total}</td>
                 <td data-label="Method">${s.method}</td>
                 <td data-label="Action"><button class="btn-danger" onclick="deleteSaleItem(${realIndex})">Delete</button></td>
@@ -417,14 +640,13 @@ async function deleteSaleItem(index) {
     if (saleToDelete && saleToDelete.batchCode && saleToDelete.batchCode !== 'N/A') {
         const batch = appData.batches.find(b => b.code === saleToDelete.batchCode);
         if (batch) {
-            const singlePktGrams = productConfig[saleToDelete.product] ? productConfig[saleToDelete.product].grams : 50;
-            const restoredGrams = Number(saleToDelete.gramsSold) || (Number(saleToDelete.qty) * singlePktGrams);
+            const restoredGrams = Number(saleToDelete.gramsSold) || 0;
             batch.remainingGrams = Number(batch.remainingGrams || 0) + restoredGrams;
             batch.status = 'Available';
         }
     }
 
-    await deleteDataDoc('sales', saleToDelete.firebaseId, index);
+    await deleteDataDoc('sales', saleToDelete.firebaseId);
     appData.sales.splice(index, 1);
     renderSales();
     renderBatches();
@@ -505,7 +727,7 @@ function renderSamples() {
     const totalWeightBox = document.getElementById('sample-total-weight');
     if (totalWeightBox) totalWeightBox.innerText = formatGrams(totalGramsGiven);
 
-    tbody.innerHTML = appData.samples.map((s, index) => {
+    tbody.innerHTML = appData.samples.map((s) => {
         const qtyDisplay = `${s.qty} ${s.unit || 'Gms'} (${formatGrams(s.gramsGiven)})`;
         const realIndex = appData.samples.indexOf(s);
         return `
@@ -532,7 +754,7 @@ async function deleteSampleItem(index) {
         }
     }
 
-    await deleteDataDoc('samples', sampleToDelete.firebaseId, index);
+    await deleteDataDoc('samples', sampleToDelete.firebaseId);
     appData.samples.splice(index, 1);
     renderSamples();
     renderBatches();
@@ -550,7 +772,14 @@ async function addBatch(e) {
     const weightVal = Number(document.getElementById('batch-weight').value);
     const unitVal = document.getElementById('batch-unit').value;
     
-    const totalGrams = unitVal === 'Kg' ? weightVal * 1000 : weightVal;
+    let totalGrams = weightVal;
+    if (unitVal === 'Kg') totalGrams = weightVal * 1000;
+    else if (unitVal === 'Pcs' || unitVal === 'Boxes' || unitVal === 'Units') {
+        const matchingSKU = appData.skus.find(s => s.name.toLowerCase().includes(productLine.toLowerCase()));
+        const singleGrams = matchingSKU ? matchingSKU.grams : 50;
+        totalGrams = weightVal * singleGrams;
+    }
+
     const batchCode = `KBS-${formattedDate}-${shiftVal}`;
 
     let mfgDateObj = new Date(dateVal);
@@ -580,7 +809,7 @@ function renderBatches() {
     const tbody = document.getElementById('batch-table-body');
     if(!tbody) return;
     tbody.innerHTML = appData.batches.map((b, index) => {
-        const remGrams = b.remainingGrams !== undefined ? b.remainingGrams : (b.qty ? b.qty * (b.weightPerPkt || 50) : 0);
+        const remGrams = b.remainingGrams !== undefined ? b.remainingGrams : 0;
         const totalGrams = b.totalGrams || remGrams;
 
         return `
@@ -600,7 +829,7 @@ function renderBatches() {
 
 async function deleteBatchItem(index) {
     const batchToDelete = appData.batches[index];
-    await deleteDataDoc('batches', batchToDelete.firebaseId, index);
+    await deleteDataDoc('batches', batchToDelete.firebaseId);
     appData.batches.splice(index, 1);
     renderBatches();
     populateBatchOptions();
@@ -614,13 +843,13 @@ function renderInventory() {
     let purchasedMap = {};
     appData.purchases.forEach(p => {
         let masterName = normalizeIngredientName(p.item);
-        if (!pohaCrunchRecipePer500g[masterName]) return;
+        if (!defaultRecipePer500g[masterName]) return;
 
         let qty = Number(p.qty) || 0;
         let unit = (p.unit || 'Kg').toLowerCase();
 
         if (!purchasedMap[masterName]) {
-            purchasedMap[masterName] = { total: 0, unit: pohaCrunchRecipePer500g[masterName].unit };
+            purchasedMap[masterName] = { total: 0, unit: defaultRecipePer500g[masterName].unit };
         }
 
         let qtyInBase = qty;
@@ -634,24 +863,24 @@ function renderInventory() {
         let batchGrams = Number(b.totalGrams) || 0;
         let scaleFactor = batchGrams / 500;
 
-        for (let [ingredient, data] of Object.entries(pohaCrunchRecipePer500g)) {
+        for (let [ingredient, data] of Object.entries(defaultRecipePer500g)) {
             let masterName = normalizeIngredientName(ingredient);
             let consumedAmt = data.qty * scaleFactor;
             consumedMap[masterName] = (consumedMap[masterName] || 0) + consumedAmt;
         }
     });
 
-    let rawIngredients = Object.keys(pohaCrunchRecipePer500g);
+    let rawIngredients = Object.keys(defaultRecipePer500g);
     let rowsHtml = [];
 
     rawIngredients.forEach(item => {
-        let boughtInfo = purchasedMap[item] || { total: 0, unit: pohaCrunchRecipePer500g[item].unit };
+        let boughtInfo = purchasedMap[item] || { total: 0, unit: defaultRecipePer500g[item].unit };
         let totalBought = boughtInfo.total;
         let totalUsed = consumedMap[item] || 0;
         let balance = totalBought - totalUsed;
 
-        let prefUnit = pohaCrunchRecipePer500g[item].unit;
-        let category = pohaCrunchRecipePer500g[item].category;
+        let prefUnit = defaultRecipePer500g[item].unit;
+        let category = defaultRecipePer500g[item].category;
 
         let displayBought = formatDynamicValue(totalBought, prefUnit);
         let displayUsed = formatDynamicValue(totalUsed, prefUnit);
@@ -680,21 +909,10 @@ async function addPurchase(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
     
-    let itemVal = document.getElementById('pur-item').value;
-    if (itemVal === "-- ADD NEW ITEM --") {
-        const customInput = document.getElementById('pur-custom-item').value.trim();
-        if (customInput) {
-            itemVal = customInput;
-        } else {
-            alert("Please provide a valid custom item name.");
-            return;
-        }
-    }
-
     const pur = {
         date: document.getElementById('pur-date').value,
         vendor: document.getElementById('pur-vendor').value,
-        item: itemVal,
+        item: document.getElementById('pur-item').value,
         qty: document.getElementById('pur-qty').value,
         unit: document.getElementById('pur-unit').value,
         amt: document.getElementById('pur-amt').value
@@ -704,7 +922,6 @@ async function addPurchase(e) {
     renderPurchases();
     document.getElementById('purchase-form').reset();
     document.getElementById('pur-date').value = todayStr;
-    document.getElementById('custom-item-wrapper').style.display = 'none';
 }
 
 function clearPurchaseFilters() {
@@ -764,7 +981,7 @@ function renderPurchases() {
 
 async function deletePurchaseItem(index) {
     const purchaseToDelete = appData.purchases[index];
-    await deleteDataDoc('purchases', purchaseToDelete.firebaseId, index);
+    await deleteDataDoc('purchases', purchaseToDelete.firebaseId);
     appData.purchases.splice(index, 1);
     renderPurchases();
 }
@@ -789,29 +1006,29 @@ function exportCSV(type) {
         let purchasedMap = {};
         appData.purchases.forEach(p => {
             let m = normalizeIngredientName(p.item);
-            if (!pohaCrunchRecipePer500g[m]) return;
+            if (!defaultRecipePer500g[m]) return;
             let q = Number(p.qty) || 0;
-            if (!purchasedMap[m]) purchasedMap[m] = { total: 0, unit: pohaCrunchRecipePer500g[m].unit };
+            if (!purchasedMap[m]) purchasedMap[m] = { total: 0, unit: defaultRecipePer500g[m].unit };
             purchasedMap[m].total += (p.unit && (p.unit.toLowerCase() === 'kg' || p.unit.toLowerCase() === 'ltrs')) ? q * 1000 : q;
         });
 
         let consumedMap = {};
         appData.batches.forEach(b => {
             let scale = (Number(b.totalGrams) || 0) / 500;
-            for (let [ing, data] of Object.entries(pohaCrunchRecipePer500g)) {
+            for (let [ing, data] of Object.entries(defaultRecipePer500g)) {
                 let m = normalizeIngredientName(ing);
                 consumedMap[m] = (consumedMap[m] || 0) + (data.qty * scale);
             }
         });
 
-        Object.keys(pohaCrunchRecipePer500g).forEach(item => {
-            let boughtInfo = purchasedMap[item] || { total: 0, unit: pohaCrunchRecipePer500g[item].unit };
+        Object.keys(defaultRecipePer500g).forEach(item => {
+            let boughtInfo = purchasedMap[item] || { total: 0, unit: defaultRecipePer500g[item].unit };
             let totalBought = boughtInfo.total;
             let totalUsed = consumedMap[item] || 0;
             let bal = totalBought - totalUsed;
 
-            let prefUnit = pohaCrunchRecipePer500g[item].unit;
-            let category = pohaCrunchRecipePer500g[item].category;
+            let prefUnit = defaultRecipePer500g[item].unit;
+            let category = defaultRecipePer500g[item].category;
 
             let displayBought = formatDynamicValue(totalBought, prefUnit);
             let displayUsed = formatDynamicValue(totalUsed, prefUnit);
@@ -843,27 +1060,25 @@ function exportCSV(type) {
         csvContent += val + "\n";
     });
     const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `kb_savouries_${type}_${todayStr}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    const linkAnchor = document.createElement("a");
+    linkAnchor.setAttribute("href", encodedUri);
+    linkAnchor.setAttribute("download", `kb_savouries_${type}_${todayStr}.csv`);
+    document.body.appendChild(linkAnchor);
+    linkAnchor.click();
+    linkAnchor.remove();
 }
 
-window.switchTab = function(tabId, event) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-links li').forEach(el => el.classList.remove('active'));
-    
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
-    
-    document.getElementById('page-title').innerText = event.currentTarget.innerText;
-
-    if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.remove('open');
-    }
-};
+// Explicitly expose functions to window scope for inline HTML event handlers
+window.switchTab = switchTab;
+window.addSKU = addSKU;
+window.editSKUItem = editSKUItem;
+window.cancelSKUEdit = cancelSKUEdit;
+window.deleteSKUItem = deleteSKUItem;
+window.onSKUTypeChange = onSKUTypeChange;
+window.onBatchProductChange = onBatchProductChange;
+window.updateProductPrice = updateProductPrice;
+window.onProductChange = onProductChange;
+window.onSaleModeChange = onSaleModeChange;
 window.addPurchase = addPurchase;
 window.addSale = addSale;
 window.addBatch = addBatch;
@@ -872,18 +1087,8 @@ window.deletePurchaseItem = deletePurchaseItem;
 window.deleteSaleItem = deleteSaleItem;
 window.deleteBatchItem = deleteBatchItem;
 window.deleteSampleItem = deleteSampleItem;
-window.checkCustomItem = checkCustomItem;
-window.onProductChange = onProductChange;
 window.clearSalesFilters = clearSalesFilters;
 window.clearPurchaseFilters = clearPurchaseFilters;
 window.exportCSV = exportCSV;
 window.exportJSON = exportJSON;
-
-
-window.toggleSidebar = function() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) sidebar.classList.toggle('open');
-};
-
-
-
+window.toggleSidebar = toggleSidebar;

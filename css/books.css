@@ -748,4 +748,13 @@ code {
         letter-spacing: 0.05em;
         text-align: left;
     }
+
+    /* Table action buttons stay compact on mobile */
+    .mobile-stack-table button,
+    .mobile-stack-table .btn-danger {
+        width: auto !important;
+        display: inline-flex;
+        padding: 6px 16px;
+        min-height: 32px;
+    }
 }
