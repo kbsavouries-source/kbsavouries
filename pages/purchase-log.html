@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB Savouries - Purchase Log</title>
+    <link rel="stylesheet" href="../css/books.css">
+    <link rel="stylesheet" href="../css/purchase-log.css">
+    <!-- Tom Select CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+        <div class="brand">
+            <img src="../Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'">
+            <span>KB SAVOURIES</span>
+        </div>
+        <ul class="nav-links">
+            <li onclick="location.href='books.html'">Dashboard</li>
+            <li onclick="location.href='sku-catalog.html'">SKU Catalog</li>
+            <li onclick="location.href='sales-register.html'">Sales Register</li>
+            <li onclick="location.href='batch-log.html'">Batch Log</li>
+            <li onclick="location.href='marketing-log.html'">Samples & Marketing</li>
+            <li onclick="location.href='inventory-tracker.html'">Inventory Tracker</li>
+            <li class="active" onclick="location.href='purchase-log.html'">Purchase Log</li>
+            <li><a href="accounts.html" style="color: inherit; text-decoration: none; display: block;">Accounting & Reports</a></li>
+        </ul>
+        <div class="backup-section">
+            <button class="btn-outline" onclick="exportJSON()">Download JSON Backup</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">Purchase Log</h1>
+            <span id="current-date" class="date-display"></span>
+        </header>
+
+        <div class="content-area">
+            <!-- PURCHASES TAB -->
+            <div id="purchases" class="tab-content active">
+                <div class="card">
+                    <h2>Log Purchase (Raw Material or Supplies)</h2>
+                    <form id="purchase-form" onsubmit="addPurchase(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="pur-date">Date</label>
+                                <input type="date" id="pur-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-vendor">Vendor Name</label>
+                                <input type="text" id="pur-vendor" placeholder="e.g. H&H Distributors" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-item">Item Name</label>
+                                <select id="pur-item" required>
+                                    <!-- Populated dynamically from raw material SKUs -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-qty">Qty Bought</label>
+                                <input type="number" id="pur-qty" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-unit">Unit</label>
+                                <select id="pur-unit">
+                                    <option value="Kg" selected>Kg</option>
+                                    <option value="Gms">Gms</option>
+                                    <option value="Ltrs">Ltrs</option>
+                                    <option value="ML">ML</option>
+                                    <option value="Pkts">Pkts</option>
+                                    <option value="Units">Units</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="pur-amt">Total Amount (₹)</label>
+                                <input type="number" id="pur-amt" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Record Purchase</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <div class="title-filter-group">
+                            <h2>Purchase History</h2>
+                            <div class="date-filter-wrapper">
+                                <input type="text" id="pur-search-filter" oninput="renderPurchases()" placeholder="Search Item..." class="filter-search-input">
+                                <label for="pur-date-filter" class="filter-label">Filter Date:</label>
+                                <input type="date" id="pur-date-filter" onchange="renderPurchases()" class="filter-date-input">
+                                <button type="button" class="btn-clear-filter" onclick="clearPurchaseFilters()">Clear</button>
+                            </div>
+                        </div>
+                        <div class="action-header-right">
+                            <button type="button" class="btn-outline" onclick="exportCSV('purchases')">Export Purchases CSV</button>
+                            <div class="total-value-box">
+                                <span id="purchase-total-label">Total Purchase Outflow:</span> <strong id="purchase-total-value">₹0</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Vendor</th>
+                                    <th>Item</th>
+                                    <th>Qty & Unit</th>
+                                    <th>Total Amt (₹)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchase-table-body">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Script Initialization & Mobile Sidebar Toggle -->
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('open');
+            }
+        };
+    </script>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('current-date');
+            if(dateEl) {
+                dateEl.innerText = new Date().toLocaleDateString('en-IN', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+            }
+        });
+    </script>
+    <script type="module" src="../js/purchase-log.js"></script>
+    <!-- Tom Select JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+</body>
+</html>

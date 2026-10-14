@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB Savouries - SKU Catalog</title>
+    <!-- Shared Glassmorphic Theme -->
+    <link rel="stylesheet" href="../css/shared-theme.css">
+    <!-- Page Specific Styles -->
+    <link rel="stylesheet" href="../css/sku-catalog.css">
+    <!-- Tom Select CSS CDN for Searchable Dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Passcode Modal Overlay -->
+    <div id="passcode-modal" class="passcode-overlay">
+        <div class="passcode-card">
+            <h2>KB Savouries Secured</h2>
+            <p>Enter 4-digit passcode to unlock workspace</p>
+            <form id="passcode-form" onsubmit="verifyPasscode(event)">
+                <input type="password" id="passcode-input" maxlength="4" pattern="[0-9]{4}" placeholder="••••" autocomplete="off" required autofocus>
+                <div id="passcode-error" class="passcode-error"></div>
+                <button type="submit" class="btn-primary">Unlock Workspace</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+        <div class="brand">
+            <img src="../Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'">
+            <span>KB SAVOURIES</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="books.html">Dashboard</a></li>
+            <li class="active"><a href="sku-catalog.html">SKU Catalog</a></li>
+            <li><a href="sales-register.html">Sales Register</a></li>
+            <li><a href="batch-log.html">Batch Log</a></li>
+            <li><a href="marketing-log.html">Samples & Marketing</a></li>
+            <li><a href="inventory-tracker.html">Inventory Tracker</a></li>
+            <li><a href="purchase-log.html">Purchase Log</a></li>
+            <li><a href="accounts.html">Accounting & Reports</a></li>
+        </ul>
+        <div class="backup-section">
+            <button class="btn-outline" onclick="exportJSON()">Download JSON Backup</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">SKU Catalog</h1>
+            <span id="current-date" class="date-display"></span>
+        </header>
+
+        <div class="content-area">
+
+            <!-- SKU FORM CARD -->
+            <div class="card">
+                <h2 id="sku-form-title">Create New SKU</h2>
+                <form id="sku-form" onsubmit="addSKU(event)">
+                    <input type="hidden" id="sku-edit-index" value="">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="sku-name">SKU Name</label>
+                            <input type="text" id="sku-name" placeholder="e.g. Masala Balls - 10 pcs or Poha Crunch - 250g" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sku-type">SKU Classification</label>
+                            <select id="sku-type" onchange="onSKUTypeChange(this)">
+                                <option value="Finished Inventory" selected>Finished Inventory</option>
+                                <option value="Raw Material">Raw Material</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="sku-grams-group">
+                            <label for="sku-grams">Base Equivalent Weight in Grams (Per Unit)</label>
+                            <input type="number" id="sku-grams" placeholder="e.g. 100" min="1" value="100">
+                        </div>
+                        <div class="form-group" id="sku-price-group">
+                            <label for="sku-price">Standard Selling Price (₹)</label>
+                            <input type="number" id="sku-price" placeholder="e.g. 50" min="0" value="50">
+                        </div>
+                        <div class="form-group" id="sku-measure-group">
+                            <label for="sku-measure">Sales Unit Type</label>
+                            <select id="sku-measure">
+                                <option value="Pkts" selected>Packets / Pkts</option>
+                                <option value="Pieces">Pieces / Pcs</option>
+                                <option value="Boxes">Boxes</option>
+                                <option value="Units">Units</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="sku-unit-group" style="display: none;">
+                            <label for="sku-unit">Preferred Base Unit</label>
+                            <select id="sku-unit">
+                                <option value="Kg" selected>Kg</option>
+                                <option value="Gms">Gms</option>
+                                <option value="Ltrs">Ltrs</option>
+                                <option value="ML">ML</option>
+                                <option value="Pkts">Pkts</option>
+                                <option value="Units">Units</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions" style="display: flex; gap: 12px;">
+                        <button type="submit" id="sku-submit-btn" class="btn-primary">Register SKU</button>
+                        <button type="button" id="sku-cancel-btn" class="btn-outline" style="display: none;" onclick="cancelSKUEdit()">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SKU DIRECTORY TABLE CARD -->
+            <div class="card">
+                <div class="section-header-flex">
+                    <h2>Active SKU Master Directory</h2>
+                    <button type="button" class="btn-outline" onclick="exportCSV('skus')">Export SKUs CSV</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="mobile-stack-table">
+                        <thead>
+                            <tr>
+                                <th>SKU Name</th>
+                                <th>Classification</th>
+                                <th>Details / Specs</th>
+                                <th>Price / Unit</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sku-table-body">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Tom Select JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script type="module" src="../js/sku-catalog.js"></script>
+
+    <script>
+    window.toggleSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.classList.toggle('open');
+        }
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB Savouries - Sales Register</title>
+    <link rel="stylesheet" href="../css/books.css">
+    <link rel="stylesheet" href="../css/sales-register.css">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+        <div class="brand">
+            <img src="../Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'">
+            <span>KB SAVOURIES</span>
+        </div>
+        <ul class="nav-links">
+            <li onclick="location.href='books.html'">Dashboard</li>
+            <li onclick="location.href='sku-catalog.html'">SKU Catalog</li>
+            <li class="active" onclick="location.href='sales-register.html'">Sales Register</li>
+            <li onclick="location.href='batch-log.html'">Batch Log</li>
+            <li onclick="location.href='samples.html'">Samples & Marketing</li>
+            <li onclick="location.href='inventory.html'">Inventory Tracker</li>
+            <li onclick="location.href='purchases.html'">Purchase Log</li>
+            <li><a href="accounts.html" style="color: inherit; text-decoration: none; display: block;">Accounting & Reports</a></li>
+        </ul>
+        <div class="backup-section">
+            <button class="btn-outline" onclick="exportJSON()">Download JSON Backup</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">Sales Register</h1>
+            <span id="current-date" class="date-display"></span>
+        </header>
+
+        <div class="content-area">
+            <!-- SALES REGISTER TAB -->
+            <div id="sales" class="tab-content active">
+                <div class="card sale-form-card">
+                    <h2 class="card-title">Record New Sale (Retail or Custom Bulk Order)</h2>
+                    <form id="sales-form" onsubmit="addSale(event)">
+                        <div class="spacious-form-grid">
+                            <div class="form-group">
+                                <label for="sale-date">Date</label>
+                                <input type="date" id="sale-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-customer">Customer Name</label>
+                                <input type="text" id="sale-customer" placeholder="e.g. Arjun" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-product">Product / SKU</label>
+                                <select id="sale-product" onchange="onProductChange()">
+                                    <!-- Populated dynamically from finished SKUs -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-batch">Batch Code (Bulk Linked)</label>
+                                <select id="sale-batch">
+                                    <option value="">No Stock</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-mode">Sale Mode</label>
+                                <select id="sale-mode" onchange="onSaleModeChange(this)">
+                                    <option value="Packets" selected>Packets / Units</option>
+                                    <option value="BulkWeight">Bulk Weight (Custom Order / Kg)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="sale-qty-group">
+                                <label for="sale-qty" id="sale-qty-label">Quantity (Units)</label>
+                                <input type="number" id="sale-qty" value="1" min="1" oninput="updateProductPrice()">
+                            </div>
+                            <div class="form-group" id="sale-bulk-group" style="display: none;">
+                                <label for="sale-bulk-qty">Bulk Quantity</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="number" id="sale-bulk-qty" value="1" step="0.1" min="0.1" oninput="updateProductPrice()">
+                                    <select id="sale-bulk-unit" style="width: 100px;" onchange="updateProductPrice()">
+                                        <option value="Kg" selected>Kg</option>
+                                        <option value="Gms">Gms</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-price">Total Price (₹)</label>
+                                <input type="number" id="sale-price" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sale-pay">Payment Method</label>
+                                <select id="sale-pay">
+                                    <option value="UPI">UPI</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" id="sale-submit-btn" class="btn-primary">Add Sale Entry</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <div class="title-filter-group">
+                            <h2>Sales History</h2>
+                            <div class="date-filter-wrapper">
+                                <input type="text" id="sales-search-filter" oninput="renderSales()" placeholder="Search Customer / Product..." class="filter-search-input">
+                                <label for="sales-date-filter" class="filter-label">Filter Date:</label>
+                                <input type="date" id="sales-date-filter" onchange="renderSales()" class="filter-date-input">
+                                <button type="button" class="btn-clear-filter" onclick="clearSalesFilters()">Clear</button>
+                            </div>
+                        </div>
+                        <div class="action-header-right">
+                            <button type="button" class="btn-outline" onclick="exportCSV('sales')">Export Sales CSV</button>
+                            <div class="total-value-box">
+                                <span id="sales-total-label">Total Sales Value:</span> <strong id="sales-total-value">₹0</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Batch Code</th>
+                                    <th>Qty Sold</th>
+                                    <th>Total (₹)</th>
+                                    <th>Method</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Import Main Logic / Sales Register JS Module -->
+    <script type="module">
+        import { initSalesRegister } from '../js/sales-register.js';
+        // Initialize date display and sidebar behavior on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('current-date');
+            if(dateEl) {
+                dateEl.innerText = new Date().toLocaleDateString('en-IN', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+            }
+        });
+    </script>
+    <script type="module" src="../js/sales-register.js"></script>
+
+    <script>
+    window.toggleSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.classList.toggle('open');
+        }
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+</body>
+</html>

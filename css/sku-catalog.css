@@ -1,0 +1,36 @@
+/* ==========================================================================
+   SKU Catalog Module - Specific Page Styles
+   Inherits structural theme tokens from shared-theme.css
+   ========================================================================== */
+
+/* Classification Badges */
+.status-badge.finished {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1.5px solid #bbf7d0;
+}
+
+.status-badge.raw {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1.5px solid #bae6fd;
+}
+
+/* Form Action Buttons Container */
+#sku-form .form-actions {
+  margin-top: 24px;
+}
+
+/* Custom Table Column Spacing for SKU View */
+.mobile-stack-table td[data-label="Action"] {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Mobile Adjustments for SKU Catalog */
+@media (max-width: 768px) {
+  .mobile-stack-table td[data-label="Action"] {
+    justify-content: flex-end !important;
+  }
+}

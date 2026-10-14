@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB Savouries - Batch Log</title>
+    <link rel="stylesheet" href="../css/books.css">
+    <link rel="stylesheet" href="../css/batch-log.css">
+    <!-- Tom Select CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+        <div class="brand">
+            <img src="../Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'">
+            <span>KB SAVOURIES</span>
+        </div>
+        <ul class="nav-links">
+            <li onclick="location.href='books.html'">Dashboard</li>
+            <li onclick="location.href='sku-catalog.html'">SKU Catalog</li>
+            <li onclick="location.href='sales-register.html'">Sales Register</li>
+            <li class="active" onclick="location.href='batch-log.html'">Batch Log</li>
+            <li onclick="location.href='marketing-log.html'">Samples & Marketing</li>
+            <li onclick="location.href='inventory-tracker.html'">Inventory Tracker</li>
+            <li onclick="location.href='purchase-log.html'">Purchase Log</li>
+            <li><a href="accounts.html" style="color: inherit; text-decoration: none; display: block;">Accounting & Reports</a></li>
+        </ul>
+        <div class="backup-section">
+            <button class="btn-outline" onclick="exportJSON()">Download JSON Backup</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">Batch Log</h1>
+            <span id="current-date" class="date-display"></span>
+        </header>
+
+        <div class="content-area">
+            <!-- BATCH LOG TAB -->
+            <div id="batches" class="tab-content active">
+                <div class="card">
+                    <h2>New Production Batch (Bulk Pool)</h2>
+                    <form id="batch-form" onsubmit="addBatch(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="batch-date">Mfg Date</label>
+                                <input type="date" id="batch-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="batch-product">Product Line</label>
+                                <select id="batch-product" onchange="onBatchProductChange()">
+                                    <!-- Populated dynamically from finished SKUs -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="batch-shift">Shift</label>
+                                <select id="batch-shift">
+                                    <option value="01 - Morning">01 - Morning</option>
+                                    <option value="02 - Afternoon">02 - Afternoon</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="batch-weight">Batch Weight Output</label>
+                                <input type="number" id="batch-weight" placeholder="e.g. 5000 for 5Kg" min="1" step="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="batch-unit">Unit</label>
+                                <select id="batch-unit">
+                                    <option value="Kg">Kilograms (Kg)</option>
+                                    <option value="Gms" selected>Grams (gms)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Generate Batch Code & Log</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-flex">
+                        <h2>Batch Log History</h2>
+                        <button type="button" class="btn-outline" onclick="exportCSV('batches')">Export Batches CSV</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mobile-stack-table">
+                            <thead>
+                                <tr>
+                                    <th>Batch Code</th>
+                                    <th>Mfg Date</th>
+                                    <th>Expiry Date</th>
+                                    <th>Product Line</th>
+                                    <th>Shift</th>
+                                    <th>Available Bulk Stock</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-table-body">
+                                <!-- Dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Script Initialization & Mobile Sidebar Toggle -->
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('open');
+            }
+        };
+    </script>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('current-date');
+            if(dateEl) {
+                dateEl.innerText = new Date().toLocaleDateString('en-IN', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+            }
+        });
+    </script>
+    <script type="module" src="../js/batch-log.js"></script>
+    <!-- Tom Select JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+</body>
+</html>
