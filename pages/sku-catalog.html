@@ -14,19 +14,6 @@
 </head>
 <body>
 
-    <!-- Passcode Modal Overlay -->
-    <div id="passcode-modal" class="passcode-overlay">
-        <div class="passcode-card">
-            <h2>KB Savouries Secured</h2>
-            <p>Enter 4-digit passcode to unlock workspace</p>
-            <form id="passcode-form" onsubmit="verifyPasscode(event)">
-                <input type="password" id="passcode-input" maxlength="4" pattern="[0-9]{4}" placeholder="••••" autocomplete="off" required autofocus>
-                <div id="passcode-error" class="passcode-error"></div>
-                <button type="submit" class="btn-primary">Unlock Workspace</button>
-            </form>
-        </div>
-    </div>
-
     <!-- Mobile Hamburger Toggle -->
     <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
         <span></span>
@@ -111,7 +98,19 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-actions" style="display: flex; gap: 12px;">
+
+                    <!-- Dynamic Overheads Section (Finished Goods Only) -->
+                    <div id="overhead-section" style="margin-top: 20px; border-top: 1.5px solid var(--glass-border); padding-top: 16px;">
+                        <div class="section-header-flex" style="margin-bottom: 12px;">
+                            <h3 style="font-size: 1rem; font-weight: 800;">Custom Overheads & Packaging (Per Unit)</h3>
+                            <button type="button" class="btn-outline" onclick="addOverheadRow()" style="padding: 6px 14px; font-size: 0.8rem; min-height: 36px;">+ Add Overhead</button>
+                        </div>
+                        <div id="overhead-rows-container" style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Dynamic overhead rows populated here -->
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="display: flex; gap: 12px; margin-top: 20px;">
                         <button type="submit" id="sku-submit-btn" class="btn-primary">Register SKU</button>
                         <button type="button" id="sku-cancel-btn" class="btn-outline" style="display: none;" onclick="cancelSKUEdit()">Cancel Edit</button>
                     </div>
@@ -131,6 +130,7 @@
                                 <th>SKU Name</th>
                                 <th>Classification</th>
                                 <th>Details / Specs</th>
+                                <th>Overheads / Unit</th>
                                 <th>Price / Unit</th>
                                 <th>Action</th>
                             </tr>

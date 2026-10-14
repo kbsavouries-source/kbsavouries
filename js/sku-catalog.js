@@ -29,47 +29,47 @@ function initSearchableSelects() {
     });
 }
 
-// Passcode verification
-window.verifyPasscode = function(e) {
-    e.preventDefault();
-    const inputVal = document.getElementById('passcode-input').value;
-    const errorDiv = document.getElementById('passcode-error');
-    
-    if (inputVal === '1998') {
-        sessionStorage.setItem('kb_authenticated', 'true');
-        document.getElementById('passcode-modal').style.display = 'none';
-    } else {
-        errorDiv.innerText = 'Incorrect passcode. Please try again.';
-        document.getElementById('passcode-input').value = '';
-        document.getElementById('passcode-input').focus();
-    }
-};
-
 window.toggleSidebar = function() {
     const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('open');
+    if (sidebar) sidebar.classList.toggle('open');
 };
 
-// SKU Classification Change Listener
-window.onSKUTypeChange = function(selectEl) {
-    const type = selectEl.value;
-    const gramsGroup = document.getElementById('sku-grams-group');
-    const priceGroup = document.getElementById('sku-price-group');
-    const measureGroup = document.getElementById('sku-measure-group');
-    const unitGroup = document.getElementById('sku-unit-group');
+// Helper to extract dynamic overhead rows from the form
+function getOverheadsFromDOM() {
+    const rows = document.querySelectorAll('#overhead-rows-container .overhead-row');
+    const overheads = [];
+    rows.forEach(r => {
+        const name = r.querySelector('.overhead-name').value.trim();
+        const cost = Number(r.querySelector('.overhead-cost').value) || 0;
+        if (name) {
+            overheads.push({ name, cost });
+        }
+    });
+    return overheads;
+}
 
-    if (type === 'Finished Inventory') {
-        gramsGroup.style.display = 'flex';
-        priceGroup.style.display = 'flex';
-        measureGroup.style.display = 'flex';
-        unitGroup.style.display = 'none';
-    } else {
-        gramsGroup.style.display = 'none';
-        priceGroup.style.display = 'none';
-        measureGroup.style.display = 'none';
-        unitGroup.style.display = 'flex';
-    }
+// Render dynamic overhead row in the form
+window.addOverheadRow = function(name = '', cost = '') {
+    const container = document.getElementById('overhead-rows-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'overhead-row';
+    row.style.cssText = 'display: flex; gap: 12px; align-items: center; background: rgba(255,255,255,0.5); padding: 10px; border-radius: 10px; border: 1.5px solid var(--glass-border);';
+
+    row.innerHTML = `
+        <input type="text" class="overhead-name" placeholder="Overhead Name (e.g. Pouch / Seal / Sticker)" value="${name}" style="flex: 2; height: 40px;" required>
+        <input type="number" class="overhead-cost" placeholder="Cost (₹)" value="${cost !== '' ? cost : ''}" step="any" min="0" style="flex: 1; height: 40px;" required>
+        <button type="button" class="btn-danger" onclick="this.parentElement.remove()" style="padding: 6px 14px; min-height: 40px; width: auto !important;">✕</button>
+    `;
+    container.appendChild(row);
 };
+
+// Calculate Total Overhead for an SKU Object
+function calculateTotalOverhead(s) {
+    if (s.type !== 'Finished Inventory' || !s.overheads) return 0;
+    return s.overheads.reduce((sum, o) => sum + (Number(o.cost) || 0), 0);
+}
 
 // Render SKU Directory Table
 function renderSKUs() {
@@ -83,15 +83,19 @@ function renderSKUs() {
 
     tbody.innerHTML = sortedSKUs.map((s) => {
         const index = appData.skus.indexOf(s);
-        let details = s.type === 'Finished Inventory' ? `${s.grams}g equivalent (${s.measure || 'Pkts'})` : `Preferred Unit: ${s.unit}`;
-        let pricing = s.type === 'Finished Inventory' ? `₹${s.price}` : `-`;
-        let badgeClass = s.type === 'Finished Inventory' ? 'finished' : 'raw';
+        const details = s.type === 'Finished Inventory' ? `${s.grams}g equivalent (${s.measure || 'Pkts'})` : `Preferred Unit: ${s.unit}`;
+        const pricing = s.type === 'Finished Inventory' ? `₹${s.price}` : `-`;
+        const badgeClass = s.type === 'Finished Inventory' ? 'finished' : 'raw';
+        
+        const totalOverhead = calculateTotalOverhead(s);
+        const overheadsDisplay = s.type === 'Finished Inventory' ? `₹${totalOverhead.toFixed(2)}` : `-`;
 
         return `
             <tr>
                 <td data-label="SKU Name"><strong>${s.name}</strong></td>
                 <td data-label="Classification"><span class="status-badge ${badgeClass}">${s.type}</span></td>
                 <td data-label="Details / Specs">${details}</td>
+                <td data-label="Overheads / Unit"><strong style="color: var(--accent-orange);">${overheadsDisplay}</strong></td>
                 <td data-label="Price / Unit">${pricing}</td>
                 <td data-label="Action">
                     <button class="btn-outline" style="padding: 6px 12px; font-size: 0.8rem; min-height: 36px;" onclick="editSKUItem(${index})">Edit</button>
@@ -116,13 +120,16 @@ window.addSKU = async function(e) {
         }
     }
 
+    const isFinished = type === 'Finished Inventory';
+
     const skuObj = {
         name: name,
         type: type,
-        grams: type === 'Finished Inventory' ? Number(document.getElementById('sku-grams').value) || 0 : 0,
-        price: type === 'Finished Inventory' ? Number(document.getElementById('sku-price').value) || 0 : 0,
-        measure: type === 'Finished Inventory' ? document.getElementById('sku-measure').value : 'Pkts',
-        unit: type === 'Raw Material' ? document.getElementById('sku-unit').value : 'Pkts'
+        grams: isFinished ? Number(document.getElementById('sku-grams').value) || 0 : 0,
+        price: isFinished ? Number(document.getElementById('sku-price').value) || 0 : 0,
+        measure: isFinished ? document.getElementById('sku-measure').value : 'Pkts',
+        unit: !isFinished ? document.getElementById('sku-unit').value : 'Pkts',
+        overheads: isFinished ? getOverheadsFromDOM() : []
     };
 
     if (editIndex !== "") {
@@ -131,14 +138,7 @@ window.addSKU = async function(e) {
         appData.skus[index] = skuObj;
 
         if (skuObj.firebaseId) {
-            await updateDataDoc('skus', skuObj.firebaseId, {
-                name: skuObj.name,
-                type: skuObj.type,
-                grams: skuObj.grams,
-                price: skuObj.price,
-                measure: skuObj.measure,
-                unit: skuObj.unit
-            });
+            await updateDataDoc('skus', skuObj.firebaseId, skuObj);
         }
         cancelSKUEdit();
     } else {
@@ -162,9 +162,17 @@ window.editSKUItem = function(index) {
     onSKUTypeChange(document.getElementById('sku-type'));
 
     if (sku.type === 'Finished Inventory') {
-        document.getElementById('sku-grams').value = sku.grams;
-        document.getElementById('sku-price').value = sku.price;
+        document.getElementById('sku-grams').value = sku.grams || 0;
+        document.getElementById('sku-price').value = sku.price || 0;
         document.getElementById('sku-measure').value = sku.measure || 'Pkts';
+        
+        const container = document.getElementById('overhead-rows-container');
+        container.innerHTML = '';
+        if (sku.overheads && sku.overheads.length > 0) {
+            sku.overheads.forEach(o => addOverheadRow(o.name, o.cost));
+        } else {
+            addOverheadRow('Packaging / Pouch', 0);
+        }
     } else {
         document.getElementById('sku-unit').value = sku.unit || 'Kg';
     }
@@ -181,18 +189,43 @@ window.cancelSKUEdit = function() {
     document.getElementById('sku-edit-index').value = '';
     document.getElementById('sku-form').reset();
     onSKUTypeChange(document.getElementById('sku-type'));
-    document.getElementById('sku-form-title').innerText = 'Create New SKU (Raw Material or Finished Inventory)';
+    document.getElementById('sku-form-title').innerText = 'Create New SKU';
     document.getElementById('sku-submit-btn').innerText = 'Register SKU';
     document.getElementById('sku-cancel-btn').style.display = 'none';
+    
+    const container = document.getElementById('overhead-rows-container');
+    if (container) {
+        container.innerHTML = '';
+        addOverheadRow('Packaging / Pouch', 0);
+    }
 };
 
-// Delete SKU
-window.deleteSKUItem = async function(index) {
-    if (!confirm("Are you sure you want to delete this SKU?")) return;
-    const skuToDelete = appData.skus[index];
-    await deleteDataDoc('skus', skuToDelete.firebaseId);
-    appData.skus.splice(index, 1);
-    renderSKUs();
+// Update SKU Type Listener
+window.onSKUTypeChange = function(selectEl) {
+    const type = selectEl.value;
+    const gramsGroup = document.getElementById('sku-grams-group');
+    const priceGroup = document.getElementById('sku-price-group');
+    const measureGroup = document.getElementById('sku-measure-group');
+    const unitGroup = document.getElementById('sku-unit-group');
+    const overheadSection = document.getElementById('overhead-section');
+    const container = document.getElementById('overhead-rows-container');
+
+    if (type === 'Finished Inventory') {
+        gramsGroup.style.display = 'flex';
+        priceGroup.style.display = 'flex';
+        measureGroup.style.display = 'flex';
+        unitGroup.style.display = 'none';
+        if (overheadSection) overheadSection.style.display = 'block';
+        if (container && container.children.length === 0) {
+            addOverheadRow('Packaging / Pouch', 0);
+        }
+    } else {
+        gramsGroup.style.display = 'none';
+        priceGroup.style.display = 'none';
+        measureGroup.style.display = 'none';
+        unitGroup.style.display = 'flex';
+        if (overheadSection) overheadSection.style.display = 'none';
+    }
 };
 
 window.exportCSV = function(type) {
@@ -205,16 +238,15 @@ window.exportJSON = function() {
 
 // Page Load Lifecycle
 document.addEventListener('DOMContentLoaded', async () => {
-    if (sessionStorage.getItem('kb_authenticated') === 'true') {
-        const modal = document.getElementById('passcode-modal');
-        if (modal) modal.style.display = 'none';
+    const dateDisplay = document.getElementById('current-date');
+    if (dateDisplay) {
+        dateDisplay.innerText = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
     }
-
-    document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-IN', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
 
     await loadCloudCollection('skus', defaultSKUs);
     renderSKUs();
     initSearchableSelects();
+    onSKUTypeChange(document.getElementById('sku-type'));
 });
