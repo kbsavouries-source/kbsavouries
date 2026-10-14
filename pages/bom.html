@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB Savouries - BOM Master</title>
+    <link rel="stylesheet" href="../css/books.css">
+    <link rel="stylesheet" href="../css/bom.css">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+        <div class="brand">
+            <img src="../Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'">
+            <span>KB SAVOURIES</span>
+        </div>
+        <ul class="nav-links">
+            <li onclick="location.href='books.html'">Dashboard</li>
+            <li onclick="location.href='sku-catalog.html'">SKU Catalog</li>
+            <li onclick="location.href='sales-register.html'">Sales Register</li>
+            <li onclick="location.href='batch-log.html'">Batch Log</li>
+            <li class="active" onclick="location.href='bom.html'">BOM Master</li>
+            <li onclick="location.href='marketing-log.html'">Samples & Marketing</li>
+            <li onclick="location.href='inventory-tracker.html'">Inventory Tracker</li>
+            <li onclick="location.href='purchase-log.html'">Purchase Log</li>
+            <li><a href="accounts.html" style="color: inherit; text-decoration: none; display: block;">Accounting & Reports</a></li>
+        </ul>
+        <div class="backup-section">
+            <button class="btn-outline" onclick="exportJSON()">Download JSON Backup</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">Bill of Materials (BOM) Master</h1>
+            <span id="current-date" class="date-display"></span>
+        </header>
+
+        <div class="content-area">
+            <div class="card">
+                <h2>Configure Recipe BOM for Finished Product</h2>
+                <form id="bom-form" onsubmit="saveBOM(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bom-product">Finished Product Line</label>
+                            <select id="bom-product" onchange="onBOMProductChange()" required>
+                                <!-- Populated dynamically from Finished SKUs -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bom-base-output">Base Reference Output Weight (Grams)</label>
+                            <input type="number" id="bom-base-output" value="500" min="1" step="1" required placeholder="e.g. 500 or 1000">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px;">
+                        <h3>Required Raw Ingredients & Quantities</h3>
+                        <div id="bom-ingredients-container" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                            <!-- Dynamic rows -->
+                        </div>
+                        <button type="button" class="btn-outline" onclick="addBOMRow()" style="margin-top: 14px;">+ Add Ingredient Row</button>
+                    </div>
+
+                    <div class="form-actions" style="margin-top: 24px;">
+                        <button type="submit" class="btn-primary">Save BOM Configuration</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('open');
+        };
+    </script>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('current-date');
+            if(dateEl) {
+                dateEl.innerText = new Date().toLocaleDateString('en-IN', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script type="module" src="../js/bom.js"></script>
+</body>
+</html>

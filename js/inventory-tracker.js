@@ -1,5 +1,5 @@
 // ==========================================================================
-// Inventory Tracker Module Logic
+// Inventory Tracker Module Logic (Searchable Product Filter & BOM Scaling)
 // ==========================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
@@ -19,20 +19,21 @@ const db = getFirestore(firebaseApp);
 window.appData = {
     skus: [],
     purchases: [],
-    batches: []
+    batches: [],
+    boms: []
 };
 
-// Universal Recipe BOM proportions per 500g output
-const defaultRecipePer500g = {
-    "Poha": { qty: 250, unit: "gms", category: "Raw Food Ingredient" },
-    "Peanut": { qty: 63, unit: "gms", category: "Raw Food Ingredient" },
-    "Roasted Channa": { qty: 63, unit: "gms", category: "Raw Food Ingredient" },
-    "Rice Bran Oil": { qty: 500, unit: "ml", category: "Raw Food Ingredient" },
-    "Curry Leaves": { qty: 10, unit: "gms", category: "Raw Food Ingredient" },
-    "Turmeric": { qty: 5, unit: "gms", category: "Raw Food Ingredient" },
-    "Chilli Powder": { qty: 1.5, unit: "gms", category: "Raw Food Ingredient" },
-    "Salt": { qty: 1.5, unit: "gms", category: "Raw Food Ingredient" }
-};
+// Fallback default recipe per 500g output
+const defaultRecipePer500g = [
+    { name: "Poha", qty: 250, unit: "gms", category: "Raw Food Ingredient" },
+    { name: "Peanut", qty: 63, unit: "gms", category: "Raw Food Ingredient" },
+    { name: "Roasted Channa", qty: 63, unit: "gms", category: "Raw Food Ingredient" },
+    { name: "Rice Bran Oil", qty: 500, unit: "ml", category: "Raw Food Ingredient" },
+    { name: "Curry Leaves", qty: 10, unit: "gms", category: "Raw Food Ingredient" },
+    { name: "Turmeric", qty: 5, unit: "gms", category: "Raw Food Ingredient" },
+    { name: "Chilli Powder", qty: 1.5, unit: "gms", category: "Raw Food Ingredient" },
+    { name: "Salt", qty: 1.5, unit: "gms", category: "Raw Food Ingredient" }
+];
 
 export function normalizeIngredientName(rawName) {
     if (!rawName) return "Other";
@@ -72,7 +73,7 @@ export function formatDynamicValue(val, preferredUnit) {
 
 export async function initInventoryTracker() {
     try {
-        const collections = ['skus', 'purchases', 'batches'];
+        const collections = ['skus', 'purchases', 'batches', 'boms'];
         for (const colName of collections) {
             const querySnapshot = await getDocs(collection(db, colName));
             window.appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
@@ -81,54 +82,113 @@ export async function initInventoryTracker() {
         console.error("Error loading cloud data for inventory tracker:", err);
     }
 
+    populateProductFilterDropdown();
+    renderInventory();
+}
+
+let productFilterTomSelect = null;
+
+export function populateProductFilterDropdown() {
+    const filterSelect = document.getElementById('inventory-product-filter');
+    const finishedSKUs = window.appData.skus.filter(s => s.type === 'Finished Inventory');
+
+    if (filterSelect) {
+        const uniqueProductLines = [...new Set(finishedSKUs.map(s => {
+            return s.name.includes(' - ') ? s.name.split(' - ')[0].trim() : s.name;
+        }))];
+
+        filterSelect.innerHTML = `<option value="ALL">All Products (Combined)</option>` + 
+            uniqueProductLines.map(line => `<option value="${line}">${line}</option>`).join('');
+
+        if (window.TomSelect) {
+            if (productFilterTomSelect) {
+                productFilterTomSelect.destroy();
+            }
+            productFilterTomSelect = new TomSelect(filterSelect, {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                onChange: () => {
+                    renderInventory();
+                }
+            });
+        }
+    }
+}
+
+export function clearInventoryFilter() {
+    if (productFilterTomSelect) {
+        productFilterTomSelect.setValue('ALL');
+    } else {
+        const filterSelect = document.getElementById('inventory-product-filter');
+        if (filterSelect) filterSelect.value = 'ALL';
+    }
     renderInventory();
 }
 
 export function renderInventory() {
     const tbody = document.getElementById('inventory-table-body');
+    const productFilter = productFilterTomSelect ? productFilterTomSelect.getValue() : 
+                          (document.getElementById('inventory-product-filter') ? document.getElementById('inventory-product-filter').value : 'ALL');
+    
     if (!tbody || !window.appData) return;
 
+    // 1. Accumulate total purchases for all items
     let purchasedMap = {};
     (window.appData.purchases || []).forEach(p => {
         let masterName = normalizeIngredientName(p.item);
-        if (!defaultRecipePer500g[masterName]) return;
-
         let qty = Number(p.qty) || 0;
         let unit = (p.unit || 'Kg').toLowerCase();
+        let qtyInBase = (unit === 'kg' || unit === 'ltrs') ? qty * 1000 : qty;
 
-        if (!purchasedMap[masterName]) {
-            purchasedMap[masterName] = { total: 0, unit: defaultRecipePer500g[masterName].unit };
-        }
-
-        let qtyInBase = qty;
-        if (unit === 'kg' || unit === 'ltrs') qtyInBase = qty * 1000;
-
-        purchasedMap[masterName].total += qtyInBase;
+        if (!purchasedMap[masterName]) purchasedMap[masterName] = 0;
+        purchasedMap[masterName] += qtyInBase;
     });
 
+    // 2. Compute consumption dynamically based on product BOMs & scale factor
     let consumedMap = {};
     (window.appData.batches || []).forEach(b => {
-        let batchGrams = Number(b.totalGrams) || 0;
-        let scaleFactor = batchGrams / 500;
+        if (productFilter !== 'ALL' && b.product !== productFilter) return;
 
-        for (let [ingredient, data] of Object.entries(defaultRecipePer500g)) {
-            let masterName = normalizeIngredientName(ingredient);
-            let consumedAmt = data.qty * scaleFactor;
+        let batchGrams = Number(b.totalGrams) || 0;
+        
+        let bomRecord = (window.appData.boms || []).find(item => item.productLine === b.product);
+        let baseOutput = bomRecord ? Number(bomRecord.baseOutputGrams) || 500 : 500;
+        let ingredientsList = bomRecord ? bomRecord.ingredients : defaultRecipePer500g;
+
+        let scaleFactor = batchGrams / baseOutput;
+
+        ingredientsList.forEach(ing => {
+            let masterName = normalizeIngredientName(ing.name || ing.ingredient);
+            let consumedAmt = Number(ing.qty) * scaleFactor;
             consumedMap[masterName] = (consumedMap[masterName] || 0) + consumedAmt;
-        }
+        });
     });
 
-    let rawIngredients = Object.keys(defaultRecipePer500g);
+    // 3. Determine which ingredients to show based on filter selection
+    let ingredientsToDisplay = [];
+    if (productFilter === 'ALL') {
+        let allSet = new Set(defaultRecipePer500g.map(i => i.name));
+        (window.appData.boms || []).forEach(b => b.ingredients.forEach(i => allSet.add(i.name)));
+        ingredientsToDisplay = [...allSet];
+    } else {
+        let bomRecord = (window.appData.boms || []).find(item => item.productLine === productFilter);
+        if (bomRecord && bomRecord.ingredients) {
+            ingredientsToDisplay = bomRecord.ingredients.map(i => i.name);
+        } else {
+            ingredientsToDisplay = defaultRecipePer500g.map(i => i.name);
+        }
+    }
+
     let rowsHtml = [];
 
-    rawIngredients.forEach(item => {
-        let boughtInfo = purchasedMap[item] || { total: 0, unit: defaultRecipePer500g[item].unit };
-        let totalBought = boughtInfo.total;
+    ingredientsToDisplay.forEach(item => {
+        let bomRef = defaultRecipePer500g.find(i => i.name === item) || { unit: 'gms', category: 'Raw Food Ingredient' };
+        let prefUnit = bomRef.unit;
+        let category = bomRef.category;
+
+        let totalBought = purchasedMap[item] || 0;
         let totalUsed = consumedMap[item] || 0;
         let balance = totalBought - totalUsed;
-
-        let prefUnit = defaultRecipePer500g[item].unit;
-        let category = defaultRecipePer500g[item].category;
 
         let displayBought = formatDynamicValue(totalBought, prefUnit);
         let displayUsed = formatDynamicValue(totalUsed, prefUnit);
@@ -150,7 +210,7 @@ export function renderInventory() {
         `);
     });
 
-    tbody.innerHTML = rowsHtml.join('');
+    tbody.innerHTML = rowsHtml.length > 0 ? rowsHtml.join('') : `<tr><td colspan="6" style="text-align:center; padding: 20px;">No BOM configuration found for this product.</td></tr>`;
 }
 
 export function exportCSV(type) {
@@ -162,36 +222,45 @@ export function exportCSV(type) {
         let purchasedMap = {};
         (window.appData.purchases || []).forEach(p => {
             let m = normalizeIngredientName(p.item);
-            if (!defaultRecipePer500g[m]) return;
             let q = Number(p.qty) || 0;
-            if (!purchasedMap[m]) purchasedMap[m] = { total: 0, unit: defaultRecipePer500g[m].unit };
-            purchasedMap[m].total += (p.unit && (p.unit.toLowerCase() === 'kg' || p.unit.toLowerCase() === 'ltrs')) ? q * 1000 : q;
+            if (!purchasedMap[m]) purchasedMap[m] = 0;
+            purchasedMap[m] += (p.unit && (p.unit.toLowerCase() === 'kg' || p.unit.toLowerCase() === 'ltrs')) ? q * 1000 : q;
         });
 
         let consumedMap = {};
+        const productFilter = productFilterTomSelect ? productFilterTomSelect.getValue() : 'ALL';
+        
         (window.appData.batches || []).forEach(b => {
-            let scale = (Number(b.totalGrams) || 0) / 500;
-            for (let [ing, data] of Object.entries(defaultRecipePer500g)) {
-                let m = normalizeIngredientName(ing);
-                consumedMap[m] = (consumedMap[m] || 0) + (data.qty * scale);
-            }
+            if (productFilter !== 'ALL' && b.product !== productFilter) return;
+            let bomRecord = (window.appData.boms || []).find(item => item.productLine === b.product);
+            let baseOutput = bomRecord ? Number(bomRecord.baseOutputGrams) || 500 : 500;
+            let ingredientsList = bomRecord ? bomRecord.ingredients : defaultRecipePer500g;
+            let batchScale = (Number(b.totalGrams) || 0) / baseOutput;
+
+            ingredientsList.forEach(ing => {
+                let m = normalizeIngredientName(ing.name || ing.ingredient);
+                consumedMap[m] = (consumedMap[m] || 0) + (Number(ing.qty) * batchScale);
+            });
         });
 
-        Object.keys(defaultRecipePer500g).forEach(item => {
-            let boughtInfo = purchasedMap[item] || { total: 0, unit: defaultRecipePer500g[item].unit };
-            let totalBought = boughtInfo.total;
+        let ingredientsToExport = [];
+        if (productFilter === 'ALL') {
+            let allSet = new Set(defaultRecipePer500g.map(i => i.name));
+            (window.appData.boms || []).forEach(b => b.ingredients.forEach(i => allSet.add(i.name)));
+            ingredientsToExport = [...allSet];
+        } else {
+            let bomRecord = (window.appData.boms || []).find(item => item.productLine === productFilter);
+            ingredientsToExport = bomRecord ? bomRecord.ingredients.map(i => i.name) : defaultRecipePer500g.map(i => i.name);
+        }
+
+        ingredientsToExport.forEach(item => {
+            let bomRef = defaultRecipePer500g.find(i => i.name === item) || { unit: 'gms', category: 'Raw Food Ingredient' };
+            let totalBought = purchasedMap[item] || 0;
             let totalUsed = consumedMap[item] || 0;
             let bal = totalBought - totalUsed;
-
-            let prefUnit = defaultRecipePer500g[item].unit;
-            let category = defaultRecipePer500g[item].category;
-
-            let displayBought = formatDynamicValue(totalBought, prefUnit);
-            let displayUsed = formatDynamicValue(totalUsed, prefUnit);
-            let displayBalance = formatDynamicValue(bal, prefUnit);
             let statusTag = bal <= 500 ? 'Low Stock' : 'Optimal';
 
-            csvContent += `"${item}","${category}","${displayBought}","${displayUsed}","${displayBalance}","${statusTag}"\n`;
+            csvContent += `"${item}","${bomRef.category}","${formatDynamicValue(totalBought, bomRef.unit)}","${formatDynamicValue(totalUsed, bomRef.unit)}","${formatDynamicValue(bal, bomRef.unit)}","${statusTag}"\n`;
         });
 
         const encodedUri = encodeURI(csvContent);
@@ -201,14 +270,14 @@ export function exportCSV(type) {
         document.body.appendChild(link);
         link.click();
         link.remove();
+        return;
     }
 }
 
-// Bind functions to window scope for inline HTML event handling
 window.renderInventory = renderInventory;
+window.clearInventoryFilter = clearInventoryFilter;
 window.exportCSV = exportCSV;
 
-// Auto-initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     initInventoryTracker();
 });

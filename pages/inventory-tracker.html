@@ -6,6 +6,8 @@
     <title>KB Savouries - Inventory Tracker</title>
     <link rel="stylesheet" href="../css/books.css">
     <link rel="stylesheet" href="../css/inventory-tracker.css">
+    <!-- Tom Select CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 </head>
 <body>
 
@@ -27,6 +29,7 @@
             <li onclick="location.href='sku-catalog.html'">SKU Catalog</li>
             <li onclick="location.href='sales-register.html'">Sales Register</li>
             <li onclick="location.href='batch-log.html'">Batch Log</li>
+            <li onclick="location.href='bom.html'">BOM Master</li>
             <li onclick="location.href='marketing-log.html'">Samples & Marketing</li>
             <li class="active" onclick="location.href='inventory-tracker.html'">Inventory Tracker</li>
             <li onclick="location.href='purchase-log.html'">Purchase Log</li>
@@ -45,11 +48,20 @@
         </header>
 
         <div class="content-area">
-            <!-- RAW MATERIAL INVENTORY TRACKER TAB -->
             <div id="inventory" class="tab-content active">
                 <div class="card">
                     <div class="section-header-flex">
-                        <h2>Raw Material Inventory Tracker</h2>
+                        <div class="title-filter-group">
+                            <h2>Raw Material Inventory Tracker</h2>
+                            <div class="date-filter-wrapper">
+                                <label for="inventory-product-filter" class="filter-label">Filter Product BOM:</label>
+                                <select id="inventory-product-filter" onchange="renderInventory()">
+                                    <option value="ALL">All Products (Combined)</option>
+                                    <!-- Populated dynamically -->
+                                </select>
+                                <button type="button" class="btn-clear-filter" onclick="clearInventoryFilter()">Reset</button>
+                            </div>
+                        </div>
                         <button type="button" class="btn-outline" onclick="exportCSV('inventory')">Export Inventory CSV</button>
                     </div>
                     <div class="table-responsive">
@@ -74,13 +86,10 @@
         </div>
     </main>
 
-    <!-- Script Initialization & Mobile Sidebar Toggle -->
     <script>
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.classList.toggle('open');
-            }
+            if (sidebar) sidebar.classList.toggle('open');
         };
     </script>
     <script type="module">
@@ -93,6 +102,8 @@
             }
         });
     </script>
+    <!-- Tom Select JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script type="module" src="../js/inventory-tracker.js"></script>
 </body>
 </html>
