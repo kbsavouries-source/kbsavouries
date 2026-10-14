@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB Savouries - Customer Relationship Management (CRM)</title>
+    <!-- Shared Glassmorphic Theme -->
+    <link rel="stylesheet" href="../css/shared-theme.css">
+    <!-- Page Specific Styles -->
+    <link rel="stylesheet" href="../css/crm.css">
+    <!-- Tom Select CSS CDN for Searchable Dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+        <div class="brand">
+            <img src="../Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'">
+            <span>KB SAVOURIES</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="books.html">Dashboard</a></li>
+            <li><a href="sku-catalog.html">SKU Catalog</a></li>
+            <li><a href="sales-register.html">Sales Register</a></li>
+            <li><a href="batch-log.html">Batch Log</a></li>
+            <li><a href="bom.html">BOM Master</a></li>
+            <li><a href="marketing-log.html">Samples & Marketing</a></li>
+            <li><a href="inventory-tracker.html">Inventory Tracker</a></li>
+            <li><a href="purchase-log.html">Purchase Log</a></li>
+            <li><a href="accounts.html">Accounting & Reports</a></li>
+            <li class="active"><a href="crm.html">Customer CRM</a></li>
+        </ul>
+        <div class="backup-section">
+            <button class="btn-outline" onclick="exportJSON()">Download JSON Backup</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">Customer Relationship Management (CRM)</h1>
+            <span id="current-date" class="date-display"></span>
+        </header>
+
+        <div class="content-area">
+
+            <!-- CUSTOMER FORM CARD -->
+            <div class="card">
+                <h2 id="crm-form-title">Add New Customer / Retail Outlet</h2>
+                <form id="crm-form" onsubmit="addCustomer(event)">
+                    <input type="hidden" id="customer-edit-index" value="">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cust-name">Customer / Store Name</label>
+                            <input type="text" id="cust-name" placeholder="e.g. Arjun / SuperMart Store 4" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cust-type">Customer Category</label>
+                            <select id="cust-type">
+                                <option value="Direct Retail Consumer" selected>Direct Retail Consumer</option>
+                                <option value="Retail Supermarket / Store">Retail Supermarket / Store</option>
+                                <option value="Wholesale Distributor">Wholesale Distributor</option>
+                                <option value="Corporate / Event Buyer">Corporate / Event Buyer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cust-phone">Phone Number</label>
+                            <input type="tel" id="cust-phone" placeholder="e.g. +91 9876543210">
+                        </div>
+                        <div class="form-group">
+                            <label for="cust-email">Email Address</label>
+                            <input type="email" id="cust-email" placeholder="e.g. buyer@store.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="cust-city">City / Area</label>
+                            <input type="text" id="cust-city" placeholder="e.g. Chennai / T. Nagar">
+                        </div>
+                        <div class="form-group">
+                            <label for="cust-credit-limit">Credit Limit (₹)</label>
+                            <input type="number" id="cust-credit-limit" placeholder="0" min="0" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button type="submit" id="cust-submit-btn" class="btn-primary">Save Customer Profile</button>
+                        <button type="button" id="cust-cancel-btn" class="btn-outline" style="display: none;" onclick="cancelCustomerEdit()">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- CUSTOMER DIRECTORY CARD -->
+            <div class="card">
+                <div class="section-header-flex">
+                    <div class="title-filter-group">
+                        <h2>Customer Directory & Purchase Insights</h2>
+                        <div class="date-filter-wrapper">
+                            <input type="text" id="crm-search-filter" oninput="renderCustomers()" placeholder="Search Name, Phone, or Area..." class="filter-search-input">
+                            <button type="button" class="btn-clear-filter" onclick="clearCRMFilter()">Clear</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-outline" onclick="exportCSV('customers')">Export CRM CSV</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="mobile-stack-table">
+                        <thead>
+                            <tr>
+                                <th>Customer Name</th>
+                                <th>Category</th>
+                                <th>Contact & Location</th>
+                                <th>Total Orders</th>
+                                <th>Lifetime Revenue (₹)</th>
+                                <th>Last Order Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="crm-table-body">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Tom Select JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script type="module" src="../js/crm.js"></script>
+
+    <script>
+    window.toggleSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.classList.toggle('open');
+        }
+    };
+    </script>
+</body>
+</html>

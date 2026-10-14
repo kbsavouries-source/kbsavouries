@@ -24,6 +24,9 @@ window.appData = {
     samples: []
 };
 
+let productTomSelect = null;
+let batchTomSelect = null;
+
 export async function initSalesRegister() {
     const todayStr = new Date().toISOString().split('T')[0];
     const saleDateEl = document.getElementById('sale-date');
@@ -38,11 +41,7 @@ export async function initSalesRegister() {
     } catch (err) {
         console.error("Error loading cloud data:", err);
     }
-// Initialize Tom Select on dropdowns for searchability
-if (window.TomSelect) {
-    new TomSelect('#sale-product', { create: false, sortField: { field: "text", direction: "asc" } });
-    new TomSelect('#sale-batch', { create: false, sortField: { field: "text", direction: "asc" } });
-}
+
     populateFinishedSKUDropdowns();
     populateBatchOptions();
     renderSales();
@@ -53,7 +52,23 @@ export function populateFinishedSKUDropdowns() {
     const finishedSKUs = window.appData.skus.filter(s => s.type === 'Finished Inventory');
 
     if (saleProductSelect) {
+        if (productTomSelect) {
+            productTomSelect.destroy();
+            productTomSelect = null;
+        }
+
         saleProductSelect.innerHTML = finishedSKUs.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+
+        if (window.TomSelect && finishedSKUs.length > 0) {
+            productTomSelect = new TomSelect('#sale-product', {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                onChange: () => {
+                    onProductChange();
+                }
+            });
+        }
+
         updateProductPrice();
     }
 }
@@ -68,7 +83,8 @@ export function updateSaleQuantityLabel() {
     const productSelect = document.getElementById('sale-product');
     const qtyLabel = document.getElementById('sale-qty-label');
     if (productSelect && qtyLabel) {
-        const sku = window.appData.skus.find(s => s.name === productSelect.value);
+        const skuName = productTomSelect ? productTomSelect.getValue() : productSelect.value;
+        const sku = window.appData.skus.find(s => s.name === skuName);
         const measure = sku ? (sku.measure || 'Pkts') : 'Pkts';
         qtyLabel.innerText = `Quantity (${measure})`;
     }
@@ -80,7 +96,7 @@ export function updateProductPrice() {
     const saleMode = document.getElementById('sale-mode') ? document.getElementById('sale-mode').value : 'Packets';
 
     if (productSelect && priceInput) {
-        const selectedSKUName = productSelect.value;
+        const selectedSKUName = productTomSelect ? productTomSelect.getValue() : productSelect.value;
         const matchingSKU = window.appData.skus.find(s => s.name === selectedSKUName);
         if (matchingSKU) {
             if (saleMode === 'Packets') {
@@ -112,7 +128,8 @@ export function onSaleModeChange(selectEl) {
 
 export function getSaleGrams() {
     const mode = document.getElementById('sale-mode').value;
-    const skuName = document.getElementById('sale-product').value;
+    const productSelect = document.getElementById('sale-product');
+    const skuName = productTomSelect ? productTomSelect.getValue() : (productSelect ? productSelect.value : '');
     const skuRecord = window.appData.skus.find(s => s.name === skuName);
 
     if (mode === 'Packets') {
@@ -137,12 +154,26 @@ export function formatGrams(grams) {
 export function populateBatchOptions() {
     const batchSelect = document.getElementById('sale-batch');
     const submitBtn = document.getElementById('sale-submit-btn');
+    const productSelect = document.getElementById('sale-product');
     if (!batchSelect) return;
 
-    const matchingBatches = window.appData.batches.filter(b => Number(b.remainingGrams) > 0);
+    const selectedSKUName = productTomSelect ? productTomSelect.getValue() : (productSelect ? productSelect.value : '');
+    const selectedProductLine = selectedSKUName.includes(' - ') ? selectedSKUName.split(' - ')[0].trim() : selectedSKUName;
+
+    // Filter available batches with stock > 0 matching the selected product line
+    const matchingBatches = window.appData.batches.filter(b => {
+        const hasStock = Number(b.remainingGrams) > 0;
+        const matchesProduct = !selectedProductLine || b.product.toLowerCase().includes(selectedProductLine.toLowerCase()) || selectedProductLine.toLowerCase().includes(b.product.toLowerCase());
+        return hasStock && matchesProduct;
+    });
+
+    if (batchTomSelect) {
+        batchTomSelect.destroy();
+        batchTomSelect = null;
+    }
 
     if (matchingBatches.length === 0) {
-        batchSelect.innerHTML = `<option value="">No Stock</option>`;
+        batchSelect.innerHTML = `<option value="">No Stock Available</option>`;
         if (submitBtn) submitBtn.disabled = true;
     } else {
         batchSelect.innerHTML = matchingBatches.map(b => 
@@ -150,19 +181,28 @@ export function populateBatchOptions() {
         ).join('');
         if (submitBtn) submitBtn.disabled = false;
     }
+
+    if (window.TomSelect) {
+        batchTomSelect = new TomSelect('#sale-batch', {
+            create: false,
+            sortField: { field: "text", direction: "asc" }
+        });
+    }
 }
 
 export async function addSale(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
-    const skuName = document.getElementById('sale-product').value;
-    const selectedBatchCode = document.getElementById('sale-batch').value;
+    const productSelect = document.getElementById('sale-product');
+    const skuName = productTomSelect ? productTomSelect.getValue() : productSelect.value;
+    const batchSelect = document.getElementById('sale-batch');
+    const selectedBatchCode = batchTomSelect ? batchTomSelect.getValue() : batchSelect.value;
     const saleMode = document.getElementById('sale-mode').value;
     const skuRecord = window.appData.skus.find(s => s.name === skuName);
     const measure = skuRecord ? (skuRecord.measure || 'Pkts') : 'Pkts';
 
     if (!selectedBatchCode) {
-        alert("Cannot complete sale. No stock available.");
+        alert("Cannot complete sale. No stock available for selected product.");
         return;
     }
 
@@ -171,7 +211,7 @@ export async function addSale(e) {
 
     if (batch) {
         if (Number(batch.remainingGrams) < totalGramsSold) {
-            alert(`Cannot complete sale. Selected batch only has remaining stock, but this sale requires ${formatGrams(totalGramsSold)}.`);
+            alert(`Cannot complete sale. Selected batch only has ${formatGrams(batch.remainingGrams)} remaining stock, but this sale requires ${formatGrams(totalGramsSold)}.`);
             return;
         }
         batch.remainingGrams = Number(batch.remainingGrams) - totalGramsSold;
@@ -180,7 +220,6 @@ export async function addSale(e) {
             batch.status = 'Sold Out';
         }
 
-        // Update batch remaining grams in Firestore
         if (batch.firebaseId) {
             try {
                 await updateDoc(doc(db, 'batches', batch.firebaseId), {
@@ -323,10 +362,7 @@ export function exportCSV(type) {
     linkAnchor.remove();
 }
 
-// Add to your window bindings:
 window.exportCSV = exportCSV;
-
-// Bind functions to window scope for inline HTML event handling
 window.onProductChange = onProductChange;
 window.onSaleModeChange = onSaleModeChange;
 window.addSale = addSale;
@@ -335,7 +371,6 @@ window.clearSalesFilters = clearSalesFilters;
 window.deleteSaleItem = deleteSaleItem;
 window.updateProductPrice = updateProductPrice;
 
-// Auto-initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     initSalesRegister();
 });
