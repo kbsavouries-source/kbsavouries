@@ -4,19 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KB Savouries - Dashboard</title>
+    <!-- Shared Glassmorphic Theme -->
+    <link rel="stylesheet" href="../css/shared-theme.css">
+    <!-- Page Specific Styles -->
     <link rel="stylesheet" href="../css/books.css">
 </head>
 <body>
 
-    <!-- Passcode Modal Overlay -->
+    <!-- Passcode Verification Modal -->
     <div id="passcode-modal" class="passcode-overlay">
         <div class="passcode-card">
-            <h2>KB Savouries Secured</h2>
-            <p>Enter 4-digit passcode to unlock workspace</p>
-            <form id="passcode-form" onsubmit="verifyPasscode(event)">
-                <input type="password" id="passcode-input" maxlength="4" pattern="[0-9]{4}" placeholder="••••" autocomplete="off" required autofocus>
+            <h2>Enter Security Passcode</h2>
+            <p>Please enter your 4-digit passcode to access the KB Savouries ERP workspace.</p>
+            <form onsubmit="verifyPasscode(event)">
+                <input type="password" id="passcode-input" maxlength="4" autocomplete="current-password" autofocus required>
                 <div id="passcode-error" class="passcode-error"></div>
-                <button type="submit" class="btn-primary">Unlock Workspace</button>
+                <button type="submit" class="btn-primary" style="width: 100%;">Access Workspace</button>
             </form>
         </div>
     </div>
@@ -54,38 +57,59 @@
     <!-- Main Workspace -->
     <main>
         <header>
-            <h1 id="page-title">Dashboard</h1>
+            <h1 id="page-title">Executive Dashboard & Operations</h1>
             <span id="current-date" class="date-display"></span>
         </header>
 
         <div class="content-area">
-            <!-- DASHBOARD CONTENT ONLY -->
-            <div id="dashboard" class="tab-content active">
-                <div class="metrics-grid">
-                    <div class="metric-card" onclick="location.href='sales-register.html'" style="cursor: pointer;">
-                        <h3>Total Revenue</h3>
-                        <div class="value" id="stat-revenue">₹0</div>
-                    </div>
-                    <div class="metric-card" onclick="location.href='sales-register.html'" style="cursor: pointer;">
-                        <h3>Orders Completed</h3>
-                        <div class="value" id="stat-orders">0</div>
-                    </div>
-                    <div class="metric-card" onclick="location.href='batch-log.html'" style="cursor: pointer;">
-                        <h3>Active Batches</h3>
-                        <div class="value" id="stat-batches">0</div>
-                    </div>
-                </div>
 
-                <div class="card">
-                    <h2>KB Savouries Workspace</h2>
-                    <p class="subtitle">
-                        Manage your home-based savory production, track raw ingredients, log direct sales, and manage marketing samples with zero friction.
-                    </p>
+            <!-- TOP EXECUTIVE METRICS ROW (REVENUE, ORDERS, ACTIVE BATCHES) -->
+            <div class="card">
+                <h2>Executive Summary</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Total Revenue</label>
+                        <h3 id="stat-revenue" style="font-size: 1.8rem; color: var(--accent-orange);">₹0</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Orders Processed</label>
+                        <h3 id="stat-orders" style="font-size: 1.8rem; color: var(--accent-orange);">0</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>Active Production Batches</label>
+                        <h3 id="stat-batches" style="font-size: 1.8rem; color: var(--accent-orange);">0</h3>
+                    </div>
                 </div>
             </div>
+
+            <!-- OPERATIONAL COUNTS (FINISHED GOODS & RAW MATERIALS) -->
+            <div class="card">
+                <h2>Operational Counts</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Finished Inventory SKUs</label>
+                        <h3 id="dash-finished-skus" style="font-size: 1.8rem; color: var(--accent-orange);">0</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>Raw Material SKUs</label>
+                        <h3 id="dash-raw-skus" style="font-size: 1.8rem; color: var(--accent-orange);">0</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>Customer Profiles</label>
+                        <h3 id="dash-total-customers" style="font-size: 1.8rem; color: var(--accent-orange);">0</h3>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
     <script type="module" src="../js/books.js"></script>
+    <script>
+    window.toggleSidebar = function() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.toggle('open');
+    };
+    </script>
 </body>
 </html>

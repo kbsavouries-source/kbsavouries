@@ -14,6 +14,27 @@
 </head>
 <body>
 
+    <!-- Bulk Import Modal -->
+    <div id="bulk-import-modal" class="passcode-overlay" style="display: none;">
+        <div class="passcode-card" style="max-width: 540px; text-align: left;">
+            <h2>Bulk Import SKUs (CSV)</h2>
+            <p style="margin-bottom: 16px; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+                Upload a CSV file containing your SKUs. Supports auto-generation for SKU numbers if left blank.
+            </p>
+            <div style="margin-bottom: 24px;">
+                <label class="custom-file-upload">
+                    <input type="file" id="csv-file-input" accept=".csv" onchange="updateFileName(this)">
+                    <span id="file-chosen-label">Choose CSV File...</span>
+                </label>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;">
+                <button type="button" class="btn-outline" onclick="downloadCSVTemplate()">Download Template</button>
+                <button type="button" class="btn-primary" onclick="processBulkCSV()">Upload & Import</button>
+                <button type="button" class="btn-outline" onclick="closeBulkModal()" style="border-color: var(--danger); color: var(--danger);">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Mobile Hamburger Toggle -->
     <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
         <span></span>
@@ -87,6 +108,11 @@
                                 <option value="Units">Units</option>
                             </select>
                         </div>
+                        <!-- Expiry Shelf Life Days Field (Finished Inventory Only) -->
+                        <div class="form-group" id="sku-expiry-group">
+                            <label for="sku-expiry-days">Shelf Life (in Days)</label>
+                            <input type="number" id="sku-expiry-days" placeholder="e.g. 30 or 45" min="1" value="30">
+                        </div>
                         <div class="form-group" id="sku-unit-group" style="display: none;">
                             <label for="sku-unit">Preferred Base Unit</label>
                             <select id="sku-unit">
@@ -101,17 +127,17 @@
                     </div>
 
                     <!-- Dynamic Overheads Section (Finished Goods Only) -->
-                    <div id="overhead-section" style="margin-top: 20px; border-top: 1.5px solid var(--glass-border); padding-top: 16px;">
-                        <div class="section-header-flex" style="margin-bottom: 12px;">
+                    <div id="overhead-section" style="margin-top: 24px; border-top: 1.5px solid var(--glass-border); padding-top: 20px;">
+                        <div class="section-header-flex" style="margin-bottom: 14px;">
                             <h3 style="font-size: 1rem; font-weight: 800;">Custom Overheads & Packaging (Per Unit)</h3>
                             <button type="button" class="btn-outline" onclick="addOverheadRow()" style="padding: 6px 14px; font-size: 0.8rem; min-height: 36px;">+ Add Overhead</button>
                         </div>
-                        <div id="overhead-rows-container" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div id="overhead-rows-container" style="display: flex; flex-direction: column; gap: 12px;">
                             <!-- Dynamic overhead rows populated here -->
                         </div>
                     </div>
 
-                    <div class="form-actions" style="display: flex; gap: 12px; margin-top: 20px;">
+                    <div class="form-actions" style="display: flex; gap: 12px; margin-top: 24px;">
                         <button type="submit" id="sku-submit-btn" class="btn-primary">Register SKU</button>
                         <button type="button" id="sku-cancel-btn" class="btn-outline" style="display: none;" onclick="cancelSKUEdit()">Cancel Edit</button>
                     </div>
@@ -124,22 +150,26 @@
                     <div class="title-filter-group">
                         <h2>Active SKU Master Directory</h2>
                         <div class="date-filter-wrapper">
-                            <input type="text" id="sku-search-filter" oninput="renderSKUs()" placeholder="Search SKU Name..." class="filter-search-input">
+                            <input type="text" id="sku-search-filter" oninput="renderSKUs()" placeholder="Search SKU Name or No..." class="filter-search-input">
                             <button type="button" class="btn-clear-filter" onclick="clearSKUFilter()">Clear</button>
                         </div>
                     </div>
-                    <button type="button" class="btn-outline" onclick="exportCSV('skus')">Export SKUs CSV</button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" class="btn-outline" onclick="openBulkModal()">Import Bulk CSV</button>
+                        <button type="button" class="btn-outline" onclick="exportCSV('skus')">Export SKUs CSV</button>
+                    </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="mobile-stack-table">
+                    <table class="mobile-stack-table sku-desktop-table">
                         <thead>
                             <tr>
-                                <th>SKU Name</th>
-                                <th>Classification</th>
-                                <th>Details / Specs</th>
-                                <th>Overheads / Unit</th>
-                                <th>Price / Unit</th>
-                                <th>Action</th>
+                                <th style="width: 12%;">SKU No.</th>
+                                <th style="width: 22%;">SKU Name</th>
+                                <th style="width: 14%;">Classification</th>
+                                <th style="width: 24%;">Details / Specs</th>
+                                <th style="width: 10%;">Overheads</th>
+                                <th style="width: 10%;">Price</th>
+                                <th style="width: 8%; text-align: right;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="sku-table-body">

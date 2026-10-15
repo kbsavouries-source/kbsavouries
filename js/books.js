@@ -19,7 +19,9 @@ window.appData = {
     sales: [],
     batches: [],
     purchases: [],
-    samples: []
+    samples: [],
+    inventory: [],
+    customers: []
 };
 
 window.verifyPasscode = function(e) {
@@ -39,7 +41,7 @@ window.verifyPasscode = function(e) {
 
 async function loadCloudData() {
     try {
-        const collections = ['sales', 'batches', 'skus', 'purchases', 'samples'];
+        const collections = ['sales', 'batches', 'skus', 'purchases', 'samples', 'inventory', 'customers'];
         for (const colName of collections) {
             const querySnapshot = await getDocs(collection(db, colName));
             window.appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
@@ -62,6 +64,19 @@ function updateDashboard() {
     
     let activeBatches = window.appData.batches.filter(b => Number(b.remainingGrams) > 0).length;
     if (batchesEl) batchesEl.innerText = activeBatches;
+
+    // Calculate separated SKU category counts
+    const allSkus = [...window.appData.skus, ...window.appData.inventory];
+    const finishedCount = allSkus.filter(item => (item.category || item.type || '').toLowerCase().includes('finished')).length;
+    const rawCount = allSkus.filter(item => (item.category || item.type || '').toLowerCase().includes('raw')).length;
+
+    const finishedEl = document.getElementById('dash-finished-skus');
+    const rawEl = document.getElementById('dash-raw-skus');
+    const custsEl = document.getElementById('dash-total-customers');
+
+    if (finishedEl) finishedEl.innerText = finishedCount;
+    if (rawEl) rawEl.innerText = rawCount;
+    if (custsEl) custsEl.innerText = window.appData.customers.length;
 }
 
 export function exportJSON() {

@@ -113,8 +113,12 @@ export async function addBatch(e) {
 
     const batchCode = `KBS-${formattedDate}-${shiftVal}`;
 
+    // Dynamically lookup SKU shelf life (expiryDays), defaulting to 30 days if not defined
+    const matchingSKU = window.appData.skus.find(s => s.name.toLowerCase().includes(productLine.toLowerCase()) && s.type === 'Finished Inventory');
+    const shelfLifeDays = matchingSKU && matchingSKU.expiryDays !== undefined ? Number(matchingSKU.expiryDays) : 30;
+
     let mfgDateObj = new Date(dateVal);
-    mfgDateObj.setDate(mfgDateObj.getDate() + 45);
+    mfgDateObj.setDate(mfgDateObj.getDate() + shelfLifeDays);
     const expiryDateStr = mfgDateObj.toISOString().split('T')[0];
 
     const batch = {

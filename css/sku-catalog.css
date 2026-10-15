@@ -8,12 +8,20 @@
   background: #dcfce7;
   color: #15803d;
   border: 1.5px solid #bbf7d0;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .status-badge.raw {
   background: #e0f2fe;
   color: #0369a1;
   border: 1.5px solid #bae6fd;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 /* Form Action Buttons Container */
@@ -21,14 +29,56 @@
   margin-top: 24px;
 }
 
-/* Spacious Card & Table Padding */
-.card {
-  padding: 28px;
-  margin-bottom: 28px;
+/* Spacious Desktop Card & Table Padding */
+.content-area {
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
-table th, table td {
-  padding: 18px 20px !important;
+.card {
+  padding: 32px 36px;
+  margin-bottom: 28px;
+  border-radius: 20px;
+}
+
+/* Desktop Form Grid Alignment */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* Desktop Table Layout Adjustments */
+.sku-desktop-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sku-desktop-table th {
+  padding: 12px 14px !important;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.sku-desktop-table td {
+  padding: 14px 14px !important;
+  vertical-align: middle;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.sku-desktop-table td.specs-cell {
+  white-space: normal;
+  max-width: 260px;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+.action-btn-group {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 /* Un-cramped Search Filter Bar Layout */
@@ -43,23 +93,23 @@ table th, table td {
 .date-filter-wrapper {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.6);
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
-  padding: 8px 16px;
+  padding: 6px 14px;
   border-radius: 14px;
   border: 1.5px solid var(--glass-border);
 }
 
 .filter-search-input {
-  padding: 8px 14px;
-  font-size: 0.9rem;
+  padding: 6px 12px;
+  font-size: 0.88rem;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 10px;
   border: 1.5px solid var(--glass-border);
   color: var(--text-primary);
-  height: 40px;
-  min-width: 240px;
+  height: 38px;
+  min-width: 260px;
   outline: none;
 }
 
@@ -70,28 +120,47 @@ table th, table td {
 }
 
 .btn-clear-filter {
-  padding: 8px 16px;
-  font-size: 0.85rem;
+  padding: 6px 14px;
+  font-size: 0.82rem;
   background: linear-gradient(135deg, #EA580C, #C2410C);
   color: #ffffff;
   border-radius: 10px;
   border: none;
-  min-height: 40px;
+  min-height: 38px;
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2);
 }
 
-/* Custom Table Column Spacing for SKU View */
-.mobile-stack-table td[data-label="Action"] {
+/* Custom Styled File Upload Input */
+.custom-file-upload {
   display: flex;
-  gap: 10px;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 12px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.custom-file-upload:hover {
+  background: #ffffff;
+  border-color: var(--accent-orange);
+}
+
+.custom-file-upload input[type="file"] {
+  display: none;
 }
 
 /* Mobile Adjustments for SKU Catalog */
 @media (max-width: 768px) {
+  .card {
+    padding: 20px;
+  }
   .title-filter-group {
     flex-direction: column;
     align-items: stretch;
@@ -105,7 +174,7 @@ table th, table td {
   .filter-search-input {
     min-width: 100%;
   }
-  .mobile-stack-table td[data-label="Action"] {
+  .action-btn-group {
     justify-content: flex-end !important;
   }
 }
