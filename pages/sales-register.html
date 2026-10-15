@@ -10,6 +10,66 @@
 </head>
 <body>
 
+    <!-- Invoice Modal (Printable Glassmorphic Theme) -->
+    <div id="invoice-modal" class="passcode-overlay" style="display: none;">
+        <div class="passcode-card invoice-print-container" style="max-width: 640px; text-align: left; width: 100%;">
+            <div class="invoice-header-flex" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <img src="../Assets/logo.png" alt="KB Savouries Logo" class="invoice-brand-logo" onerror="this.style.display='none'">
+                    <div>
+                        <h2 style="font-size: 1.35rem; font-weight: 900; color: var(--accent-orange, #EA580C); margin: 0; letter-spacing: -0.01em;">KB SAVOURIES</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary, #475569); margin: 2px 0 0 0;">Authentic Traditional Savouries & Snacks</p>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <h3 id="inv-modal-number" style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary, #0F172A); margin: 0;">INV-2026-0001</h3>
+                    <p id="inv-modal-date" style="font-size: 0.85rem; color: var(--text-secondary, #475569); margin: 4px 0 0 0;">Date: 15/10/2026</p>
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8)); margin: 18px 0;">
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem;">
+                <div>
+                    <strong style="color: var(--text-secondary, #475569); display: block; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px;">Billed To:</strong>
+                    <span id="inv-modal-customer" style="font-weight: 800; font-size: 1.05rem; color: var(--text-primary, #0F172A);">Customer Name</span>
+                </div>
+                <div style="text-align: right;">
+                    <strong style="color: var(--text-secondary, #475569); display: block; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px;">Payment Method:</strong>
+                    <span id="inv-modal-method" style="font-weight: 700; color: var(--accent-orange, #EA580C);">UPI</span>
+                </div>
+            </div>
+
+            <div class="table-responsive" style="margin-bottom: 20px;">
+                <table class="invoice-table-grid" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: rgba(234, 88, 12, 0.08); text-align: left;">
+                            <th style="padding: 10px 12px; font-size: 0.8rem; width: 45%;">Product / SKU</th>
+                            <th style="padding: 10px 12px; font-size: 0.8rem; width: 25%;">Batch Code</th>
+                            <th style="padding: 10px 12px; font-size: 0.8rem; width: 15%; text-align: center;">Qty</th>
+                            <th style="padding: 10px 12px; font-size: 0.8rem; width: 15%; text-align: right;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inv-modal-items">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
+                <div style="background: rgba(234, 88, 12, 0.06); padding: 12px 20px; border-radius: 12px; border: 1.5px solid rgba(234, 88, 12, 0.2); text-align: right; min-width: 220px;">
+                    <span style="font-size: 0.8rem; color: var(--text-secondary, #475569); font-weight: 700; text-transform: uppercase;">Total Invoice Value</span>
+                    <div id="inv-modal-total" style="font-size: 1.4rem; font-weight: 900; color: var(--accent-orange, #EA580C); margin-top: 2px;">₹0</div>
+                </div>
+            </div>
+
+            <div class="no-print" style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" class="btn-primary" onclick="printCurrentInvoice()">Print / Save PDF</button>
+                <button type="button" class="btn-outline" onclick="closeInvoiceModal()" style="border-color: var(--danger, #dc2626); color: var(--danger, #dc2626);">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Mobile Hamburger Toggle -->
     <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
         <span></span>
@@ -119,7 +179,7 @@
                         <div class="title-filter-group">
                             <h2>Sales History</h2>
                             <div class="date-filter-wrapper">
-                                <input type="text" id="sales-search-filter" oninput="renderSales()" placeholder="Search Customer / Product..." class="filter-search-input">
+                                <input type="text" id="sales-search-filter" oninput="renderSales()" placeholder="Search Customer / Product / Invoice..." class="filter-search-input">
                                 <label for="sales-date-filter" class="filter-label">Filter Date:</label>
                                 <input type="date" id="sales-date-filter" onchange="renderSales()" class="filter-date-input">
                                 <button type="button" class="btn-clear-filter" onclick="clearSalesFilters()">Clear</button>
@@ -133,17 +193,18 @@
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table class="mobile-stack-table">
+                        <table class="mobile-stack-table sales-desktop-table">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Customer</th>
-                                    <th>Product</th>
-                                    <th>Batch Code</th>
-                                    <th>Qty Sold</th>
-                                    <th>Total (₹)</th>
-                                    <th>Method</th>
-                                    <th>Action</th>
+                                    <th style="width: 13%;">Invoice No.</th>
+                                    <th style="width: 10%;">Date</th>
+                                    <th style="width: 14%;">Customer</th>
+                                    <th style="width: 20%;">Product</th>
+                                    <th style="width: 15%;">Batch Code</th>
+                                    <th style="width: 9%;">Qty</th>
+                                    <th style="width: 8%;">Total</th>
+                                    <th style="width: 6%;">Method</th>
+                                    <th style="width: 5%; text-align: right;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="sales-table-body">

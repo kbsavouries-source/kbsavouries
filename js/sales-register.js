@@ -160,7 +160,6 @@ export function populateBatchOptions() {
     const selectedSKUName = productTomSelect ? productTomSelect.getValue() : (productSelect ? productSelect.value : '');
     const selectedProductLine = selectedSKUName.includes(' - ') ? selectedSKUName.split(' - ')[0].trim() : selectedSKUName;
 
-    // Filter available batches with stock > 0 matching the selected product line
     const matchingBatches = window.appData.batches.filter(b => {
         const hasStock = Number(b.remainingGrams) > 0;
         const matchesProduct = !selectedProductLine || b.product.toLowerCase().includes(selectedProductLine.toLowerCase()) || selectedProductLine.toLowerCase().includes(b.product.toLowerCase());
@@ -188,6 +187,25 @@ export function populateBatchOptions() {
             sortField: { field: "text", direction: "asc" }
         });
     }
+}
+
+// Auto-generate Sequential Invoice Number (e.g. INV-2026-0001)
+function generateInvoiceNumber() {
+    let maxNum = 0;
+    if (window.appData && window.appData.sales) {
+        window.appData.sales.forEach(s => {
+            const invNo = s.invoiceNo || '';
+            if (invNo.startsWith('INV-')) {
+                const parts = invNo.split('-');
+                const num = parseInt(parts[parts.length - 1], 10);
+                if (!isNaN(num) && num > maxNum) {
+                    maxNum = num;
+                }
+            }
+        });
+    }
+    const nextNum = maxNum + 1;
+    return `INV-2026-${String(nextNum).padStart(4, '0')}`;
 }
 
 export async function addSale(e) {
@@ -233,8 +251,10 @@ export async function addSale(e) {
     }
 
     let qtyDisplayStr = saleMode === 'Packets' ? `${document.getElementById('sale-qty').value} ${measure}` : `${formatGrams(totalGramsSold)}`;
+    const invoiceNo = generateInvoiceNumber();
 
     const sale = {
+        invoiceNo: invoiceNo,
         date: document.getElementById('sale-date').value,
         customer: document.getElementById('sale-customer').value,
         product: skuName,
@@ -259,6 +279,44 @@ export async function addSale(e) {
     onSaleModeChange(document.getElementById('sale-mode'));
 }
 
+// --- Invoice Modal Viewer & Printer ---
+window.viewInvoiceModal = function(index) {
+    const sale = window.appData.sales[index];
+    if (!sale) return;
+
+    document.getElementById('inv-modal-number').innerText = sale.invoiceNo || 'INV-2026-0001';
+    
+    let formattedDate = sale.date;
+    const parts = sale.date.split('-');
+    if (parts.length === 3) formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+    document.getElementById('inv-modal-date').innerText = `Date: ${formattedDate}`;
+
+    document.getElementById('inv-modal-customer').innerText = sale.customer;
+    document.getElementById('inv-modal-method').innerText = sale.method;
+
+    const tbody = document.getElementById('inv-modal-items');
+    tbody.innerHTML = `
+        <tr>
+            <td style="padding: 12px; font-weight: 700; font-size: 0.9rem;">${sale.product}</td>
+            <td style="padding: 12px; font-size: 0.85rem;"><span class="table-code">${sale.batchCode || 'N/A'}</span></td>
+            <td style="padding: 12px; font-size: 0.85rem; text-align: center;">${sale.qtyDisplay || '1'}</td>
+            <td style="padding: 12px; font-weight: 800; font-size: 0.9rem; text-align: right;">₹${sale.total}</td>
+        </tr>
+    `;
+
+    document.getElementById('inv-modal-total').innerText = `₹${sale.total}`;
+    document.getElementById('invoice-modal').style.display = 'flex';
+};
+
+window.closeInvoiceModal = function() {
+    document.getElementById('invoice-modal').style.display = 'none';
+};
+
+window.printCurrentInvoice = function() {
+    window.print();
+};
+// -------------------------------------
+
 export function clearSalesFilters() {
     const searchInput = document.getElementById('sales-search-filter');
     const dateInput = document.getElementById('sales-date-filter');
@@ -277,7 +335,7 @@ export function renderSales() {
     let displayedSales = window.appData.sales;
 
     if (searchFilter) {
-        displayedSales = displayedSales.filter(s => s.customer.toLowerCase().includes(searchFilter) || s.product.toLowerCase().includes(searchFilter));
+        displayedSales = displayedSales.filter(s => s.customer.toLowerCase().includes(searchFilter) || s.product.toLowerCase().includes(searchFilter) || (s.invoiceNo || '').toLowerCase().includes(searchFilter));
     }
 
     if (dateFilter) {
@@ -291,16 +349,23 @@ export function renderSales() {
 
     tbody.innerHTML = displayedSales.map((s) => {
         const realIndex = window.appData.sales.indexOf(s);
+        const invNo = s.invoiceNo || `INV-2026-00${realIndex + 1}`;
         return `
             <tr>
+                <td data-label="Invoice No."><span class="table-code highlight">${invNo}</span></td>
                 <td data-label="Date">${s.date}</td>
-                <td data-label="Customer">${s.customer}</td>
+                <td data-label="Customer"><strong>${s.customer}</strong></td>
                 <td data-label="Product">${s.product}</td>
-                <td data-label="Batch Code"><code>${s.batchCode || 'N/A'}</code></td>
-                <td data-label="Qty Sold">${s.qtyDisplay || `${s.qty} Pkts`}</td>
-                <td data-label="Total (₹)">₹${s.total}</td>
+                <td data-label="Batch Code"><span class="table-code">${s.batchCode || 'N/A'}</span></td>
+                <td data-label="Qty">${s.qtyDisplay || `${s.qty} Pkts`}</td>
+                <td data-label="Total"><strong>₹${s.total}</strong></td>
                 <td data-label="Method">${s.method}</td>
-                <td data-label="Action"><button class="btn-danger" onclick="deleteSaleItem(${realIndex})">Delete</button></td>
+                <td data-label="Action">
+                    <div class="action-btn-group">
+                        <button class="btn-outline" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="viewInvoiceModal(${realIndex})">Invoice</button>
+                        <button class="btn-danger" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="deleteSaleItem(${realIndex})">Delete</button>
+                    </div>
+                </td>
             </tr>
         `;
     }).join('');
@@ -370,6 +435,9 @@ window.renderSales = renderSales;
 window.clearSalesFilters = clearSalesFilters;
 window.deleteSaleItem = deleteSaleItem;
 window.updateProductPrice = updateProductPrice;
+window.viewInvoiceModal = viewInvoiceModal;
+window.closeInvoiceModal = closeInvoiceModal;
+window.printCurrentInvoice = printCurrentInvoice;
 
 document.addEventListener('DOMContentLoaded', () => {
     initSalesRegister();
