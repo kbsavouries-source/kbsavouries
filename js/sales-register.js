@@ -1,5 +1,5 @@
 // ==========================================================================
-// Sales Register Module Logic
+// Sales Register Module Logic (Multi-Product Invoice Support)
 // ==========================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
@@ -24,9 +24,6 @@ window.appData = {
     samples: []
 };
 
-let productTomSelect = null;
-let batchTomSelect = null;
-
 export async function initSalesRegister() {
     const todayStr = new Date().toISOString().split('T')[0];
     const saleDateEl = document.getElementById('sale-date');
@@ -42,106 +39,145 @@ export async function initSalesRegister() {
         console.error("Error loading cloud data:", err);
     }
 
-    populateFinishedSKUDropdowns();
-    populateBatchOptions();
+    const container = document.getElementById('sale-items-container');
+    if (container && container.children.length === 0) {
+        addSaleLineItem();
+    }
+
     renderSales();
 }
 
-export function populateFinishedSKUDropdowns() {
-    const saleProductSelect = document.getElementById('sale-product');
+// Add a dynamic line item row to the sales form
+window.addSaleLineItem = function() {
+    const container = document.getElementById('sale-items-container');
+    if (!container) return;
+
+    const rowId = 'sale-row-' + Date.now() + Math.floor(Math.random() * 1000);
     const finishedSKUs = window.appData.skus.filter(s => s.type === 'Finished Inventory');
+    let productOptions = finishedSKUs.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
 
-    if (saleProductSelect) {
-        if (productTomSelect) {
-            productTomSelect.destroy();
-            productTomSelect = null;
-        }
+    const row = document.createElement('div');
+    row.className = 'sale-item-row';
+    row.id = rowId;
+    row.style.cssText = 'display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr auto; gap: 12px; align-items: center; background: rgba(255,255,255,0.5); padding: 12px; border-radius: 12px; border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));';
 
-        saleProductSelect.innerHTML = finishedSKUs.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    row.innerHTML = `
+        <div class="form-group" style="margin:0;">
+            <label style="font-size:0.75rem;">Product / SKU</label>
+            <select class="row-product" onchange="onRowProductChange('${rowId}')" required>
+                <option value="">Select SKU</option>
+                ${productOptions}
+            </select>
+        </div>
+        <div class="form-group" style="margin:0;">
+            <label style="font-size:0.75rem;">Batch Code</label>
+            <select class="row-batch" required>
+                <option value="">No Stock</option>
+            </select>
+        </div>
+        <div class="form-group" style="margin:0;">
+            <label style="font-size:0.75rem;">Qty (Pkts / Units)</label>
+            <input type="number" class="row-qty" value="1" min="1" step="any" oninput="updateRowTotal('${rowId}')" required>
+        </div>
+        <div class="form-group" style="margin:0;">
+            <label style="font-size:0.75rem;">Price (₹)</label>
+            <input type="number" class="row-price" placeholder="0" min="0" step="any" oninput="updateFormTotal()" required>
+        </div>
+        <div style="display:flex; align-items:flex-end; height:100%;">
+            <button type="button" class="btn-danger" onclick="removeSaleLineItem('${rowId}')" style="padding: 8px 14px; min-height: 42px; width: auto !important;">✕</button>
+        </div>
+    `;
 
-        if (window.TomSelect && finishedSKUs.length > 0) {
-            productTomSelect = new TomSelect('#sale-product', {
-                create: false,
-                sortField: { field: "text", direction: "asc" },
-                onChange: () => {
-                    onProductChange();
-                }
-            });
-        }
+    container.appendChild(row);
 
-        updateProductPrice();
-    }
-}
-
-export function onProductChange() {
-    updateProductPrice();
-    updateSaleQuantityLabel();
-    populateBatchOptions();
-}
-
-export function updateSaleQuantityLabel() {
-    const productSelect = document.getElementById('sale-product');
-    const qtyLabel = document.getElementById('sale-qty-label');
-    if (productSelect && qtyLabel) {
-        const skuName = productTomSelect ? productTomSelect.getValue() : productSelect.value;
-        const sku = window.appData.skus.find(s => s.name === skuName);
-        const measure = sku ? (sku.measure || 'Pkts') : 'Pkts';
-        qtyLabel.innerText = `Quantity (${measure})`;
-    }
-}
-
-export function updateProductPrice() {
-    const productSelect = document.getElementById('sale-product');
-    const priceInput = document.getElementById('sale-price');
-    const saleMode = document.getElementById('sale-mode') ? document.getElementById('sale-mode').value : 'Packets';
-
-    if (productSelect && priceInput) {
-        const selectedSKUName = productTomSelect ? productTomSelect.getValue() : productSelect.value;
-        const matchingSKU = window.appData.skus.find(s => s.name === selectedSKUName);
-        if (matchingSKU) {
-            if (saleMode === 'Packets') {
-                const qty = Number(document.getElementById('sale-qty').value) || 1;
-                priceInput.value = matchingSKU.price * qty;
-            } else {
-                const bulkGrams = getSaleGrams();
-                const pricePerGram = matchingSKU.grams > 0 ? (matchingSKU.price / matchingSKU.grams) : 0.4;
-                priceInput.value = Math.round(bulkGrams * pricePerGram);
+    const productSelect = row.querySelector('.row-product');
+    if (window.TomSelect && productSelect) {
+        new TomSelect(productSelect, {
+            create: false,
+            sortField: { field: "text", direction: "asc" },
+            onChange: () => {
+                onRowProductChange(rowId);
             }
-        }
+        });
     }
-}
 
-export function onSaleModeChange(selectEl) {
-    const mode = selectEl.value;
-    const qtyGroup = document.getElementById('sale-qty-group');
-    const bulkGroup = document.getElementById('sale-bulk-group');
+    onRowProductChange(rowId);
+};
 
-    if (mode === 'Packets') {
-        qtyGroup.style.display = 'flex';
-        bulkGroup.style.display = 'none';
+window.removeSaleLineItem = function(rowId) {
+    const row = document.getElementById(rowId);
+    if (row) {
+        row.remove();
+        updateFormTotal();
+    }
+};
+
+window.onRowProductChange = function(rowId) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+
+    const productSelect = row.querySelector('.row-product');
+    const skuName = productSelect.tomselect ? productSelect.tomselect.getValue() : productSelect.value;
+    
+    const batchSelect = row.querySelector('.row-batch');
+    const selectedProductLine = skuName.includes(' - ') ? skuName.split(' - ')[0].trim() : skuName;
+
+    const matchingBatches = window.appData.batches.filter(b => {
+        const hasStock = Number(b.remainingGrams) > 0;
+        const matchesProduct = !selectedProductLine || b.product.toLowerCase().includes(selectedProductLine.toLowerCase()) || selectedProductLine.toLowerCase().includes(b.product.toLowerCase());
+        return hasStock && matchesProduct;
+    });
+
+    if (batchSelect.tomselect) {
+        batchSelect.tomselect.destroy();
+    }
+
+    if (matchingBatches.length === 0) {
+        batchSelect.innerHTML = `<option value="">No Stock Available</option>`;
     } else {
-        qtyGroup.style.display = 'none';
-        bulkGroup.style.display = 'flex';
+        batchSelect.innerHTML = matchingBatches.map(b => 
+            `<option value="${b.code}">${b.code} (${formatGrams(b.remainingGrams)} left)</option>`
+        ).join('');
     }
-    updateProductPrice();
-}
 
-export function getSaleGrams() {
-    const mode = document.getElementById('sale-mode').value;
-    const productSelect = document.getElementById('sale-product');
-    const skuName = productTomSelect ? productTomSelect.getValue() : (productSelect ? productSelect.value : '');
-    const skuRecord = window.appData.skus.find(s => s.name === skuName);
-
-    if (mode === 'Packets') {
-        const units = Number(document.getElementById('sale-qty').value) || 1;
-        const singleGrams = skuRecord ? skuRecord.grams : 50;
-        return units * singleGrams;
-    } else {
-        const bulkVal = Number(document.getElementById('sale-bulk-qty').value) || 0;
-        const bulkUnit = document.getElementById('sale-bulk-unit').value;
-        return bulkUnit === 'Kg' ? bulkVal * 1000 : bulkVal;
+    if (window.TomSelect) {
+        new TomSelect(batchSelect, {
+            create: false,
+            sortField: { field: "text", direction: "asc" }
+        });
     }
-}
+
+    updateRowTotal(rowId);
+};
+
+window.updateRowTotal = function(rowId) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+
+    const productSelect = row.querySelector('.row-product');
+    const skuName = productSelect.tomselect ? productSelect.tomselect.getValue() : productSelect.value;
+    const matchingSKU = window.appData.skus.find(s => s.name === skuName);
+    const qty = Number(row.querySelector('.row-qty').value) || 0;
+    const priceInput = row.querySelector('.row-price');
+
+    if (matchingSKU && priceInput) {
+        priceInput.value = matchingSKU.price * qty;
+    }
+
+    updateFormTotal();
+};
+
+window.updateFormTotal = function() {
+    const rows = document.querySelectorAll('#sale-items-container .sale-item-row');
+    let total = 0;
+    rows.forEach(r => {
+        const price = Number(r.querySelector('.row-price')?.value) || 0;
+        total += price;
+    });
+
+    const display = document.getElementById('form-total-display');
+    if (display) display.innerText = `₹${total}`;
+};
 
 export function formatGrams(grams) {
     const g = Number(grams) || 0;
@@ -151,45 +187,6 @@ export function formatGrams(grams) {
     return `${g.toFixed(g % 1 === 0 ? 0 : 1)} gms`;
 }
 
-export function populateBatchOptions() {
-    const batchSelect = document.getElementById('sale-batch');
-    const submitBtn = document.getElementById('sale-submit-btn');
-    const productSelect = document.getElementById('sale-product');
-    if (!batchSelect) return;
-
-    const selectedSKUName = productTomSelect ? productTomSelect.getValue() : (productSelect ? productSelect.value : '');
-    const selectedProductLine = selectedSKUName.includes(' - ') ? selectedSKUName.split(' - ')[0].trim() : selectedSKUName;
-
-    const matchingBatches = window.appData.batches.filter(b => {
-        const hasStock = Number(b.remainingGrams) > 0;
-        const matchesProduct = !selectedProductLine || b.product.toLowerCase().includes(selectedProductLine.toLowerCase()) || selectedProductLine.toLowerCase().includes(b.product.toLowerCase());
-        return hasStock && matchesProduct;
-    });
-
-    if (batchTomSelect) {
-        batchTomSelect.destroy();
-        batchTomSelect = null;
-    }
-
-    if (matchingBatches.length === 0) {
-        batchSelect.innerHTML = `<option value="">No Stock Available</option>`;
-        if (submitBtn) submitBtn.disabled = true;
-    } else {
-        batchSelect.innerHTML = matchingBatches.map(b => 
-            `<option value="${b.code}">${b.code} (${formatGrams(b.remainingGrams)} left)</option>`
-        ).join('');
-        if (submitBtn) submitBtn.disabled = false;
-    }
-
-    if (window.TomSelect) {
-        batchTomSelect = new TomSelect('#sale-batch', {
-            create: false,
-            sortField: { field: "text", direction: "asc" }
-        });
-    }
-}
-
-// Auto-generate Sequential Invoice Number (e.g. INV-2026-0001)
 function generateInvoiceNumber() {
     let maxNum = 0;
     if (window.appData && window.appData.sales) {
@@ -211,72 +208,100 @@ function generateInvoiceNumber() {
 export async function addSale(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
-    const productSelect = document.getElementById('sale-product');
-    const skuName = productTomSelect ? productTomSelect.getValue() : productSelect.value;
-    const batchSelect = document.getElementById('sale-batch');
-    const selectedBatchCode = batchTomSelect ? batchTomSelect.getValue() : batchSelect.value;
-    const saleMode = document.getElementById('sale-mode').value;
-    const skuRecord = window.appData.skus.find(s => s.name === skuName);
-    const measure = skuRecord ? (skuRecord.measure || 'Pkts') : 'Pkts';
+    const rows = document.querySelectorAll('#sale-items-container .sale-item-row');
 
-    if (!selectedBatchCode) {
-        alert("Cannot complete sale. No stock available for selected product.");
+    if (rows.length === 0) {
+        alert("Please add at least one product row to the sale.");
         return;
     }
 
-    const totalGramsSold = getSaleGrams();
-    const batch = window.appData.batches.find(b => b.code === selectedBatchCode);
+    let items = [];
+    let totalInvoiceAmount = 0;
 
-    if (batch) {
-        if (Number(batch.remainingGrams) < totalGramsSold) {
-            alert(`Cannot complete sale. Selected batch only has ${formatGrams(batch.remainingGrams)} remaining stock, but this sale requires ${formatGrams(totalGramsSold)}.`);
+    for (let r of rows) {
+        const productSelect = r.querySelector('.row-product');
+        const skuName = productSelect.tomselect ? productSelect.tomselect.getValue() : productSelect.value;
+        const batchSelect = r.querySelector('.row-batch');
+        const batchCode = batchSelect.tomselect ? batchSelect.tomselect.getValue() : batchSelect.value;
+        const qty = Number(r.querySelector('.row-qty').value) || 1;
+        const lineTotal = Number(r.querySelector('.row-price').value) || 0;
+
+        if (!skuName || !batchCode) {
+            alert("Please select a product and batch code for all rows.");
             return;
         }
-        batch.remainingGrams = Number(batch.remainingGrams) - totalGramsSold;
-        if (batch.remainingGrams <= 0) {
-            batch.remainingGrams = 0;
-            batch.status = 'Sold Out';
+
+        const skuRecord = window.appData.skus.find(s => s.name === skuName);
+        const measure = skuRecord ? (skuRecord.measure || 'Pkts') : 'Pkts';
+        const singleGrams = skuRecord ? skuRecord.grams : 50;
+        const totalGramsSold = qty * singleGrams;
+
+        const batch = window.appData.batches.find(b => b.code === batchCode);
+        if (batch) {
+            if (Number(batch.remainingGrams) < totalGramsSold) {
+                alert(`Cannot complete sale. Batch ${batchCode} only has ${formatGrams(batch.remainingGrams)} remaining stock, but this row requires ${formatGrams(totalGramsSold)}.`);
+                return;
+            }
         }
 
-        if (batch.firebaseId) {
-            try {
-                await updateDoc(doc(db, 'batches', batch.firebaseId), {
-                    remainingGrams: batch.remainingGrams,
-                    status: batch.status
-                });
-            } catch (err) {
-                console.error("Error updating batch stock after sale:", err);
+        items.push({
+            product: skuName,
+            batchCode: batchCode,
+            qtyDisplay: `${qty} ${measure}`,
+            gramsSold: totalGramsSold,
+            total: lineTotal
+        });
+
+        totalInvoiceAmount += lineTotal;
+    }
+
+    for (let item of items) {
+        const batch = window.appData.batches.find(b => b.code === item.batchCode);
+        if (batch) {
+            batch.remainingGrams = Number(batch.remainingGrams) - item.gramsSold;
+            if (batch.remainingGrams <= 0) {
+                batch.remainingGrams = 0;
+                batch.status = 'Sold Out';
+            }
+
+            if (batch.firebaseId) {
+                try {
+                    await updateDoc(doc(db, 'batches', batch.firebaseId), {
+                        remainingGrams: batch.remainingGrams,
+                        status: batch.status
+                    });
+                } catch (err) {
+                    console.error("Error updating batch stock after sale:", err);
+                }
             }
         }
     }
 
-    let qtyDisplayStr = saleMode === 'Packets' ? `${document.getElementById('sale-qty').value} ${measure}` : `${formatGrams(totalGramsSold)}`;
     const invoiceNo = generateInvoiceNumber();
 
-    const sale = {
+    const saleRecord = {
         invoiceNo: invoiceNo,
         date: document.getElementById('sale-date').value,
         customer: document.getElementById('sale-customer').value,
-        product: skuName,
-        batchCode: selectedBatchCode,
-        qtyDisplay: qtyDisplayStr,
-        gramsSold: totalGramsSold,
-        total: document.getElementById('sale-price').value,
+        items: items,
+        total: totalInvoiceAmount,
         method: document.getElementById('sale-pay').value
     };
 
-    window.appData.sales.push(sale);
+    window.appData.sales.push(saleRecord);
     try {
-        await addDoc(collection(db, 'sales'), sale);
+        await addDoc(collection(db, 'sales'), saleRecord);
     } catch (err) {
         console.error("Error saving sale:", err);
     }
 
     renderSales();
-    populateBatchOptions();
     document.getElementById('sales-form').reset();
     document.getElementById('sale-date').value = todayStr;
-    onSaleModeChange(document.getElementById('sale-mode'));
+    const container = document.getElementById('sale-items-container');
+    if (container) container.innerHTML = '';
+    addSaleLineItem();
+    updateFormTotal();
 }
 
 // --- Invoice Modal Viewer & Printer ---
@@ -295,14 +320,22 @@ window.viewInvoiceModal = function(index) {
     document.getElementById('inv-modal-method').innerText = sale.method;
 
     const tbody = document.getElementById('inv-modal-items');
-    tbody.innerHTML = `
+    
+    let saleItems = sale.items || [{
+        product: sale.product,
+        batchCode: sale.batchCode,
+        qtyDisplay: sale.qtyDisplay || '1 Pkts',
+        total: sale.total
+    }];
+
+    tbody.innerHTML = saleItems.map(item => `
         <tr>
-            <td style="padding: 12px; font-weight: 700; font-size: 0.9rem;">${sale.product}</td>
-            <td style="padding: 12px; font-size: 0.85rem;"><span class="table-code">${sale.batchCode || 'N/A'}</span></td>
-            <td style="padding: 12px; font-size: 0.85rem; text-align: center;">${sale.qtyDisplay || '1'}</td>
-            <td style="padding: 12px; font-weight: 800; font-size: 0.9rem; text-align: right;">₹${sale.total}</td>
+            <td style="padding: 10px 12px; font-weight: 700; font-size: 0.9rem;">${item.product}</td>
+            <td style="padding: 10px 12px; font-size: 0.85rem;"><span class="table-code">${item.batchCode || 'N/A'}</span></td>
+            <td style="padding: 10px 12px; font-size: 0.85rem; text-align: center;">${item.qtyDisplay}</td>
+            <td style="padding: 10px 12px; font-weight: 800; font-size: 0.9rem; text-align: right;">₹${item.total}</td>
         </tr>
-    `;
+    `).join('');
 
     document.getElementById('inv-modal-total').innerText = `₹${sale.total}`;
     document.getElementById('invoice-modal').style.display = 'flex';
@@ -315,7 +348,6 @@ window.closeInvoiceModal = function() {
 window.printCurrentInvoice = function() {
     window.print();
 };
-// -------------------------------------
 
 export function clearSalesFilters() {
     const searchInput = document.getElementById('sales-search-filter');
@@ -335,7 +367,12 @@ export function renderSales() {
     let displayedSales = window.appData.sales;
 
     if (searchFilter) {
-        displayedSales = displayedSales.filter(s => s.customer.toLowerCase().includes(searchFilter) || s.product.toLowerCase().includes(searchFilter) || (s.invoiceNo || '').toLowerCase().includes(searchFilter));
+        displayedSales = displayedSales.filter(s => {
+            const matchesCustomer = s.customer.toLowerCase().includes(searchFilter);
+            const matchesInvoice = (s.invoiceNo || '').toLowerCase().includes(searchFilter);
+            const matchesProduct = (s.items || [{product: s.product}]).some(i => i.product.toLowerCase().includes(searchFilter));
+            return matchesCustomer || matchesInvoice || matchesProduct;
+        });
     }
 
     if (dateFilter) {
@@ -350,18 +387,31 @@ export function renderSales() {
     tbody.innerHTML = displayedSales.map((s) => {
         const realIndex = window.appData.sales.indexOf(s);
         const invNo = s.invoiceNo || `INV-2026-00${realIndex + 1}`;
+        
+        let saleItems = s.items || [{
+            product: s.product,
+            batchCode: s.batchCode,
+            qtyDisplay: s.qtyDisplay || '1 Pkts'
+        }];
+
+        // Clean stacked layout: product and qty on line 1, batch code on line 2
+        let productsHtml = saleItems.map(i => `
+            <div style="margin-bottom: 6px;">
+                <div>• <strong>${i.product}</strong> (${i.qtyDisplay})</div>
+                <div style="margin-top: 2px;"><code class="table-code">${i.batchCode || 'N/A'}</code></div>
+            </div>
+        `).join('');
+
         return `
             <tr>
                 <td data-label="Invoice No."><span class="table-code highlight">${invNo}</span></td>
                 <td data-label="Date">${s.date}</td>
                 <td data-label="Customer"><strong>${s.customer}</strong></td>
-                <td data-label="Product">${s.product}</td>
-                <td data-label="Batch Code"><span class="table-code">${s.batchCode || 'N/A'}</span></td>
-                <td data-label="Qty">${s.qtyDisplay || `${s.qty} Pkts`}</td>
+                <td data-label="Products & Batches" style="font-size:0.84rem; line-height:1.4; vertical-align:middle; padding-top:12px; padding-bottom:12px;">${productsHtml}</td>
                 <td data-label="Total"><strong>₹${s.total}</strong></td>
                 <td data-label="Method">${s.method}</td>
-                <td data-label="Action">
-                    <div class="action-btn-group">
+                <td data-label="Action" style="text-align:right;">
+                    <div class="action-btn-group" style="justify-content:flex-end;">
                         <button class="btn-outline" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="viewInvoiceModal(${realIndex})">Invoice</button>
                         <button class="btn-danger" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="deleteSaleItem(${realIndex})">Delete</button>
                     </div>
@@ -374,20 +424,29 @@ export function renderSales() {
 export async function deleteSaleItem(index) {
     const saleToDelete = window.appData.sales[index];
     
-    if (saleToDelete && saleToDelete.batchCode && saleToDelete.batchCode !== 'N/A') {
-        const batch = window.appData.batches.find(b => b.code === saleToDelete.batchCode);
-        if (batch) {
-            const restoredGrams = Number(saleToDelete.gramsSold) || 0;
-            batch.remainingGrams = Number(batch.remainingGrams || 0) + restoredGrams;
-            batch.status = 'Available';
-            if (batch.firebaseId) {
-                try {
-                    await updateDoc(doc(db, 'batches', batch.firebaseId), {
-                        remainingGrams: batch.remainingGrams,
-                        status: batch.status
-                    });
-                } catch (err) {
-                    console.error("Error restoring batch stock:", err);
+    if (saleToDelete) {
+        let saleItems = saleToDelete.items || [{
+            batchCode: saleToDelete.batchCode,
+            gramsSold: saleToDelete.gramsSold
+        }];
+
+        for (let item of saleItems) {
+            if (item.batchCode && item.batchCode !== 'N/A') {
+                const batch = window.appData.batches.find(b => b.code === item.batchCode);
+                if (batch) {
+                    const restoredGrams = Number(item.gramsSold) || 0;
+                    batch.remainingGrams = Number(batch.remainingGrams || 0) + restoredGrams;
+                    batch.status = 'Available';
+                    if (batch.firebaseId) {
+                        try {
+                            await updateDoc(doc(db, 'batches', batch.firebaseId), {
+                                remainingGrams: batch.remainingGrams,
+                                status: batch.status
+                            });
+                        } catch (err) {
+                            console.error("Error restoring batch stock:", err);
+                        }
+                    }
                 }
             }
         }
@@ -402,7 +461,6 @@ export async function deleteSaleItem(index) {
     }
     window.appData.sales.splice(index, 1);
     renderSales();
-    populateBatchOptions();
 }
 
 export function exportCSV(type) {
@@ -415,7 +473,7 @@ export function exportCSV(type) {
     let keys = Object.keys(items[0]);
     let csvContent = "data:text/csv;charset=utf-8," + keys.join(",") + "\n";
     items.forEach(row => {
-        let val = keys.map(k => `"${row[k] || ''}"`).join(",");
+        let val = keys.map(k => `"${typeof row[k] === 'object' ? JSON.stringify(row[k]) : (row[k] || '')}"`).join(",");
         csvContent += val + "\n";
     });
     const encodedUri = encodeURI(csvContent);
@@ -428,13 +486,10 @@ export function exportCSV(type) {
 }
 
 window.exportCSV = exportCSV;
-window.onProductChange = onProductChange;
-window.onSaleModeChange = onSaleModeChange;
 window.addSale = addSale;
 window.renderSales = renderSales;
 window.clearSalesFilters = clearSalesFilters;
 window.deleteSaleItem = deleteSaleItem;
-window.updateProductPrice = updateProductPrice;
 window.viewInvoiceModal = viewInvoiceModal;
 window.closeInvoiceModal = closeInvoiceModal;
 window.printCurrentInvoice = printCurrentInvoice;
