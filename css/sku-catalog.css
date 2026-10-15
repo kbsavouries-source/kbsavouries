@@ -21,15 +21,90 @@
   margin-top: 24px;
 }
 
+/* Spacious Card & Table Padding */
+.card {
+  padding: 28px;
+  margin-bottom: 28px;
+}
+
+table th, table td {
+  padding: 18px 20px !important;
+}
+
+/* Un-cramped Search Filter Bar Layout */
+.title-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  flex-grow: 1;
+}
+
+.date-filter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  padding: 8px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--glass-border);
+}
+
+.filter-search-input {
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  border: 1.5px solid var(--glass-border);
+  color: var(--text-primary);
+  height: 40px;
+  min-width: 240px;
+  outline: none;
+}
+
+.filter-search-input:focus {
+  border-color: var(--accent-orange);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+.btn-clear-filter {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  background: linear-gradient(135deg, #EA580C, #C2410C);
+  color: #ffffff;
+  border-radius: 10px;
+  border: none;
+  min-height: 40px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2);
+}
+
 /* Custom Table Column Spacing for SKU View */
 .mobile-stack-table td[data-label="Action"] {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   justify-content: flex-end;
+  align-items: center;
 }
 
 /* Mobile Adjustments for SKU Catalog */
 @media (max-width: 768px) {
+  .title-filter-group {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .date-filter-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .filter-search-input {
+    min-width: 100%;
+  }
   .mobile-stack-table td[data-label="Action"] {
     justify-content: flex-end !important;
   }

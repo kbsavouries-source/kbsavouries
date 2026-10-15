@@ -37,7 +37,7 @@
             <li><a href="inventory-tracker.html">Inventory Tracker</a></li>
             <li><a href="purchase-log.html">Purchase Log</a></li>
             <li><a href="accounts.html">Accounting & Reports</a></li>
-            <li onclick="location.href='crm.html'">Customer CRM</li>
+            <li><a href="crm.html">Customer CRM</a></li>
         </ul>
         <div class="backup-section">
             <button class="btn-outline" onclick="exportJSON()">Download JSON Backup</button>
@@ -121,7 +121,13 @@
             <!-- SKU DIRECTORY TABLE CARD -->
             <div class="card">
                 <div class="section-header-flex">
-                    <h2>Active SKU Master Directory</h2>
+                    <div class="title-filter-group">
+                        <h2>Active SKU Master Directory</h2>
+                        <div class="date-filter-wrapper">
+                            <input type="text" id="sku-search-filter" oninput="renderSKUs()" placeholder="Search SKU Name..." class="filter-search-input">
+                            <button type="button" class="btn-clear-filter" onclick="clearSKUFilter()">Clear</button>
+                        </div>
+                    </div>
                     <button type="button" class="btn-outline" onclick="exportCSV('skus')">Export SKUs CSV</button>
                 </div>
                 <div class="table-responsive">

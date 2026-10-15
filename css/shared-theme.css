@@ -126,7 +126,7 @@ body::before {
   font-weight: 600;
 }
 
-/* --- Sidebar Navigation --- */
+/* --- Sidebar Navigation & Consistent Styling --- */
 aside {
   width: var(--sidebar-width);
   background: var(--glass-bg);
@@ -172,38 +172,40 @@ aside {
 }
 
 .nav-links li {
-  border-radius: 12px;
   margin-bottom: 6px;
+  border-radius: 12px;
   transition: var(--transition-smooth);
 }
 
 .nav-links li a {
   display: block;
+  width: 100%;
   padding: 12px 16px;
   border-radius: 12px;
   text-decoration: none;
   font-weight: 700;
   font-size: 0.92rem;
-  color: var(--text-secondary);
+  color: #334155 !important;
   transition: var(--transition-smooth);
 }
 
-.nav-links li:hover {
+.nav-links li:hover:not(.active) {
   background-color: var(--glass-bg-hover);
   transform: translateX(4px);
 }
 
-.nav-links li:hover a {
-  color: var(--text-primary);
+.nav-links li:hover:not(.active) a {
+  color: var(--accent-orange) !important;
 }
 
 .nav-links li.active {
-  background: linear-gradient(135deg, #EA580C, #C2410C);
+  background: linear-gradient(135deg, #EA580C, #C2410C) !important;
+  border-radius: 12px;
   box-shadow: 0 8px 20px rgba(234, 88, 12, 0.25);
 }
 
 .nav-links li.active a {
-  color: #ffffff;
+  color: #ffffff !important;
   font-weight: 800;
 }
 
@@ -391,4 +393,77 @@ select.tomselected { display: none !important; }
   .mobile-stack-table td { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1.5px solid rgba(254, 215, 170, 0.4); text-align: right; }
   .mobile-stack-table td:last-child { border-bottom: none; }
   .mobile-stack-table td::before { content: attr(data-label); font-weight: 800; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; text-align: left; }
+}
+
+/* ==========================================================================
+   Custom Glassmorphic Modal Dialog (Replaces native alert/confirm)
+   ========================================================================== */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.custom-modal-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 28px 24px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 25px 50px rgba(15, 23, 42, 0.2);
+  text-align: center;
+  animation: modalScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.custom-modal-card h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.custom-modal-card p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.custom-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.custom-modal-actions button {
+  min-width: 110px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScaleUp {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
 }

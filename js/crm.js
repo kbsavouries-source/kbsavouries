@@ -6,9 +6,14 @@ import {
     updateDataDoc, 
     deleteDataDoc, 
     exportCSVData, 
-    exportJSONData 
+    exportJSONData,
+    customConfirm,
+    customAlert 
 } from './firebase-config.js';
 
+let editingIndex = null;
+
+// Initialize Tom Select on all selects
 function initSearchableSelects() {
     if (typeof TomSelect === 'undefined') return;
     
@@ -32,131 +37,118 @@ window.toggleSidebar = function() {
     if (sidebar) sidebar.classList.toggle('open');
 };
 
-function formatDate(dateStr) {
-    if (!dateStr || dateStr === 'N/A') return 'N/A';
-    const parts = dateStr.split('-');
-    if (parts.length === 3) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-    return dateStr;
-}
-
-// Calculate Lifetime Sales Analytics for a specific customer from Sales Register records
-function getCustomerSalesSummary(customerName) {
-    if (!appData.sales || !customerName) return { orderCount: 0, totalRevenue: 0, lastOrderDate: 'N/A' };
-
-    const matchingSales = appData.sales.filter(s => s.customer && s.customer.toLowerCase().trim() === customerName.toLowerCase().trim());
-    
-    if (matchingSales.length === 0) return { orderCount: 0, totalRevenue: 0, lastOrderDate: 'N/A' };
-
-    const totalRevenue = matchingSales.reduce((sum, s) => sum + (Number(s.total) || 0), 0);
-    
-    // Sort by date to find the most recent order
-    const sortedSales = [...matchingSales].sort((a, b) => new Date(b.date) - new Date(a.date));
-    const lastOrderDate = sortedSales[0].date;
-
-    return {
-        orderCount: matchingSales.length,
-        totalRevenue: totalRevenue,
-        lastOrderDate: lastOrderDate
-    };
-}
-
-// Render CRM Directory Table
+// Render Customer Directory Table with Search Filtering
 window.renderCustomers = function() {
     const tbody = document.getElementById('crm-table-body');
     if (!tbody) return;
 
-    if (!appData.customers) appData.customers = [];
+    const searchTerm = (document.getElementById('crm-search-filter')?.value || "").toLowerCase().trim();
 
-    const searchFilter = document.getElementById('crm-search-filter') ? document.getElementById('crm-search-filter').value.toLowerCase().trim() : '';
+    const filteredCustomers = appData.customers.filter(c => {
+        return (c.name && c.name.toLowerCase().includes(searchTerm)) || 
+               (c.phone && c.phone.toLowerCase().includes(searchTerm)) || 
+               (c.city && c.city.toLowerCase().includes(searchTerm)) ||
+               (c.category && c.category.toLowerCase().includes(searchTerm));
+    });
 
-    let displayedCustomers = appData.customers;
-
-    if (searchFilter) {
-        displayedCustomers = displayedCustomers.filter(c => 
-            (c.name && c.name.toLowerCase().includes(searchFilter)) ||
-            (c.phone && c.phone.toLowerCase().includes(searchFilter)) ||
-            (c.city && c.city.toLowerCase().includes(searchFilter))
-        );
+    if (filteredCustomers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-secondary); padding: 32px;">No matching customer profiles found.</td></tr>`;
+        return;
     }
 
-    tbody.innerHTML = displayedCustomers.map((c) => {
+    tbody.innerHTML = filteredCustomers.map((c) => {
         const index = appData.customers.indexOf(c);
-        const stats = getCustomerSalesSummary(c.name);
-
+        
         let badgeClass = 'consumer';
-        if (c.type.includes('Store')) badgeClass = 'store';
-        else if (c.type.includes('Wholesale')) badgeClass = 'wholesale';
-        else if (c.type.includes('Corporate')) badgeClass = 'corporate';
+        if (c.category === 'Retail Supermarket / Store') badgeClass = 'store';
+        else if (c.category === 'Wholesale Distributor') badgeClass = 'wholesale';
+        else if (c.category === 'Corporate / Event Buyer') badgeClass = 'corporate';
 
-        const contactInfo = [c.phone, c.email, c.city].filter(Boolean).join(' • ') || 'No contact details';
+        const categoryBadge = `<span class="status-badge ${badgeClass}">${c.category || 'Direct Retail Consumer'}</span>`;
 
         return `
             <tr>
                 <td data-label="Customer Name"><strong>${c.name}</strong></td>
-                <td data-label="Category"><span class="status-badge ${badgeClass}">${c.type}</span></td>
-                <td data-label="Contact & Location">${contactInfo}</td>
-                <td data-label="Total Orders">${stats.orderCount}</td>
-                <td data-label="Lifetime Revenue (₹)" class="customer-revenue-cell">₹${stats.totalRevenue.toLocaleString('en-IN')}</td>
-                <td data-label="Last Order Date">${formatDate(stats.lastOrderDate)}</td>
+                <td data-label="Category">${categoryBadge}</td>
+                <td data-label="Contact & Location">${c.phone || '-'}<br><small style="color: var(--text-secondary);">${c.city || '-'}</small></td>
+                <td data-label="Total Orders">${c.ordersCount || 0}</td>
+                <td data-label="Lifetime Revenue"><strong class="customer-revenue-cell">₹${c.lifetimeRevenue || 0}</strong></td>
+                <td data-label="Last Order Date">${c.lastOrderDate || 'N/A'}</td>
                 <td data-label="Action">
-                    <button class="btn-outline" style="padding: 6px 12px; font-size: 0.8rem; min-height: 36px;" onclick="editCustomerItem(${index})">Edit</button>
-                    <button class="btn-danger" onclick="deleteCustomerItem(${index})">Delete</button>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="btn-outline" onclick="editCustomerItem(${index})">Edit</button>
+                        <button class="btn-danger" onclick="deleteCustomer(${index})">Delete</button>
+                    </div>
                 </td>
             </tr>
         `;
     }).join('');
 };
 
-// Add or Update Customer Submission
-window.addCustomer = async function(e) {
-    e.preventDefault();
-    const editIndex = document.getElementById('customer-edit-index').value;
-    const name = document.getElementById('cust-name').value.trim();
+// Clear Customer Search Filter
+window.clearCRMFilter = function() {
+    const searchInput = document.getElementById('crm-search-filter');
+    if (searchInput) searchInput.value = '';
+    renderCustomers();
+};
 
-    if (editIndex === "") {
+// Add or Update Customer Form Submission
+window.saveCustomer = async function(e) {
+    if (e) e.preventDefault();
+
+    const name = document.getElementById('cust-name').value.trim();
+    const category = document.getElementById('cust-type').value;
+    const phone = document.getElementById('cust-phone').value.trim();
+    const email = document.getElementById('cust-email').value.trim();
+    const city = document.getElementById('cust-city').value.trim();
+    const creditLimit = Number(document.getElementById('cust-credit-limit').value) || 0;
+
+    if (editingIndex === null) {
         if (appData.customers.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-            alert("A customer profile with this name already exists.");
+            await customAlert("Duplicate Customer", "A customer profile with this name already exists.");
             return;
         }
     }
 
     const customerObj = {
-        name: name,
-        type: document.getElementById('cust-type').value,
-        phone: document.getElementById('cust-phone').value.trim(),
-        email: document.getElementById('cust-email').value.trim(),
-        city: document.getElementById('cust-city').value.trim(),
-        creditLimit: Number(document.getElementById('cust-credit-limit').value) || 0
+        name,
+        category,
+        phone,
+        email,
+        city,
+        creditLimit,
+        ordersCount: editingIndex !== null ? appData.customers[editingIndex].ordersCount : 0,
+        lifetimeRevenue: editingIndex !== null ? appData.customers[editingIndex].lifetimeRevenue : 0,
+        lastOrderDate: editingIndex !== null ? appData.customers[editingIndex].lastOrderDate : 'N/A'
     };
 
-    if (editIndex !== "") {
-        const index = Number(editIndex);
-        customerObj.firebaseId = appData.customers[index].firebaseId;
-        appData.customers[index] = customerObj;
+    if (editingIndex !== null) {
+        const target = appData.customers[editingIndex];
+        customerObj.firebaseId = target.firebaseId;
+        appData.customers[editingIndex] = customerObj;
 
         if (customerObj.firebaseId) {
             await updateDataDoc('customers', customerObj.firebaseId, customerObj);
         }
         cancelCustomerEdit();
     } else {
-        appData.customers.push(customerObj);
         await saveDataDoc('customers', customerObj);
+        appData.customers.push(customerObj);
         document.getElementById('crm-form').reset();
     }
 
     renderCustomers();
 };
 
-// Edit Customer
+// Edit Customer Profile
 window.editCustomerItem = function(index) {
     const customer = appData.customers[index];
     if (!customer) return;
 
+    editingIndex = index;
     document.getElementById('customer-edit-index').value = index;
     document.getElementById('cust-name').value = customer.name;
-    document.getElementById('cust-type').value = customer.type;
+    document.getElementById('cust-type').value = customer.category || 'Direct Retail Consumer';
     document.getElementById('cust-phone').value = customer.phone || '';
     document.getElementById('cust-email').value = customer.email || '';
     document.getElementById('cust-city').value = customer.city || '';
@@ -169,8 +161,9 @@ window.editCustomerItem = function(index) {
     document.getElementById('crm-form').scrollIntoView({ behavior: 'smooth' });
 };
 
-// Cancel Customer Editing
+// Cancel Editing
 window.cancelCustomerEdit = function() {
+    editingIndex = null;
     document.getElementById('customer-edit-index').value = '';
     document.getElementById('crm-form').reset();
     document.getElementById('crm-form-title').innerText = 'Add New Customer / Retail Outlet';
@@ -178,18 +171,26 @@ window.cancelCustomerEdit = function() {
     document.getElementById('cust-cancel-btn').style.display = 'none';
 };
 
-// Delete Customer
-window.deleteCustomerItem = async function(index) {
-    if (!confirm("Are you sure you want to delete this customer profile?")) return;
-    const customerToDelete = appData.customers[index];
-    await deleteDataDoc('customers', customerToDelete.firebaseId);
-    appData.customers.splice(index, 1);
-    renderCustomers();
-};
+// Delete Customer Item with Glassmorphic Custom Modal Prompt
+window.deleteCustomer = async function(index) {
+    const customer = appData.customers[index];
+    if (!customer) return;
 
-window.clearCRMFilter = function() {
-    const searchInput = document.getElementById('crm-search-filter');
-    if (searchInput) searchInput.value = '';
+    const confirmed = await customConfirm(
+        "Delete Customer?", 
+        `Are you sure you want to delete this customer profile for "${customer.name}"?`
+    );
+    if (!confirmed) return;
+
+    if (customer.firebaseId) {
+        try {
+            await deleteDataDoc('customers', customer.firebaseId);
+        } catch (err) {
+            console.error("Error deleting customer from cloud:", err);
+        }
+    }
+
+    appData.customers.splice(index, 1);
     renderCustomers();
 };
 
@@ -210,8 +211,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    await loadCloudCollection('customers', []);
-    await loadCloudCollection('sales', []);
+    await loadCloudCollection('customers');
     renderCustomers();
     initSearchableSelects();
 });

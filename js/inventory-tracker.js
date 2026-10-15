@@ -1,5 +1,5 @@
 // ==========================================================================
-// Inventory Tracker Module Logic (Searchable Product Filter & BOM Scaling)
+// Inventory Tracker Module Logic (100% Dynamic SKU & BOM Driven)
 // ==========================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
@@ -22,35 +22,6 @@ window.appData = {
     batches: [],
     boms: []
 };
-
-// Fallback default recipe per 500g output
-const defaultRecipePer500g = [
-    { name: "Poha", qty: 250, unit: "gms", category: "Raw Food Ingredient" },
-    { name: "Peanut", qty: 63, unit: "gms", category: "Raw Food Ingredient" },
-    { name: "Roasted Channa", qty: 63, unit: "gms", category: "Raw Food Ingredient" },
-    { name: "Rice Bran Oil", qty: 500, unit: "ml", category: "Raw Food Ingredient" },
-    { name: "Curry Leaves", qty: 10, unit: "gms", category: "Raw Food Ingredient" },
-    { name: "Turmeric", qty: 5, unit: "gms", category: "Raw Food Ingredient" },
-    { name: "Chilli Powder", qty: 1.5, unit: "gms", category: "Raw Food Ingredient" },
-    { name: "Salt", qty: 1.5, unit: "gms", category: "Raw Food Ingredient" }
-];
-
-export function normalizeIngredientName(rawName) {
-    if (!rawName) return "Other";
-    let name = rawName.trim();
-    let lower = name.toLowerCase();
-
-    if (lower.includes("peanut") || lower.includes("groundnut")) return "Peanut";
-    if (lower.includes("oil") || lower.includes("bran")) return "Rice Bran Oil";
-    if (lower.includes("poha")) return "Poha";
-    if (lower.includes("channa") || lower.includes("gram")) return "Roasted Channa";
-    if (lower.includes("curry")) return "Curry Leaves";
-    if (lower.includes("turmeric") || lower.includes("manjal")) return "Turmeric";
-    if (lower.includes("chilli") || lower.includes("chili")) return "Chilli Powder";
-    if (lower.includes("salt")) return "Salt";
-    
-    return name.charAt(0).toUpperCase() + name.slice(1);
-}
 
 export function formatDynamicValue(val, preferredUnit) {
     const v = Number(val) || 0;
@@ -132,16 +103,18 @@ export function renderInventory() {
     
     if (!tbody || !window.appData) return;
 
-    // 1. Accumulate total purchases for all items
+    // 1. Accumulate total purchases for all items based on Raw Material SKUs
     let purchasedMap = {};
     (window.appData.purchases || []).forEach(p => {
-        let masterName = normalizeIngredientName(p.item);
+        let itemKey = p.item.trim().toLowerCase();
         let qty = Number(p.qty) || 0;
-        let unit = (p.unit || 'Kg').toLowerCase();
+        let unit = (p.unit || '').toLowerCase();
+        
+        // Convert base purchase units for standard accumulation
         let qtyInBase = (unit === 'kg' || unit === 'ltrs') ? qty * 1000 : qty;
 
-        if (!purchasedMap[masterName]) purchasedMap[masterName] = 0;
-        purchasedMap[masterName] += qtyInBase;
+        if (!purchasedMap[itemKey]) purchasedMap[itemKey] = 0;
+        purchasedMap[itemKey] += qtyInBase;
     });
 
     // 2. Compute consumption dynamically based on product BOMs & scale factor
@@ -150,44 +123,35 @@ export function renderInventory() {
         if (productFilter !== 'ALL' && b.product !== productFilter) return;
 
         let batchGrams = Number(b.totalGrams) || 0;
-        
         let bomRecord = (window.appData.boms || []).find(item => item.productLine === b.product);
-        let baseOutput = bomRecord ? Number(bomRecord.baseOutputGrams) || 500 : 500;
-        let ingredientsList = bomRecord ? bomRecord.ingredients : defaultRecipePer500g;
+        
+        if (!bomRecord || !bomRecord.ingredients) return; // Skip if no BOM mapped
 
+        let baseOutput = Number(bomRecord.baseOutputGrams) || 500;
         let scaleFactor = batchGrams / baseOutput;
 
-        ingredientsList.forEach(ing => {
-            let masterName = normalizeIngredientName(ing.name || ing.ingredient);
-            let consumedAmt = Number(ing.qty) * scaleFactor;
-            consumedMap[masterName] = (consumedMap[masterName] || 0) + consumedAmt;
+        bomRecord.ingredients.forEach(ing => {
+            let itemKey = ing.name.trim().toLowerCase();
+            let ingredientQtyGrams = ing.unit.toLowerCase() === 'kg' || ing.unit.toLowerCase() === 'ltrs' ? Number(ing.qty) * 1000 : Number(ing.qty);
+            let consumedAmt = ingredientQtyGrams * scaleFactor;
+            
+            consumedMap[itemKey] = (consumedMap[itemKey] || 0) + consumedAmt;
         });
     });
 
-    // 3. Determine which ingredients to show based on filter selection
-    let ingredientsToDisplay = [];
-    if (productFilter === 'ALL') {
-        let allSet = new Set(defaultRecipePer500g.map(i => i.name));
-        (window.appData.boms || []).forEach(b => b.ingredients.forEach(i => allSet.add(i.name)));
-        ingredientsToDisplay = [...allSet];
-    } else {
-        let bomRecord = (window.appData.boms || []).find(item => item.productLine === productFilter);
-        if (bomRecord && bomRecord.ingredients) {
-            ingredientsToDisplay = bomRecord.ingredients.map(i => i.name);
-        } else {
-            ingredientsToDisplay = defaultRecipePer500g.map(i => i.name);
-        }
-    }
+    // 3. Get all Raw Material SKUs dynamically from SKU Catalog
+    const rawMaterialSKUs = window.appData.skus.filter(s => s.type === 'Raw Material');
 
     let rowsHtml = [];
 
-    ingredientsToDisplay.forEach(item => {
-        let bomRef = defaultRecipePer500g.find(i => i.name === item) || { unit: 'gms', category: 'Raw Food Ingredient' };
-        let prefUnit = bomRef.unit;
-        let category = bomRef.category;
+    rawMaterialSKUs.forEach(sku => {
+        let itemName = sku.name;
+        let itemKey = itemName.toLowerCase();
+        let prefUnit = sku.unit || 'gms';
+        let category = 'Raw Material SKU';
 
-        let totalBought = purchasedMap[item] || 0;
-        let totalUsed = consumedMap[item] || 0;
+        let totalBought = purchasedMap[itemKey] || 0;
+        let totalUsed = consumedMap[itemKey] || 0;
         let balance = totalBought - totalUsed;
 
         let displayBought = formatDynamicValue(totalBought, prefUnit);
@@ -200,7 +164,7 @@ export function renderInventory() {
 
         rowsHtml.push(`
             <tr>
-                <td data-label="Raw Ingredient"><strong>${item}</strong></td>
+                <td data-label="Raw Ingredient"><strong>${itemName}</strong></td>
                 <td data-label="Category">${category}</td>
                 <td data-label="Total Purchased">${displayBought}</td>
                 <td data-label="Consumed (Batches)">${displayUsed}</td>
@@ -210,7 +174,7 @@ export function renderInventory() {
         `);
     });
 
-    tbody.innerHTML = rowsHtml.length > 0 ? rowsHtml.join('') : `<tr><td colspan="6" style="text-align:center; padding: 20px;">No BOM configuration found for this product.</td></tr>`;
+    tbody.innerHTML = rowsHtml.length > 0 ? rowsHtml.join('') : `<tr><td colspan="6" style="text-align:center; padding: 20px;">No Raw Material SKUs found. Please register raw materials in the SKU Catalog.</td></tr>`;
 }
 
 export function exportCSV(type) {
@@ -221,10 +185,11 @@ export function exportCSV(type) {
         
         let purchasedMap = {};
         (window.appData.purchases || []).forEach(p => {
-            let m = normalizeIngredientName(p.item);
+            let itemKey = p.item.trim().toLowerCase();
             let q = Number(p.qty) || 0;
-            if (!purchasedMap[m]) purchasedMap[m] = 0;
-            purchasedMap[m] += (p.unit && (p.unit.toLowerCase() === 'kg' || p.unit.toLowerCase() === 'ltrs')) ? q * 1000 : q;
+            let unit = (p.unit || '').toLowerCase();
+            if (!purchasedMap[itemKey]) purchasedMap[itemKey] = 0;
+            purchasedMap[itemKey] += (unit === 'kg' || unit === 'ltrs') ? q * 1000 : q;
         });
 
         let consumedMap = {};
@@ -233,34 +198,31 @@ export function exportCSV(type) {
         (window.appData.batches || []).forEach(b => {
             if (productFilter !== 'ALL' && b.product !== productFilter) return;
             let bomRecord = (window.appData.boms || []).find(item => item.productLine === b.product);
-            let baseOutput = bomRecord ? Number(bomRecord.baseOutputGrams) || 500 : 500;
-            let ingredientsList = bomRecord ? bomRecord.ingredients : defaultRecipePer500g;
+            if (!bomRecord || !bomRecord.ingredients) return;
+            
+            let baseOutput = Number(bomRecord.baseOutputGrams) || 500;
             let batchScale = (Number(b.totalGrams) || 0) / baseOutput;
 
-            ingredientsList.forEach(ing => {
-                let m = normalizeIngredientName(ing.name || ing.ingredient);
-                consumedMap[m] = (consumedMap[m] || 0) + (Number(ing.qty) * batchScale);
+            bomRecord.ingredients.forEach(ing => {
+                let itemKey = ing.name.trim().toLowerCase();
+                let qtyGrams = ing.unit.toLowerCase() === 'kg' || ing.unit.toLowerCase() === 'ltrs' ? Number(ing.qty) * 1000 : Number(ing.qty);
+                consumedMap[itemKey] = (consumedMap[itemKey] || 0) + (qtyGrams * batchScale);
             });
         });
 
-        let ingredientsToExport = [];
-        if (productFilter === 'ALL') {
-            let allSet = new Set(defaultRecipePer500g.map(i => i.name));
-            (window.appData.boms || []).forEach(b => b.ingredients.forEach(i => allSet.add(i.name)));
-            ingredientsToExport = [...allSet];
-        } else {
-            let bomRecord = (window.appData.boms || []).find(item => item.productLine === productFilter);
-            ingredientsToExport = bomRecord ? bomRecord.ingredients.map(i => i.name) : defaultRecipePer500g.map(i => i.name);
-        }
+        const rawMaterialSKUs = window.appData.skus.filter(s => s.type === 'Raw Material');
 
-        ingredientsToExport.forEach(item => {
-            let bomRef = defaultRecipePer500g.find(i => i.name === item) || { unit: 'gms', category: 'Raw Food Ingredient' };
-            let totalBought = purchasedMap[item] || 0;
-            let totalUsed = consumedMap[item] || 0;
+        rawMaterialSKUs.forEach(sku => {
+            let itemName = sku.name;
+            let itemKey = itemName.toLowerCase();
+            let prefUnit = sku.unit || 'gms';
+            
+            let totalBought = purchasedMap[itemKey] || 0;
+            let totalUsed = consumedMap[itemKey] || 0;
             let bal = totalBought - totalUsed;
             let statusTag = bal <= 500 ? 'Low Stock' : 'Optimal';
 
-            csvContent += `"${item}","${bomRef.category}","${formatDynamicValue(totalBought, bomRef.unit)}","${formatDynamicValue(totalUsed, bomRef.unit)}","${formatDynamicValue(bal, bomRef.unit)}","${statusTag}"\n`;
+            csvContent += `"${itemName}","Raw Material SKU","${formatDynamicValue(totalBought, prefUnit)}","${formatDynamicValue(totalUsed, prefUnit)}","${formatDynamicValue(bal, prefUnit)}","${statusTag}"\n`;
         });
 
         const encodedUri = encodeURI(csvContent);

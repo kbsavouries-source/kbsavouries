@@ -7,7 +7,9 @@ import {
     deleteDataDoc, 
     defaultSKUs, 
     exportCSVData, 
-    exportJSONData 
+    exportJSONData,
+    customConfirm,
+    customAlert 
 } from './firebase-config.js';
 
 // Initialize Tom Select on all selects
@@ -71,15 +73,28 @@ function calculateTotalOverhead(s) {
     return s.overheads.reduce((sum, o) => sum + (Number(o.cost) || 0), 0);
 }
 
-// Render SKU Directory Table
-function renderSKUs() {
+// Render SKU Directory Table with Search Filtering
+window.renderSKUs = function() {
     const tbody = document.getElementById('sku-table-body');
     if (!tbody) return;
 
-    const sortedSKUs = [...appData.skus].sort((a, b) => {
+    const searchTerm = (document.getElementById('sku-search-filter')?.value || "").toLowerCase().trim();
+
+    // Filter SKUs based on name or classification
+    const filteredSKUs = appData.skus.filter(s => {
+        return s.name.toLowerCase().includes(searchTerm) || 
+               s.type.toLowerCase().includes(searchTerm);
+    });
+
+    const sortedSKUs = [...filteredSKUs].sort((a, b) => {
         if (a.type === b.type) return 0;
         return a.type === 'Finished Inventory' ? -1 : 1;
     });
+
+    if (sortedSKUs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-secondary); padding: 24px;">No matching SKUs found.</td></tr>`;
+        return;
+    }
 
     tbody.innerHTML = sortedSKUs.map((s) => {
         const index = appData.skus.indexOf(s);
@@ -98,13 +113,24 @@ function renderSKUs() {
                 <td data-label="Overheads / Unit"><strong style="color: var(--accent-orange);">${overheadsDisplay}</strong></td>
                 <td data-label="Price / Unit">${pricing}</td>
                 <td data-label="Action">
-                    <button class="btn-outline" style="padding: 6px 12px; font-size: 0.8rem; min-height: 36px;" onclick="editSKUItem(${index})">Edit</button>
-                    <button class="btn-danger" onclick="deleteSKUItem(${index})">Delete</button>
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <button class="btn-outline" style="padding: 6px 12px; font-size: 0.8rem; min-height: 36px;" onclick="editSKUItem(${index})">Edit</button>
+                        <button class="btn-danger" onclick="deleteSKUItem(${index})">Delete</button>
+                    </div>
                 </td>
             </tr>
         `;
     }).join('');
-}
+};
+
+// Clear SKU Search Filter
+window.clearSKUFilter = function() {
+    const searchInput = document.getElementById('sku-search-filter');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    renderSKUs();
+};
 
 // Add or Update SKU Form Submission
 window.addSKU = async function(e) {
@@ -115,7 +141,7 @@ window.addSKU = async function(e) {
 
     if (editIndex === "") {
         if (appData.skus.some(s => s.name.toLowerCase() === name.toLowerCase())) {
-            alert("An SKU with this name already exists.");
+            await customAlert("Duplicate SKU", "An SKU with this name already exists.");
             return;
         }
     }
@@ -236,6 +262,29 @@ window.exportJSON = function() {
     exportJSONData();
 };
 
+// Delete SKU Item with Glassmorphic Custom Modal Prompt
+window.deleteSKUItem = async function(index) {
+    const skuToDelete = appData.skus[index];
+    if (!skuToDelete) return;
+
+    const confirmed = await customConfirm(
+        "Delete SKU?", 
+        `Are you sure you want to delete "${skuToDelete.name}"?`
+    );
+    if (!confirmed) return;
+    
+    if (skuToDelete.firebaseId) {
+        try {
+            await deleteDataDoc('skus', skuToDelete.firebaseId);
+        } catch (err) {
+            console.error("Error deleting SKU from cloud:", err);
+        }
+    }
+    
+    appData.skus.splice(index, 1);
+    renderSKUs();
+};
+
 // Page Load Lifecycle
 document.addEventListener('DOMContentLoaded', async () => {
     const dateDisplay = document.getElementById('current-date');
@@ -245,7 +294,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    await loadCloudCollection('skus', defaultSKUs);
+    await loadCloudCollection('skus');
     renderSKUs();
     initSearchableSelects();
     onSKUTypeChange(document.getElementById('sku-type'));

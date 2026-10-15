@@ -20,42 +20,21 @@ export let appData = {
     batches: [],
     purchases: [],
     samples: [],
-    boms: []
+    boms: [],
+    customers: []
 };
 
-// Default Master Seed Data
-export const defaultSKUs = [
-    { name: "Poha Crunch - 30g", type: "Finished Inventory", grams: 30, price: 15, measure: "Pkts", unit: "Pkts" },
-    { name: "Poha Crunch - 50g", type: "Finished Inventory", grams: 50, price: 25, measure: "Pkts", unit: "Pkts" },
-    { name: "Poha Crunch - 250g", type: "Finished Inventory", grams: 250, price: 110, measure: "Pkts", unit: "Pkts" },
-    { name: "Poha Crunch - 500g", type: "Finished Inventory", grams: 500, price: 210, measure: "Pkts", unit: "Pkts" },
-    { name: "Poha Crunch - 1 Kg", type: "Finished Inventory", grams: 1000, price: 400, measure: "Pkts", unit: "Pkts" },
-    { name: "Poha", type: "Raw Material", grams: 0, price: 0, unit: "Kg" },
-    { name: "Peanut", type: "Raw Material", grams: 0, price: 0, unit: "Kg" },
-    { name: "Roasted Channa", type: "Raw Material", grams: 0, price: 0, unit: "Kg" },
-    { name: "Rice Bran Oil", type: "Raw Material", grams: 0, price: 0, unit: "Ltrs" },
-    { name: "Curry Leaves", type: "Raw Material", grams: 0, price: 0, unit: "Gms" },
-    { name: "Turmeric", type: "Raw Material", grams: 0, price: 0, unit: "Gms" },
-    { name: "Chilli Powder", type: "Raw Material", grams: 0, price: 0, unit: "Gms" },
-    { name: "Salt", type: "Raw Material", grams: 0, price: 0, unit: "Kg" }
-];
+// Default Master Seed Data (Empty to prevent auto-recreation on full deletion)
+export const defaultSKUs = [];
 
 // Helper to Load Collections from Cloud Firestore
-export async function loadCloudCollection(colName, fallbackSeed = []) {
+export async function loadCloudCollection(colName) {
     try {
         const querySnapshot = await getDocs(collection(db, colName));
         appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
-
-        if (appData[colName].length === 0 && fallbackSeed.length > 0) {
-            for (let item of fallbackSeed) {
-                const docRef = await addDoc(collection(db, colName), item);
-                item.firebaseId = docRef.id;
-                appData[colName].push(item);
-            }
-        }
     } catch (err) {
         console.error(`Error loading cloud collection ${colName}:`, err);
-        appData[colName] = fallbackSeed;
+        appData[colName] = [];
     }
 }
 
@@ -108,7 +87,7 @@ export function exportCSVData(type) {
     const todayStr = new Date().toISOString().split('T')[0];
     let items = appData[type];
     if (!items || items.length === 0) {
-        alert("No data available to export in " + type);
+        customAlert("Export Notice", "No data available to export in " + type);
         return;
     }
     let keys = Object.keys(items[0]);
@@ -124,4 +103,61 @@ export function exportCSVData(type) {
     document.body.appendChild(linkAnchor);
     linkAnchor.click();
     linkAnchor.remove();
+}
+
+// ==========================================================================
+// Custom Glassmorphic Modal Utilities (Replaces browser alert/confirm popups)
+// ==========================================================================
+
+export function customConfirm(title, message) {
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'custom-modal-overlay';
+        overlay.innerHTML = `
+            <div class="custom-modal-card">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="custom-modal-actions">
+                    <button class="btn-outline" id="modal-cancel-btn">Cancel</button>
+                    <button class="btn-danger" id="modal-confirm-btn">Delete</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        const cancelBtn = overlay.querySelector('#modal-cancel-btn');
+        const confirmBtn = overlay.querySelector('#modal-confirm-btn');
+
+        cancelBtn.onclick = () => {
+            overlay.remove();
+            resolve(false);
+        };
+        confirmBtn.onclick = () => {
+            overlay.remove();
+            resolve(true);
+        };
+    });
+}
+
+export function customAlert(title, message) {
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'custom-modal-overlay';
+        overlay.innerHTML = `
+            <div class="custom-modal-card">
+                <h3>${title}</h3>
+                <p>${message}</p>
+                <div class="custom-modal-actions">
+                    <button class="btn-primary" id="modal-ok-btn">OK</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        const okBtn = overlay.querySelector('#modal-ok-btn');
+        okBtn.onclick = () => {
+            overlay.remove();
+            resolve(true);
+        };
+    });
 }
