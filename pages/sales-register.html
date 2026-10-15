@@ -56,11 +56,21 @@
                 </table>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
+            <!-- Bottom Section: Paid Stamp Seal (PDF Only) & Total Value Box -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center;">
+                    <img src="../Assets/paid-stamp.png" alt="PAID Stamp" class="invoice-paid-stamp only-print" onerror="this.style.display='none'">
+                </div>
                 <div class="invoice-total-box" style="background: rgba(234, 88, 12, 0.06); padding: 12px 20px; border-radius: 12px; border: 1.5px solid rgba(234, 88, 12, 0.2); text-align: right; min-width: 220px;">
                     <span style="font-size: 0.8rem; color: var(--text-secondary, #475569); font-weight: 700; text-transform: uppercase;">Total Invoice Value</span>
                     <div id="inv-modal-total" style="font-size: 1.4rem; font-weight: 900; color: var(--accent-orange, #EA580C); margin-top: 2px;">₹0</div>
                 </div>
+            </div>
+
+            <!-- Customer Greeting & Thanks Note (Center Aligned) -->
+            <div class="invoice-footer-greeting" style="text-align: center; border-top: 1px dashed var(--glass-border, rgba(254, 215, 170, 0.8)); padding-top: 14px; margin-bottom: 20px;">
+                <p style="font-size: 0.95rem; font-weight: 800; color: var(--accent-orange, #EA580C); text-align: center; margin: 0 0 4px 0;">Thank you for choosing KB Savouries!</p>
+                <p style="font-size: 0.8rem; color: var(--text-secondary, #475569); text-align: center; margin: 0; font-style: italic;">Wishing you delightful moments with every bite—looking forward to serving you again soon!</p>
             </div>
 
             <div class="no-print" style="display: flex; gap: 12px; justify-content: flex-end;">

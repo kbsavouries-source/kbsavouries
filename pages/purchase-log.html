@@ -3,13 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KB Savouries - Purchase Log</title>
+    <title>KB Savouries - Purchase Log & Orders</title>
     <link rel="stylesheet" href="../css/books.css">
     <link rel="stylesheet" href="../css/purchase-log.css">
     <!-- Tom Select CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 </head>
 <body>
+
+    <!-- Purchase Order Modal (Printable Glassmorphic Theme) -->
+    <div id="po-modal" class="passcode-overlay" style="display: none;">
+        <div class="passcode-card invoice-print-container" style="max-width: 680px; text-align: left; width: 100%;">
+            <div class="invoice-header-flex" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <img src="../Assets/logo.png" alt="KB Savouries Logo" class="invoice-brand-logo" onerror="this.style.display='none'">
+                    <div>
+                        <h2 style="font-size: 1.35rem; font-weight: 900; color: var(--accent-orange, #EA580C); margin: 0; letter-spacing: -0.01em;">KB SAVOURIES</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary, #475569); margin: 2px 0 0 0;">Official Purchase Order (PO)</p>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <h3 id="po-modal-number" style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary, #0F172A); margin: 0;">PO-2026-0001</h3>
+                    <p id="po-modal-date" style="font-size: 0.85rem; color: var(--text-secondary, #475569); margin: 4px 0 0 0;">Date: 15/10/2026</p>
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8)); margin: 18px 0;">
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem;">
+                <div>
+                    <strong style="color: var(--text-secondary, #475569); display: block; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px;">Vendor / Supplier:</strong>
+                    <span id="po-modal-vendor" style="font-weight: 800; font-size: 1.05rem; color: var(--text-primary, #0F172A);">Vendor Name</span>
+                </div>
+                <div style="text-align: right;">
+                    <strong style="color: var(--text-secondary, #475569); display: block; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px;">Status:</strong>
+                    <span id="po-modal-status" style="font-weight: 700; color: var(--accent-orange, #EA580C);">Pending Receipt</span>
+                </div>
+            </div>
+
+            <div class="table-responsive" style="margin-bottom: 20px;">
+                <table class="invoice-table-grid" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: rgba(234, 88, 12, 0.08); text-align: left;">
+                            <th style="padding: 10px 12px; font-size: 0.8rem; width: 45%;">Raw Material Item</th>
+                            <th style="padding: 10px 12px; font-size: 0.8rem; width: 25%; text-align: center;">Quantity</th>
+                            <th style="padding: 10px 12px; font-size: 0.8rem; width: 15%; text-align: right;">Unit</th>
+                            <th style="padding: 10px 12px; font-size: 0.8rem; width: 15%; text-align: right;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="po-modal-items">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
+                <div class="invoice-total-box" style="background: rgba(234, 88, 12, 0.06); padding: 12px 20px; border-radius: 12px; border: 1.5px solid rgba(234, 88, 12, 0.2); text-align: right; min-width: 220px;">
+                    <span style="font-size: 0.8rem; color: var(--text-secondary, #475569); font-weight: 700; text-transform: uppercase;">Total PO Outflow</span>
+                    <div id="po-modal-total" style="font-size: 1.4rem; font-weight: 900; color: var(--accent-orange, #EA580C); margin-top: 2px;">₹0</div>
+                </div>
+            </div>
+
+            <div class="no-print" style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" class="btn-primary" onclick="printCurrentPO()">Print / Save PDF</button>
+                <button type="button" class="btn-outline" onclick="closePOModal()" style="border-color: var(--danger, #dc2626); color: var(--danger, #dc2626);">Close</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Mobile Hamburger Toggle -->
     <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
@@ -44,7 +104,7 @@
     <!-- Main Workspace -->
     <main>
         <header>
-            <h1 id="page-title">Purchase Log</h1>
+            <h1 id="page-title">Purchase Log & Orders</h1>
             <span id="current-date" class="date-display"></span>
         </header>
 
@@ -52,9 +112,9 @@
             <!-- PURCHASES TAB -->
             <div id="purchases" class="tab-content active">
                 <div class="card">
-                    <h2>Log Purchase (Raw Material or Supplies)</h2>
-                    <form id="purchase-form" onsubmit="addPurchase(event)">
-                        <div class="form-grid">
+                    <h2>Create Purchase Order (Multi-Item Vendor PO)</h2>
+                    <form id="purchase-form" onsubmit="addPurchaseOrder(event)">
+                        <div class="form-grid" style="margin-bottom: 20px;">
                             <div class="form-group">
                                 <label for="pur-date">Date</label>
                                 <input type="date" id="pur-date" required>
@@ -63,34 +123,28 @@
                                 <label for="pur-vendor">Vendor Name</label>
                                 <input type="text" id="pur-vendor" placeholder="e.g. H&H Distributors" required>
                             </div>
-                            <div class="form-group">
-                                <label for="pur-item">Item Name</label>
-                                <select id="pur-item" required>
-                                    <!-- Populated dynamically from raw material SKUs -->
-                                </select>
+                        </div>
+
+                        <!-- Multi-Item Purchase Order Rows -->
+                        <div style="margin-top: 24px; border-top: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8)); padding-top: 20px;">
+                            <div class="section-header-flex" style="margin-bottom: 14px;">
+                                <h3 style="font-size: 1rem; font-weight: 800;">PO Line Items</h3>
+                                <button type="button" class="btn-outline" onclick="addPurchaseRow()" style="padding: 6px 14px; font-size: 0.8rem; min-height: 36px;">+ Add Item Row</button>
                             </div>
-                            <div class="form-group">
-                                <label for="pur-qty">Qty Bought</label>
-                                <input type="number" id="pur-qty" step="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="pur-unit">Unit</label>
-                                <select id="pur-unit">
-                                    <option value="Kg" selected>Kg</option>
-                                    <option value="Gms">Gms</option>
-                                    <option value="Ltrs">Ltrs</option>
-                                    <option value="ML">ML</option>
-                                    <option value="Pkts">Pkts</option>
-                                    <option value="Units">Units</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="pur-amt">Total Amount (₹)</label>
-                                <input type="number" id="pur-amt" required>
+                            <div id="purchase-items-container" style="display: flex; flex-direction: column; gap: 12px;">
+                                <!-- Dynamic rows populated here -->
                             </div>
                         </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn-primary">Record Purchase</button>
+
+                        <!-- Total PO Amount Display -->
+                        <div style="display: flex; justify-content: flex-end; margin-top: 20px; align-items: center; gap: 16px;">
+                            <div style="font-size: 1rem; font-weight: 800; color: var(--text-primary, #0F172A);">
+                                Total PO Outflow: <span id="form-po-total-display" style="color: var(--accent-orange, #EA580C); font-size: 1.25rem; margin-left: 8px;">₹0</span>
+                            </div>
+                        </div>
+
+                        <div class="form-actions" style="margin-top: 20px;">
+                            <button type="submit" id="po-submit-btn" class="btn-primary">Generate Purchase Order</button>
                         </div>
                     </form>
                 </div>
@@ -98,9 +152,9 @@
                 <div class="card">
                     <div class="section-header-flex">
                         <div class="title-filter-group">
-                            <h2>Purchase History</h2>
+                            <h2>Purchase History & Orders</h2>
                             <div class="date-filter-wrapper">
-                                <input type="text" id="pur-search-filter" oninput="renderPurchases()" placeholder="Search Item..." class="filter-search-input">
+                                <input type="text" id="pur-search-filter" oninput="renderPurchases()" placeholder="Search Item or Vendor..." class="filter-search-input">
                                 <label for="pur-date-filter" class="filter-label">Filter Date:</label>
                                 <input type="date" id="pur-date-filter" onchange="renderPurchases()" class="filter-date-input">
                                 <button type="button" class="btn-clear-filter" onclick="clearPurchaseFilters()">Clear</button>
@@ -114,15 +168,16 @@
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table class="mobile-stack-table">
+                        <table class="mobile-stack-table purchase-desktop-table">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Vendor</th>
-                                    <th>Item</th>
-                                    <th>Qty & Unit</th>
-                                    <th>Total Amt (₹)</th>
-                                    <th>Action</th>
+                                    <th style="width: 14%;">PO No.</th>
+                                    <th style="width: 10%;">Date</th>
+                                    <th style="width: 16%;">Vendor</th>
+                                    <th style="width: 28%;">Items & Quantities</th>
+                                    <th style="width: 10%;">Total (₹)</th>
+                                    <th style="width: 10%;">Status</th>
+                                    <th style="width: 12%; text-align: right;">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="purchase-table-body">
@@ -138,9 +193,7 @@
     <script>
         window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.classList.toggle('open');
-            }
+            if (sidebar) sidebar.classList.toggle('open');
         };
     </script>
     <script type="module">

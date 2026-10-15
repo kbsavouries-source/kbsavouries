@@ -435,8 +435,17 @@ export async function deleteSaleItem(index) {
                 const batch = window.appData.batches.find(b => b.code === item.batchCode);
                 if (batch) {
                     const restoredGrams = Number(item.gramsSold) || 0;
-                    batch.remainingGrams = Number(batch.remainingGrams || 0) + restoredGrams;
-                    batch.status = 'Available';
+                    const currentRemaining = Number(batch.remainingGrams) || 0;
+                    const maxAllowedGrams = Number(batch.totalGrams || batch.weightGrams || batch.outputGrams) || (currentRemaining + restoredGrams);
+
+                    let newRemaining = currentRemaining + restoredGrams;
+                    if (maxAllowedGrams > 0 && newRemaining > maxAllowedGrams) {
+                        newRemaining = maxAllowedGrams;
+                    }
+
+                    batch.remainingGrams = newRemaining;
+                    batch.status = batch.remainingGrams > 0 ? 'Available' : 'Sold Out';
+
                     if (batch.firebaseId) {
                         try {
                             await updateDoc(doc(db, 'batches', batch.firebaseId), {
