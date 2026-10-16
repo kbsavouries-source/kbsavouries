@@ -11,7 +11,6 @@ import {
     customAlert 
 } from './firebase-config.js';
 
-// Initialize Tom Select on search filters and large dropdowns ONLY (Excludes simple 2-option classification select)
 function initSearchableSelects() {
     if (typeof TomSelect === 'undefined') return;
     
@@ -35,7 +34,6 @@ window.toggleSidebar = function() {
     if (sidebar) sidebar.classList.toggle('open');
 };
 
-// Helper to extract dynamic overhead rows from the form
 function getOverheadsFromDOM() {
     const rows = document.querySelectorAll('#overhead-rows-container .overhead-row');
     const overheads = [];
@@ -53,7 +51,6 @@ function getOverheadsFromDOM() {
     return overheads;
 }
 
-// Render dynamic overhead row in the form
 window.addOverheadRow = function(name = '', cost = '') {
     const container = document.getElementById('overhead-rows-container');
     if (!container) return;
@@ -70,20 +67,17 @@ window.addOverheadRow = function(name = '', cost = '') {
     container.appendChild(row);
 };
 
-// Calculate Total Overhead for an SKU Object
 function calculateTotalOverhead(s) {
     if (s.type !== 'Finished Inventory' || !s.overheads) return 0;
     return s.overheads.reduce((sum, o) => sum + (Number(o.cost) || 0), 0);
 }
 
-// Helper to calculate condensed expiry date string
 function calculateExpiryDateStr(days) {
     const d = new Date();
     d.setDate(d.getDate() + (Number(days) || 0));
     return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
 }
 
-// Auto-generate SKU Number based on classification type
 function generateSKUNumber(type) {
     const isFinished = (type || '').toLowerCase().includes('finished');
     const prefix = isFinished ? 'SKU-FG-' : 'SKU-RM-';
@@ -103,7 +97,6 @@ function generateSKUNumber(type) {
     return `${prefix}${maxNum + 1}`;
 }
 
-// Render SKU Directory Table with Search Filtering
 window.renderSKUs = function() {
     const tbody = document.getElementById('sku-table-body');
     if (!tbody || !appData || !appData.skus) return;
@@ -198,16 +191,32 @@ window.addSKU = async function(e) {
 
     if (editIndex !== "") {
         const index = Number(editIndex);
-        skuObj.firebaseId = appData.skus[index].firebaseId;
+        // CRITICAL FIX: Preserve the firebaseId for proper cloud document updates
+        const existingFirebaseId = appData.skus[index].firebaseId;
+        if (existingFirebaseId) {
+            skuObj.firebaseId = existingFirebaseId;
+        }
+        
         appData.skus[index] = skuObj;
 
         if (skuObj.firebaseId) {
-            await updateDataDoc('skus', skuObj.firebaseId, skuObj);
+            try {
+                await updateDataDoc('skus', skuObj.firebaseId, skuObj);
+            } catch (err) {
+                console.error("Error updating SKU in cloud:", err);
+            }
         }
         window.cancelSKUEdit();
     } else {
         appData.skus.push(skuObj);
-        await saveDataDoc('skus', skuObj);
+        try {
+            const docRef = await saveDataDoc('skus', skuObj);
+            if (docRef && docRef.id) {
+                skuObj.firebaseId = docRef.id;
+            }
+        } catch (err) {
+            console.error("Error saving new SKU to cloud:", err);
+        }
         
         document.getElementById('sku-form').reset();
         const typeSelect = document.getElementById('sku-type');
@@ -306,7 +315,6 @@ window.onSKUTypeChange = function(selectEl) {
     }
 };
 
-// --- BULK CSV IMPORT FEATURE ---
 window.openBulkModal = function() {
     const modal = document.getElementById('bulk-import-modal');
     if (modal) modal.style.display = 'flex';
@@ -412,7 +420,10 @@ window.processBulkCSV = async function() {
 
             appData.skus.push(skuObj);
             try {
-                await saveDataDoc('skus', skuObj);
+                const docRef = await saveDataDoc('skus', skuObj);
+                if (docRef && docRef.id) {
+                    skuObj.firebaseId = docRef.id;
+                }
                 importedCount++;
             } catch (err) {
                 console.error("Error saving bulk SKU to cloud:", err);
