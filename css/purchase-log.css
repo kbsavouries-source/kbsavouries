@@ -9,17 +9,43 @@
   margin-bottom: 20px;
 }
 
+/* PO Line Item Row (Desktop Grid) */
+.purchase-item-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr auto;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
+}
+
+.purchase-item-row .row-delete-group {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.purchase-item-row .row-delete-group .btn-danger {
+  padding: 8px 14px;
+  min-height: 42px;
+  width: auto !important;
+  margin: 0;
+}
+
+/* Filter Bar Styling */
 .date-filter-wrapper {
   display: flex;
   align-items: center;
   gap: 10px;
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 8px 12px;
   border-radius: 12px;
   border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
   flex-wrap: wrap;
-  width: 100%;
 }
 
 .filter-search-input, .filter-date-input {
@@ -30,6 +56,10 @@
   border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
   color: var(--text-primary, #0F172A);
   height: 38px;
+}
+
+.filter-search-input {
+  min-width: 220px;
 }
 
 .filter-label {
@@ -78,23 +108,26 @@
 /* Purchase Desktop Table Styling */
 .purchase-desktop-table {
   width: 100%;
-  table-layout: fixed;
   border-collapse: collapse;
 }
 
 .purchase-desktop-table th {
-  padding: 12px 10px !important;
+  padding: 12px 14px !important;
   font-size: 0.78rem;
   white-space: nowrap;
 }
 
 .purchase-desktop-table td {
-  padding: 12px 10px !important;
+  padding: 14px 14px !important;
   vertical-align: middle;
   font-size: 0.85rem;
 }
 
-/* Custom Table Code Display */
+.po-items-cell {
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
 .table-code {
   font-family: monospace;
   font-size: 0.82rem;
@@ -107,11 +140,45 @@
   color: var(--accent-orange, #EA580C);
 }
 
-.action-btn-group {
+/* Status Badges */
+.status-badge.received {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1.5px solid #bbf7d0;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1.5px solid #fde68a;
+}
+
+/* Action Buttons Alignment */
+.po-action-wrapper {
   display: flex;
-  gap: 4px;
-  justify-content: flex-end;
+  gap: 6px;
   align-items: center;
+  justify-content: flex-end;
+}
+
+.po-action-btn {
+  padding: 5px 12px !important;
+  font-size: 0.8rem !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  width: auto !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.po-action-btn.btn-ok {
+  background: var(--success, #16A34A) !important;
+}
+
+.po-action-btn.btn-ok:hover {
+  background: #15803D !important;
 }
 
 /* PO Brand Logo in Modal */
@@ -122,7 +189,84 @@
   border-radius: 8px;
 }
 
-/* Single-Page Print Engine Styles for PO PDF Export */
+/* Mobile Stacking Layout Rules */
+@media (max-width: 768px) {
+  /* Stack Purchase Item Input Form Rows */
+  .purchase-item-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .purchase-item-row .row-item-group {
+    grid-column: 1 / -1;
+  }
+
+  .purchase-item-row .row-delete-group {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
+  .purchase-item-row .row-delete-group .btn-danger {
+    width: 100% !important;
+    margin-top: 4px;
+  }
+
+  /* Table Mobile Stacking (CRM Pattern) */
+  .purchase-desktop-table thead {
+    display: none;
+  }
+
+  .purchase-desktop-table tr {
+    display: block;
+    margin-bottom: 14px;
+    border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
+    border-radius: 16px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+  }
+
+  .purchase-desktop-table td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 0 !important;
+    border-bottom: 1.5px solid rgba(254, 215, 170, 0.4) !important;
+    text-align: right !important;
+  }
+
+  .purchase-desktop-table td:last-child {
+    border-bottom: none !important;
+  }
+
+  .purchase-desktop-table td::before {
+    content: attr(data-label);
+    font-weight: 800;
+    color: var(--text-secondary, #475569);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+  }
+
+  .po-action-wrapper {
+    justify-content: flex-end !important;
+    width: auto;
+  }
+
+  .filter-search-input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .date-filter-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Print Engine Styles */
 @media print {
   @page {
     size: A4 portrait;
@@ -169,9 +313,6 @@
     margin: 0 !important;
     background: #ffffff !important;
     backdrop-filter: none !important;
-    page-break-inside: avoid !important;
-    page-break-after: avoid !important;
-    break-inside: avoid !important;
   }
 
   .invoice-table-grid {

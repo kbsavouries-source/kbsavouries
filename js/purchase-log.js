@@ -46,7 +46,7 @@ export async function initPurchaseLog() {
     renderPurchases();
 }
 
-// Add Dynamic PO Item Row
+// Add Dynamic PO Item Row with Responsive Stacking Classes
 window.addPurchaseRow = function(itemName = '', qty = '', unit = 'Kg', amt = '') {
     const container = document.getElementById('purchase-items-container');
     if (!container) return;
@@ -58,21 +58,20 @@ window.addPurchaseRow = function(itemName = '', qty = '', unit = 'Kg', amt = '')
     const row = document.createElement('div');
     row.className = 'purchase-item-row';
     row.id = rowId;
-    row.style.cssText = 'display: grid; grid-template-columns: 2fr 1fr 1.2fr 1.2fr auto; gap: 12px; align-items: center; background: rgba(255,255,255,0.5); padding: 12px; border-radius: 12px; border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));';
 
     row.innerHTML = `
-        <div class="form-group" style="margin:0;">
+        <div class="form-group row-item-group">
             <label style="font-size:0.75rem;">Raw Material Item</label>
             <select class="row-item" required>
                 <option value="">Select Item</option>
                 ${skuOptions}
             </select>
         </div>
-        <div class="form-group" style="margin:0;">
+        <div class="form-group row-qty-group">
             <label style="font-size:0.75rem;">Qty</label>
             <input type="number" class="row-qty" value="${qty}" placeholder="0" step="any" min="0.01" required>
         </div>
-        <div class="form-group" style="margin:0;">
+        <div class="form-group row-unit-group">
             <label style="font-size:0.75rem;">Unit</label>
             <select class="row-unit" required>
                 <option value="Kg" ${unit === 'Kg' ? 'selected' : ''}>Kg</option>
@@ -83,12 +82,12 @@ window.addPurchaseRow = function(itemName = '', qty = '', unit = 'Kg', amt = '')
                 <option value="Units" ${unit === 'Units' ? 'selected' : ''}>Units</option>
             </select>
         </div>
-        <div class="form-group" style="margin:0;">
+        <div class="form-group row-amt-group">
             <label style="font-size:0.75rem;">Amount (₹)</label>
             <input type="number" class="row-amt" value="${amt}" placeholder="0" step="any" min="0" oninput="updatePOTotal()" required>
         </div>
-        <div style="display:flex; align-items:flex-end; height:100%;">
-            <button type="button" class="btn-danger" onclick="removePurchaseRow('${rowId}')" style="padding: 8px 14px; min-height: 42px; width: auto !important;">✕</button>
+        <div class="row-delete-group">
+            <button type="button" class="btn-danger" onclick="removePurchaseRow('${rowId}')">✕</button>
         </div>
     `;
 
@@ -183,7 +182,7 @@ export async function addPurchaseOrder(e) {
         vendor: document.getElementById('pur-vendor').value,
         items: items,
         amt: totalAmount,
-        status: 'Pending Receipt' // Initial Status before clicking OK
+        status: 'Pending Receipt'
     };
 
     window.appData.purchases.push(purchaseRecord);
@@ -202,7 +201,6 @@ export async function addPurchaseOrder(e) {
     updatePOTotal();
 }
 
-// --- Order to Receipt Conversion ("OK" Button Action) ---
 window.convertPOToReceipt = async function(index) {
     const purchase = window.appData.purchases[index];
     if (!purchase) return;
@@ -228,7 +226,6 @@ window.convertPOToReceipt = async function(index) {
     alert(`Purchase Order ${purchase.poNo || 'PO'} successfully converted to Received Receipt! Inventory updated.`);
 };
 
-// --- PO Modal Viewer & Printer ---
 window.viewPOModal = function(index) {
     const purchase = window.appData.purchases[index];
     if (!purchase) return;
@@ -294,9 +291,9 @@ export function renderPurchases() {
 
     if (searchFilter) {
         displayedPurchases = displayedPurchases.filter(p => {
-            const matchesVendor = p.vendor.toLowerCase().includes(searchFilter);
+            const matchesVendor = (p.vendor || '').toLowerCase().includes(searchFilter);
             const matchesPO = (p.poNo || '').toLowerCase().includes(searchFilter);
-            const matchesItem = (p.items || [{item: p.item}]).some(i => i.item.toLowerCase().includes(searchFilter));
+            const matchesItem = (p.items || [{item: p.item}]).some(i => (i.item || '').toLowerCase().includes(searchFilter));
             return matchesVendor || matchesPO || matchesItem;
         });
     }
@@ -320,6 +317,11 @@ export function renderPurchases() {
         }
     }
 
+    if (displayedPurchases.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-secondary); padding: 32px;">No matching purchase orders found.</td></tr>`;
+        return;
+    }
+
     tbody.innerHTML = displayedPurchases.map((p) => {
         const realIndex = window.appData.purchases.indexOf(p);
         const poNo = p.poNo || `PO-2026-00${realIndex + 1}`;
@@ -338,26 +340,26 @@ export function renderPurchases() {
         `).join('');
 
         const statusBadge = isReceived ? 
-            `<span class="status-badge" style="background:#dcfce7; color:#15803d; border:1.5px solid #bbf7d0;">Received</span>` : 
-            `<span class="status-badge" style="background:#fef3c7; color:#b45309; border:1.5px solid #fde68a;">Pending</span>`;
+            `<span class="status-badge received">Received</span>` : 
+            `<span class="status-badge pending">Pending</span>`;
 
         const actionButtons = isReceived ? 
-            `<button class="btn-outline" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="viewPOModal(${realIndex})">PO PDF</button>
-             <button class="btn-danger" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="deletePurchaseItem(${realIndex})">Delete</button>` :
-            `<button class="btn-primary" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px; background:var(--success, #16A34A);" onclick="convertPOToReceipt(${realIndex})">OK</button>
-             <button class="btn-outline" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="viewPOModal(${realIndex})">PO</button>
-             <button class="btn-danger" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="deletePurchaseItem(${realIndex})">Delete</button>`;
+            `<button class="btn-outline po-action-btn" onclick="viewPOModal(${realIndex})">PO PDF</button>
+             <button class="btn-danger po-action-btn" onclick="deletePurchaseItem(${realIndex})">Delete</button>` :
+            `<button class="btn-primary po-action-btn btn-ok" onclick="convertPOToReceipt(${realIndex})">OK</button>
+             <button class="btn-outline po-action-btn" onclick="viewPOModal(${realIndex})">PO</button>
+             <button class="btn-danger po-action-btn" onclick="deletePurchaseItem(${realIndex})">Delete</button>`;
 
         return `
             <tr>
                 <td data-label="PO No."><span class="table-code highlight">${poNo}</span></td>
                 <td data-label="Date">${formatDate(p.date)}</td>
-                <td data-label="Vendor"><strong>${p.vendor}</strong></td>
-                <td data-label="Items & Quantities" style="font-size:0.84rem; line-height:1.4;">${itemsHtml}</td>
-                <td data-label="Total (₹)"><strong>₹${p.amt}</strong></td>
+                <td data-label="Vendor"><strong>${p.vendor || 'N/A'}</strong></td>
+                <td data-label="Items & Quantities" class="po-items-cell">${itemsHtml}</td>
+                <td data-label="Total Outflow"><strong style="color: var(--accent-orange, #EA580C);">₹${p.amt}</strong></td>
                 <td data-label="Status">${statusBadge}</td>
-                <td data-label="Action" style="text-align:right;">
-                    <div class="action-btn-group" style="justify-content:flex-end; gap:4px;">
+                <td data-label="Action">
+                    <div class="po-action-wrapper">
                         ${actionButtons}
                     </div>
                 </td>
