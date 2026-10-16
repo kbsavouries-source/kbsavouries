@@ -1,5 +1,5 @@
 // ==========================================================================
-// Inventory Tracker Module Logic (100% Dynamic SKU & BOM Driven)
+// Inventory Tracker Module Logic (Single-Click Reset & Searchable Filter)
 // ==========================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
@@ -23,24 +23,7 @@ window.appData = {
     boms: []
 };
 
-export function formatDynamicValue(val, preferredUnit) {
-    const v = Number(val) || 0;
-    const unit = (preferredUnit || '').toLowerCase();
-
-    if (unit === 'kg' || unit === 'gms') {
-        if (Math.abs(v) >= 1000) {
-            return `${(v / 1000).toFixed(2)} Kg`;
-        }
-        return `${v.toFixed(v % 1 === 0 ? 0 : 1)} gms`;
-    }
-    if (unit === 'ltrs' || unit === 'ml') {
-        if (Math.abs(v) >= 1000) {
-            return `${(v / 1000).toFixed(2)} Ltrs`;
-        }
-        return `${v.toFixed(0)} ML`;
-    }
-    return `${v.toFixed(v % 1 === 0 ? 0 : 1)} ${preferredUnit || 'Units'}`;
-}
+let ingredientTomSelectInstance = null;
 
 export async function initInventoryTracker() {
     try {
@@ -53,192 +36,150 @@ export async function initInventoryTracker() {
         console.error("Error loading cloud data for inventory tracker:", err);
     }
 
-    populateProductFilterDropdown();
-    renderInventory();
+    populateIngredientFilter();
+    renderInventoryTracker();
 }
 
-let productFilterTomSelect = null;
+function normalizeUnitQty(qty, unit) {
+    const num = Number(qty) || 0;
+    const u = (unit || 'Kg').toLowerCase().trim();
+    
+    if (u === 'kg' || u === 'ltrs' || u === 'ltr') {
+        return num * 1000;
+    }
+    return num;
+}
 
-export function populateProductFilterDropdown() {
-    const filterSelect = document.getElementById('inventory-product-filter');
-    const finishedSKUs = window.appData.skus.filter(s => s.type === 'Finished Inventory');
+function formatDisplayStock(qtyGms, preferredUnit) {
+    const val = Number(qtyGms) || 0;
+    const u = (preferredUnit || 'Kg').toLowerCase().trim();
 
-    if (filterSelect) {
-        const uniqueProductLines = [...new Set(finishedSKUs.map(s => {
-            return s.name.includes(' - ') ? s.name.split(' - ')[0].trim() : s.name;
-        }))];
+    if (u === 'kg' || u === 'ltrs' || u === 'ltr') {
+        return `${(val / 1000).toFixed(2)} ${preferredUnit || 'Kg'}`;
+    }
+    return `${val.toFixed(0)} ${preferredUnit || 'Gms'}`;
+}
 
-        filterSelect.innerHTML = `<option value="ALL">All Products (Combined)</option>` + 
-            uniqueProductLines.map(line => `<option value="${line}">${line}</option>`).join('');
+export function populateIngredientFilter() {
+    const filterSelect = document.getElementById('inventory-ingredient-filter');
+    if (!filterSelect || !window.appData.skus) return;
 
-        if (window.TomSelect) {
-            if (productFilterTomSelect) {
-                productFilterTomSelect.destroy();
-            }
-            productFilterTomSelect = new TomSelect(filterSelect, {
-                create: false,
-                sortField: { field: "text", direction: "asc" },
-                onChange: () => {
-                    renderInventory();
-                }
-            });
+    const rawMaterials = window.appData.skus.filter(s => s.type === 'Raw Material');
+
+    filterSelect.innerHTML = `<option value="">All Ingredients (Combined)</option>` + 
+        rawMaterials.map(rm => `<option value="${rm.name}">${rm.name}</option>`).join('');
+
+    if (window.TomSelect) {
+        if (ingredientTomSelectInstance) {
+            ingredientTomSelectInstance.destroy();
         }
+        ingredientTomSelectInstance = new TomSelect(filterSelect, {
+            create: false,
+            sortField: { field: "text", direction: "asc" },
+            onChange: () => {
+                renderInventoryTracker();
+            }
+        });
     }
 }
 
-export function clearInventoryFilter() {
-    if (productFilterTomSelect) {
-        productFilterTomSelect.setValue('ALL');
-    } else {
-        const filterSelect = document.getElementById('inventory-product-filter');
-        if (filterSelect) filterSelect.value = 'ALL';
-    }
-    renderInventory();
-}
-
-export function renderInventory() {
+export function renderInventoryTracker() {
     const tbody = document.getElementById('inventory-table-body');
-    const productFilter = productFilterTomSelect ? productFilterTomSelect.getValue() : 
-                          (document.getElementById('inventory-product-filter') ? document.getElementById('inventory-product-filter').value : 'ALL');
-    
-    if (!tbody || !window.appData) return;
+    if (!tbody || !window.appData.skus) return;
 
-    // 1. Accumulate total purchases for all items based on Raw Material SKUs
-    let purchasedMap = {};
-    (window.appData.purchases || []).forEach(p => {
-        let itemKey = p.item.trim().toLowerCase();
-        let qty = Number(p.qty) || 0;
-        let unit = (p.unit || '').toLowerCase();
-        
-        // Convert base purchase units for standard accumulation
-        let qtyInBase = (unit === 'kg' || unit === 'ltrs') ? qty * 1000 : qty;
+    const filterEl = document.getElementById('inventory-ingredient-filter');
+    const selectedIngredient = filterEl ? filterEl.value.trim().toLowerCase() : '';
 
-        if (!purchasedMap[itemKey]) purchasedMap[itemKey] = 0;
-        purchasedMap[itemKey] += qtyInBase;
-    });
+    let rawMaterials = window.appData.skus.filter(s => s.type === 'Raw Material');
 
-    // 2. Compute consumption dynamically based on product BOMs & scale factor
-    let consumedMap = {};
-    (window.appData.batches || []).forEach(b => {
-        if (productFilter !== 'ALL' && b.product !== productFilter) return;
+    // Filter by specific raw ingredient if selected
+    if (selectedIngredient) {
+        rawMaterials = rawMaterials.filter(rm => rm.name.trim().toLowerCase() === selectedIngredient);
+    }
 
-        let batchGrams = Number(b.totalGrams) || 0;
-        let bomRecord = (window.appData.boms || []).find(item => item.productLine === b.product);
-        
-        if (!bomRecord || !bomRecord.ingredients) return; // Skip if no BOM mapped
-
-        let baseOutput = Number(bomRecord.baseOutputGrams) || 500;
-        let scaleFactor = batchGrams / baseOutput;
-
-        bomRecord.ingredients.forEach(ing => {
-            let itemKey = ing.name.trim().toLowerCase();
-            let ingredientQtyGrams = ing.unit.toLowerCase() === 'kg' || ing.unit.toLowerCase() === 'ltrs' ? Number(ing.qty) * 1000 : Number(ing.qty);
-            let consumedAmt = ingredientQtyGrams * scaleFactor;
-            
-            consumedMap[itemKey] = (consumedMap[itemKey] || 0) + consumedAmt;
-        });
-    });
-
-    // 3. Get all Raw Material SKUs dynamically from SKU Catalog
-    const rawMaterialSKUs = window.appData.skus.filter(s => s.type === 'Raw Material');
-
-    let rowsHtml = [];
-
-    rawMaterialSKUs.forEach(sku => {
-        let itemName = sku.name;
-        let itemKey = itemName.toLowerCase();
-        let prefUnit = sku.unit || 'gms';
-        let category = 'Raw Material SKU';
-
-        let totalBought = purchasedMap[itemKey] || 0;
-        let totalUsed = consumedMap[itemKey] || 0;
-        let balance = totalBought - totalUsed;
-
-        let displayBought = formatDynamicValue(totalBought, prefUnit);
-        let displayUsed = formatDynamicValue(totalUsed, prefUnit);
-        let displayBalance = formatDynamicValue(balance, prefUnit);
-
-        let isLow = balance <= 500;
-        let statusTag = isLow ? '⚠️ Low Stock' : 'Optimal';
-        let alertStyle = isLow ? 'color: #dc2626; font-weight: 700;' : '';
-
-        rowsHtml.push(`
-            <tr>
-                <td data-label="Raw Ingredient"><strong>${itemName}</strong></td>
-                <td data-label="Category">${category}</td>
-                <td data-label="Total Purchased">${displayBought}</td>
-                <td data-label="Consumed (Batches)">${displayUsed}</td>
-                <td data-label="Current Balance Stock"><strong style="${alertStyle}">${displayBalance}</strong></td>
-                <td data-label="Stock Level Status"><span class="status-badge" style="${alertStyle}">${statusTag}</span></td>
-            </tr>
-        `);
-    });
-
-    tbody.innerHTML = rowsHtml.length > 0 ? rowsHtml.join('') : `<tr><td colspan="6" style="text-align:center; padding: 20px;">No Raw Material SKUs found. Please register raw materials in the SKU Catalog.</td></tr>`;
-}
-
-export function exportCSV(type) {
-    const todayStr = new Date().toISOString().split('T')[0];
-    
-    if (type === 'inventory') {
-        let csvContent = "data:text/csv;charset=utf-8,Raw Ingredient,Category,Total Purchased,Consumed (Batches),Current Balance Stock,Stock Level Status\n";
-        
-        let purchasedMap = {};
-        (window.appData.purchases || []).forEach(p => {
-            let itemKey = p.item.trim().toLowerCase();
-            let q = Number(p.qty) || 0;
-            let unit = (p.unit || '').toLowerCase();
-            if (!purchasedMap[itemKey]) purchasedMap[itemKey] = 0;
-            purchasedMap[itemKey] += (unit === 'kg' || unit === 'ltrs') ? q * 1000 : q;
-        });
-
-        let consumedMap = {};
-        const productFilter = productFilterTomSelect ? productFilterTomSelect.getValue() : 'ALL';
-        
-        (window.appData.batches || []).forEach(b => {
-            if (productFilter !== 'ALL' && b.product !== productFilter) return;
-            let bomRecord = (window.appData.boms || []).find(item => item.productLine === b.product);
-            if (!bomRecord || !bomRecord.ingredients) return;
-            
-            let baseOutput = Number(bomRecord.baseOutputGrams) || 500;
-            let batchScale = (Number(b.totalGrams) || 0) / baseOutput;
-
-            bomRecord.ingredients.forEach(ing => {
-                let itemKey = ing.name.trim().toLowerCase();
-                let qtyGrams = ing.unit.toLowerCase() === 'kg' || ing.unit.toLowerCase() === 'ltrs' ? Number(ing.qty) * 1000 : Number(ing.qty);
-                consumedMap[itemKey] = (consumedMap[itemKey] || 0) + (qtyGrams * batchScale);
-            });
-        });
-
-        const rawMaterialSKUs = window.appData.skus.filter(s => s.type === 'Raw Material');
-
-        rawMaterialSKUs.forEach(sku => {
-            let itemName = sku.name;
-            let itemKey = itemName.toLowerCase();
-            let prefUnit = sku.unit || 'gms';
-            
-            let totalBought = purchasedMap[itemKey] || 0;
-            let totalUsed = consumedMap[itemKey] || 0;
-            let bal = totalBought - totalUsed;
-            let statusTag = bal <= 500 ? 'Low Stock' : 'Optimal';
-
-            csvContent += `"${itemName}","Raw Material SKU","${formatDynamicValue(totalBought, prefUnit)}","${formatDynamicValue(totalUsed, prefUnit)}","${formatDynamicValue(bal, prefUnit)}","${statusTag}"\n`;
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `kb_savouries_inventory_${todayStr}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+    if (rawMaterials.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-secondary); padding: 32px;">No matching raw materials found.</td></tr>`;
         return;
     }
+
+    // 1. Dynamic Calculation: Purchased Stock from "Received" POs
+    const purchasedTotals = {};
+    const receivedPOs = (window.appData.purchases || []).filter(p => p.status === 'Received');
+
+    receivedPOs.forEach(p => {
+        const purItems = p.items || [{ item: p.item, qty: p.qty, unit: p.unit }];
+        purItems.forEach(i => {
+            if (!i.item) return;
+            const key = i.item.trim().toLowerCase();
+            const normalizedGrams = normalizeUnitQty(i.qty, i.unit);
+
+            if (!purchasedTotals[key]) {
+                purchasedTotals[key] = 0;
+            }
+            purchasedTotals[key] += normalizedGrams;
+        });
+    });
+
+    // 2. Dynamic Calculation: Consumed Stock from Production Batches
+    const consumedTotals = {};
+    const batches = window.appData.batches || [];
+
+    batches.forEach(b => {
+        if (!b.ingredients || !Array.isArray(b.ingredients)) return;
+        b.ingredients.forEach(ing => {
+            if (!ing.name) return;
+            const ingKey = ing.name.trim().toLowerCase();
+            const ingQty = normalizeUnitQty(ing.qty, ing.unit);
+
+            if (!consumedTotals[ingKey]) {
+                consumedTotals[ingKey] = 0;
+            }
+            consumedTotals[ingKey] += ingQty;
+        });
+    });
+
+    // 3. Render Table Rows
+    tbody.innerHTML = rawMaterials.map(rm => {
+        const key = rm.name.trim().toLowerCase();
+        const totalPurchasedGms = purchasedTotals[key] || 0;
+        const totalConsumedGms = consumedTotals[key] || 0;
+        const balanceGms = totalPurchasedGms - totalConsumedGms;
+
+        const preferredUnit = rm.unit || 'Kg';
+        const displayPurchased = formatDisplayStock(totalPurchasedGms, preferredUnit);
+        const displayConsumed = formatDisplayStock(totalConsumedGms, preferredUnit);
+        const displayBalance = formatDisplayStock(balanceGms, preferredUnit);
+
+        let statusBadge = `<span class="status-badge received">IN STOCK</span>`;
+        if (balanceGms <= 0) {
+            statusBadge = `<span class="status-badge pending" style="background:#fee2e2; color:#b91c1c; border-color:#fca5a5;">OUT OF STOCK</span>`;
+        } else if (balanceGms < 2000) {
+            statusBadge = `<span class="status-badge pending">LOW STOCK</span>`;
+        }
+
+        return `
+            <tr>
+                <td data-label="Raw Ingredient"><strong>${rm.name}</strong></td>
+                <td data-label="Category">${rm.type || 'Raw Material'}</td>
+                <td data-label="Total Purchased"><strong style="color: #16a34a;">${displayPurchased}</strong></td>
+                <td data-label="Consumed (Batches)"><strong style="color: #dc2626;">${displayConsumed}</strong></td>
+                <td data-label="Current Balance Stock"><strong style="color: var(--accent-orange, #EA580C); font-size: 0.95rem;">${displayBalance}</strong></td>
+                <td data-label="Stock Level Status">${statusBadge}</td>
+            </tr>
+        `;
+    }).join('');
 }
 
-window.renderInventory = renderInventory;
-window.clearInventoryFilter = clearInventoryFilter;
-window.exportCSV = exportCSV;
+window.renderInventoryTracker = renderInventoryTracker;
+window.resetInventoryFilter = function() {
+    if (ingredientTomSelectInstance) {
+        ingredientTomSelectInstance.clear(); // Instantly clears selection on first click
+        ingredientTomSelectInstance.close();
+    }
+    const filterSelect = document.getElementById('inventory-ingredient-filter');
+    if (filterSelect) filterSelect.value = '';
+    renderInventoryTracker();
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     initInventoryTracker();

@@ -11,6 +11,16 @@
 </head>
 <body>
 
+    <!-- Custom Success Notification Modal -->
+    <div id="success-alert-modal" class="passcode-overlay" style="display: none;">
+        <div class="passcode-card" style="max-width: 440px; text-align: center; padding: 32px;">
+            <div style="width: 56px; height: 56px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin: 0 auto 16px auto; border: 2px solid #bbf7d0;">✓</div>
+            <h3 id="success-alert-title" style="font-size: 1.2rem; font-weight: 900; color: var(--text-primary, #0F172A); margin: 0 0 8px 0;">Purchase Received</h3>
+            <p id="success-alert-message" style="font-size: 0.9rem; color: var(--text-secondary, #475569); margin: 0 0 24px 0; line-height: 1.5;">Purchase Order converted successfully and Inventory Tracker updated.</p>
+            <button type="button" class="btn-primary" onclick="closeSuccessAlert()" style="width: 100%;">Got it, Thanks!</button>
+        </div>
+    </div>
+
     <!-- Purchase Order Modal (Printable Glassmorphic Theme) -->
     <div id="po-modal" class="passcode-overlay" style="display: none;">
         <div class="passcode-card invoice-print-container" style="max-width: 680px; text-align: left; width: 100%;">
@@ -154,7 +164,7 @@
                         <div class="title-filter-group">
                             <h2>Purchase History & Orders</h2>
                             <div class="date-filter-wrapper">
-                                <input type="text" id="pur-search-filter" oninput="renderPurchases()" placeholder="Search Item or Vendor..." class="filter-search-input">
+                                <input type="text" id="pur-search-filter" oninput="renderPurchases()" placeholder="Search Vendor..." class="filter-search-input">
                                 <label for="pur-date-filter" class="filter-label">Filter Date:</label>
                                 <input type="date" id="pur-date-filter" onchange="renderPurchases()" class="filter-date-input">
                                 <button type="button" class="btn-clear-filter" onclick="clearPurchaseFilters()">Clear</button>
@@ -174,7 +184,6 @@
                                     <th>PO No.</th>
                                     <th>Date</th>
                                     <th>Vendor</th>
-                                    <th>Items & Quantities</th>
                                     <th>Total Outflow</th>
                                     <th>Status</th>
                                     <th style="text-align: right;">Action</th>

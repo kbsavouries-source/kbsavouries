@@ -18,7 +18,8 @@ const db = getFirestore(firebaseApp);
 
 window.appData = {
     skus: [],
-    purchases: []
+    purchases: [],
+    batches: []
 };
 
 export async function initPurchaseLog() {
@@ -27,7 +28,7 @@ export async function initPurchaseLog() {
     if (purDateEl) purDateEl.value = todayStr;
 
     try {
-        const collections = ['skus', 'purchases'];
+        const collections = ['skus', 'purchases', 'batches'];
         for (const colName of collections) {
             const querySnapshot = await getDocs(collection(db, colName));
             window.appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
@@ -46,7 +47,6 @@ export async function initPurchaseLog() {
     renderPurchases();
 }
 
-// Add Dynamic PO Item Row with Responsive Stacking Classes
 window.addPurchaseRow = function(itemName = '', qty = '', unit = 'Kg', amt = '') {
     const container = document.getElementById('purchase-items-container');
     if (!container) return;
@@ -187,7 +187,8 @@ export async function addPurchaseOrder(e) {
 
     window.appData.purchases.push(purchaseRecord);
     try {
-        await addDoc(collection(db, 'purchases'), purchaseRecord);
+        const docRef = await addDoc(collection(db, 'purchases'), purchaseRecord);
+        purchaseRecord.firebaseId = docRef.id;
     } catch (err) {
         console.error("Error saving purchase order:", err);
     }
@@ -201,12 +202,27 @@ export async function addPurchaseOrder(e) {
     updatePOTotal();
 }
 
+// Custom Success Notification Helpers
+window.showSuccessAlert = function(title, message) {
+    const titleEl = document.getElementById('success-alert-title');
+    const msgEl = document.getElementById('success-alert-message');
+    if (titleEl) titleEl.innerText = title;
+    if (msgEl) msgEl.innerText = message;
+    const modal = document.getElementById('success-alert-modal');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closeSuccessAlert = function() {
+    const modal = document.getElementById('success-alert-modal');
+    if (modal) modal.style.display = 'none';
+};
+
 window.convertPOToReceipt = async function(index) {
     const purchase = window.appData.purchases[index];
     if (!purchase) return;
 
     if (purchase.status === 'Received') {
-        alert("This purchase order has already been converted to a receipt.");
+        showSuccessAlert("Already Received", "This purchase order has already been converted to a receipt.");
         return;
     }
 
@@ -223,7 +239,10 @@ window.convertPOToReceipt = async function(index) {
     }
 
     renderPurchases();
-    alert(`Purchase Order ${purchase.poNo || 'PO'} successfully converted to Received Receipt! Inventory updated.`);
+    showSuccessAlert(
+        "Purchase Received!", 
+        `Purchase Order ${purchase.poNo || 'PO'} successfully converted to Received. Inventory Tracker updated.`
+    );
 };
 
 window.viewPOModal = function(index) {
@@ -318,7 +337,7 @@ export function renderPurchases() {
     }
 
     if (displayedPurchases.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-secondary); padding: 32px;">No matching purchase orders found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-secondary); padding: 32px;">No matching purchase orders found.</td></tr>`;
         return;
     }
 
@@ -326,18 +345,6 @@ export function renderPurchases() {
         const realIndex = window.appData.purchases.indexOf(p);
         const poNo = p.poNo || `PO-2026-00${realIndex + 1}`;
         const isReceived = p.status === 'Received';
-        
-        let purItems = p.items || [{
-            item: p.item,
-            qty: p.qty,
-            unit: p.unit
-        }];
-
-        let itemsHtml = purItems.map(i => `
-            <div style="margin-bottom: 4px;">
-                • <strong>${i.item}</strong> (${i.qty} ${i.unit || 'Kg'})
-            </div>
-        `).join('');
 
         const statusBadge = isReceived ? 
             `<span class="status-badge received">Received</span>` : 
@@ -355,7 +362,6 @@ export function renderPurchases() {
                 <td data-label="PO No."><span class="table-code highlight">${poNo}</span></td>
                 <td data-label="Date">${formatDate(p.date)}</td>
                 <td data-label="Vendor"><strong>${p.vendor || 'N/A'}</strong></td>
-                <td data-label="Items & Quantities" class="po-items-cell">${itemsHtml}</td>
                 <td data-label="Total Outflow"><strong style="color: var(--accent-orange, #EA580C);">₹${p.amt}</strong></td>
                 <td data-label="Status">${statusBadge}</td>
                 <td data-label="Action">
@@ -416,6 +422,8 @@ window.viewPOModal = viewPOModal;
 window.closePOModal = closePOModal;
 window.printCurrentPO = printCurrentPO;
 window.exportCSV = exportCSV;
+window.showSuccessAlert = showSuccessAlert;
+window.closeSuccessAlert = closeSuccessAlert;
 
 document.addEventListener('DOMContentLoaded', () => {
     initPurchaseLog();
