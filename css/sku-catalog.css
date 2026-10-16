@@ -3,6 +3,28 @@
    Inherits structural theme tokens from shared-theme.css
    ========================================================================== */
 
+/* Explicit Native Select Styling to prevent blank inputs */
+select.native-select {
+  display: block !important;
+  width: 100% !important;
+  padding: 12px 14px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1.5px solid var(--glass-border) !important;
+  border-radius: 12px !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  height: 46px !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+
+select.native-select:focus {
+  border-color: var(--accent-orange) !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15) !important;
+}
+
 /* Classification Badges */
 .status-badge.finished {
   background: #dcfce7;
@@ -29,7 +51,7 @@
   margin-top: 24px;
 }
 
-/* Spacious Desktop Card & Table Padding */
+/* Desktop Card & Table Padding */
 .content-area {
   max-width: 1500px;
   margin: 0 auto;
@@ -81,7 +103,7 @@
   align-items: center;
 }
 
-/* Un-cramped Search Filter Bar Layout */
+/* Search Filter Bar Layout */
 .title-filter-group {
   display: flex;
   align-items: center;

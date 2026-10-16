@@ -5,18 +5,17 @@ import {
     saveDataDoc, 
     updateDataDoc, 
     deleteDataDoc, 
-    defaultSKUs, 
     exportCSVData, 
     exportJSONData,
     customConfirm,
     customAlert 
 } from './firebase-config.js';
 
-// Initialize Tom Select on all selects
+// Initialize Tom Select on search filters and large dropdowns ONLY (Excludes simple 2-option classification select)
 function initSearchableSelects() {
     if (typeof TomSelect === 'undefined') return;
     
-    document.querySelectorAll('select:not([data-searchable-initialized])').forEach(el => {
+    document.querySelectorAll('select:not(#sku-type):not([data-searchable-initialized])').forEach(el => {
         if (!el.id) return;
         try {
             new TomSelect(el, {
@@ -131,7 +130,6 @@ window.renderSKUs = function() {
         const index = appData.skus.indexOf(s);
         const skuNo = s.skuNo || generateSKUNumber(s.type);
         
-        // Condensed description to save horizontal space
         let details = s.type === 'Finished Inventory' ? `${s.grams}g (${s.measure || 'Pkts'})` : `Unit: ${s.unit}`;
         
         if (s.type === 'Finished Inventory' && s.expiryDays) {
@@ -214,9 +212,6 @@ window.addSKU = async function(e) {
         document.getElementById('sku-form').reset();
         const typeSelect = document.getElementById('sku-type');
         typeSelect.value = "Finished Inventory";
-        if (typeSelect.tomselect) {
-            typeSelect.tomselect.setValue("Finished Inventory");
-        }
         window.onSKUTypeChange(typeSelect);
     }
 
@@ -232,9 +227,6 @@ window.editSKUItem = function(index) {
     
     const typeSelect = document.getElementById('sku-type');
     typeSelect.value = sku.type;
-    if (typeSelect.tomselect) {
-        typeSelect.tomselect.setValue(sku.type);
-    }
     window.onSKUTypeChange(typeSelect);
 
     if (sku.type === 'Finished Inventory') {
@@ -243,7 +235,6 @@ window.editSKUItem = function(index) {
         
         const measureSelect = document.getElementById('sku-measure');
         measureSelect.value = sku.measure || 'Pkts';
-        if (measureSelect.tomselect) measureSelect.tomselect.setValue(sku.measure || 'Pkts');
 
         document.getElementById('sku-expiry-days').value = sku.expiryDays || 30;
         
@@ -257,7 +248,6 @@ window.editSKUItem = function(index) {
     } else {
         const unitSelect = document.getElementById('sku-unit');
         unitSelect.value = sku.unit || 'Kg';
-        if (unitSelect.tomselect) unitSelect.tomselect.setValue(sku.unit || 'Kg');
     }
 
     document.getElementById('sku-form-title').innerText = `Edit SKU: ${sku.name} (${sku.skuNo || ''})`;
@@ -273,7 +263,6 @@ window.cancelSKUEdit = function() {
     
     const typeSelect = document.getElementById('sku-type');
     typeSelect.value = "Finished Inventory";
-    if (typeSelect.tomselect) typeSelect.tomselect.setValue("Finished Inventory");
     window.onSKUTypeChange(typeSelect);
 
     document.getElementById('sku-form-title').innerText = 'Create New SKU';
@@ -288,7 +277,7 @@ window.cancelSKUEdit = function() {
 };
 
 window.onSKUTypeChange = function(selectEl) {
-    const type = selectEl.value;
+    const type = selectEl ? selectEl.value : 'Finished Inventory';
     const gramsGroup = document.getElementById('sku-grams-group');
     const priceGroup = document.getElementById('sku-price-group');
     const measureGroup = document.getElementById('sku-measure-group');
@@ -480,5 +469,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderSKUs();
     initSearchableSelects();
     const typeSelect = document.getElementById('sku-type');
-    if (typeSelect) window.onSKUTypeChange(typeSelect);
+    if (typeSelect) {
+        typeSelect.value = "Finished Inventory";
+        window.onSKUTypeChange(typeSelect);
+    }
 });
