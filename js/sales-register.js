@@ -47,7 +47,6 @@ export async function initSalesRegister() {
     renderSales();
 }
 
-// Add a dynamic line item row to the sales form
 window.addSaleLineItem = function() {
     const container = document.getElementById('sale-items-container');
     if (!container) return;
@@ -59,32 +58,31 @@ window.addSaleLineItem = function() {
     const row = document.createElement('div');
     row.className = 'sale-item-row';
     row.id = rowId;
-    row.style.cssText = 'display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr auto; gap: 12px; align-items: center; background: rgba(255,255,255,0.5); padding: 12px; border-radius: 12px; border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));';
 
     row.innerHTML = `
-        <div class="form-group" style="margin:0;">
+        <div class="form-group row-product-group">
             <label style="font-size:0.75rem;">Product / SKU</label>
             <select class="row-product" onchange="onRowProductChange('${rowId}')" required>
                 <option value="">Select SKU</option>
                 ${productOptions}
             </select>
         </div>
-        <div class="form-group" style="margin:0;">
+        <div class="form-group row-batch-group">
             <label style="font-size:0.75rem;">Batch Code</label>
             <select class="row-batch" required>
                 <option value="">No Stock</option>
             </select>
         </div>
-        <div class="form-group" style="margin:0;">
-            <label style="font-size:0.75rem;">Qty (Pkts / Units)</label>
+        <div class="form-group row-qty-group">
+            <label style="font-size:0.75rem;">Qty (Pkts/Units)</label>
             <input type="number" class="row-qty" value="1" min="1" step="any" oninput="updateRowTotal('${rowId}')" required>
         </div>
-        <div class="form-group" style="margin:0;">
+        <div class="form-group row-price-group">
             <label style="font-size:0.75rem;">Price (₹)</label>
             <input type="number" class="row-price" placeholder="0" min="0" step="any" oninput="updateFormTotal()" required>
         </div>
-        <div style="display:flex; align-items:flex-end; height:100%;">
-            <button type="button" class="btn-danger" onclick="removeSaleLineItem('${rowId}')" style="padding: 8px 14px; min-height: 42px; width: auto !important;">✕</button>
+        <div class="row-delete-group">
+            <button type="button" class="btn-danger" onclick="removeSaleLineItem('${rowId}')">✕</button>
         </div>
     `;
 
@@ -304,7 +302,6 @@ export async function addSale(e) {
     updateFormTotal();
 }
 
-// --- Invoice Modal Viewer & Printer ---
 window.viewInvoiceModal = function(index) {
     const sale = window.appData.sales[index];
     if (!sale) return;
@@ -368,9 +365,9 @@ export function renderSales() {
 
     if (searchFilter) {
         displayedSales = displayedSales.filter(s => {
-            const matchesCustomer = s.customer.toLowerCase().includes(searchFilter);
+            const matchesCustomer = (s.customer || '').toLowerCase().includes(searchFilter);
             const matchesInvoice = (s.invoiceNo || '').toLowerCase().includes(searchFilter);
-            const matchesProduct = (s.items || [{product: s.product}]).some(i => i.product.toLowerCase().includes(searchFilter));
+            const matchesProduct = (s.items || [{product: s.product}]).some(i => (i.product || '').toLowerCase().includes(searchFilter));
             return matchesCustomer || matchesInvoice || matchesProduct;
         });
     }
@@ -384,36 +381,26 @@ export function renderSales() {
     
     if (totalValBox) totalValBox.innerText = `₹${totalSalesValue}`;
 
+    if (displayedSales.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-secondary); padding: 32px;">No matching sales records found.</td></tr>`;
+        return;
+    }
+
     tbody.innerHTML = displayedSales.map((s) => {
         const realIndex = window.appData.sales.indexOf(s);
         const invNo = s.invoiceNo || `INV-2026-00${realIndex + 1}`;
-        
-        let saleItems = s.items || [{
-            product: s.product,
-            batchCode: s.batchCode,
-            qtyDisplay: s.qtyDisplay || '1 Pkts'
-        }];
-
-        // Clean stacked layout: product and qty on line 1, batch code on line 2
-        let productsHtml = saleItems.map(i => `
-            <div style="margin-bottom: 6px;">
-                <div>• <strong>${i.product}</strong> (${i.qtyDisplay})</div>
-                <div style="margin-top: 2px;"><code class="table-code">${i.batchCode || 'N/A'}</code></div>
-            </div>
-        `).join('');
 
         return `
             <tr>
                 <td data-label="Invoice No."><span class="table-code highlight">${invNo}</span></td>
                 <td data-label="Date">${s.date}</td>
                 <td data-label="Customer"><strong>${s.customer}</strong></td>
-                <td data-label="Products & Batches" style="font-size:0.84rem; line-height:1.4; vertical-align:middle; padding-top:12px; padding-bottom:12px;">${productsHtml}</td>
-                <td data-label="Total"><strong>₹${s.total}</strong></td>
+                <td data-label="Total"><strong style="color: var(--accent-orange, #EA580C);">₹${s.total}</strong></td>
                 <td data-label="Method">${s.method}</td>
-                <td data-label="Action" style="text-align:right;">
-                    <div class="action-btn-group" style="justify-content:flex-end;">
-                        <button class="btn-outline" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="viewInvoiceModal(${realIndex})">Invoice</button>
-                        <button class="btn-danger" style="padding: 5px 10px; font-size: 0.78rem; min-height: 32px;" onclick="deleteSaleItem(${realIndex})">Delete</button>
+                <td data-label="Action">
+                    <div class="sales-action-wrapper">
+                        <button class="btn-outline sale-action-btn" onclick="viewInvoiceModal(${realIndex})">Invoice</button>
+                        <button class="btn-danger sale-action-btn" onclick="deleteSaleItem(${realIndex})">Delete</button>
                     </div>
                 </td>
             </tr>

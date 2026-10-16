@@ -6,13 +6,32 @@
   position: relative;
 }
 
-.spacious-form-grid {
+/* Order Line Item Input Row (Desktop Grid) */
+.sale-item-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr auto;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
 }
 
+.sale-item-row .row-delete-group {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.sale-item-row .row-delete-group .btn-danger {
+  padding: 8px 14px;
+  min-height: 42px;
+  width: auto !important;
+  margin: 0;
+}
+
+/* Filter Bar Styling */
 .date-filter-wrapper {
   display: flex;
   align-items: center;
@@ -34,6 +53,10 @@
   border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
   color: var(--text-primary, #0F172A);
   height: 38px;
+}
+
+.filter-search-input {
+  min-width: 220px;
 }
 
 .filter-label {
@@ -82,23 +105,21 @@
 /* Sales Desktop Table Styling */
 .sales-desktop-table {
   width: 100%;
-  table-layout: fixed;
   border-collapse: collapse;
 }
 
 .sales-desktop-table th {
-  padding: 12px 10px !important;
+  padding: 12px 14px !important;
   font-size: 0.78rem;
   white-space: nowrap;
 }
 
 .sales-desktop-table td {
-  padding: 12px 10px !important;
+  padding: 14px 14px !important;
   vertical-align: middle;
   font-size: 0.85rem;
 }
 
-/* Custom Table Code Display without Awkward Line Wraps */
 .table-code {
   font-family: monospace;
   font-size: 0.82rem;
@@ -111,11 +132,23 @@
   color: var(--accent-orange, #EA580C);
 }
 
-.action-btn-group {
+.sales-action-wrapper {
   display: flex;
   gap: 6px;
   justify-content: flex-end;
   align-items: center;
+}
+
+.sale-action-btn {
+  padding: 5px 12px !important;
+  font-size: 0.8rem !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  width: auto !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 /* Invoice Brand Logo & Paid Stamp in Modal */
@@ -126,7 +159,6 @@
   border-radius: 8px;
 }
 
-/* Hide print-only elements from normal screen modal preview */
 .only-print {
   display: none !important;
 }
@@ -139,7 +171,98 @@
   transform: rotate(-6deg);
 }
 
-/* Bulletproof Single-Page Print Engine Styles */
+/* Invoice Modal Container Responsiveness */
+.invoice-print-container {
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 20px;
+  padding: 24px;
+}
+
+/* Mobile Stacking Layout Rules */
+@media (max-width: 768px) {
+  /* Order Line Item Input Form Rows Stacking */
+  .sale-item-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .sale-item-row .row-product-group,
+  .sale-item-row .row-batch-group {
+    grid-column: 1 / -1;
+  }
+
+  .sale-item-row .row-delete-group {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
+  .sale-item-row .row-delete-group .btn-danger {
+    width: 100% !important;
+    margin-top: 4px;
+  }
+
+  /* Sales History Table Mobile Stacking (CRM Pattern) */
+  .sales-desktop-table thead {
+    display: none;
+  }
+
+  .sales-desktop-table tr {
+    display: block;
+    margin-bottom: 14px;
+    border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
+    border-radius: 16px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+  }
+
+  .sales-desktop-table td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 0 !important;
+    border-bottom: 1.5px solid rgba(254, 215, 170, 0.4) !important;
+    text-align: right !important;
+  }
+
+  .sales-desktop-table td:last-child {
+    border-bottom: none !important;
+  }
+
+  .sales-desktop-table td::before {
+    content: attr(data-label);
+    font-weight: 800;
+    color: var(--text-secondary, #475569);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+  }
+
+  .sales-action-wrapper {
+    justify-content: flex-end !important;
+    width: auto;
+  }
+
+  .filter-search-input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .date-filter-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .invoice-print-container {
+    padding: 16px;
+    max-height: 85vh;
+  }
+}
+
+/* Print Engine Styles */
 @media print {
   @page {
     size: A4 portrait;
@@ -186,9 +309,8 @@
     margin: 0 !important;
     background: #ffffff !important;
     backdrop-filter: none !important;
-    page-break-inside: avoid !important;
-    page-break-after: avoid !important;
-    break-inside: avoid !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   .invoice-table-grid {
@@ -207,7 +329,6 @@
     padding: 10px 18px !important;
   }
 
-  /* Show paid stamp ONLY during PDF printing */
   .only-print {
     display: block !important;
   }
