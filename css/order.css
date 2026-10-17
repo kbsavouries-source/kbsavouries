@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Vibrant Gourmet D2C Theme with Full Glassmorphism (Order Page)
+   Vibrant Gourmet D2C Theme with Refined Shadows & Spacing (Order Page)
    Brand: KB Savouries
    ========================================================================== */
 
@@ -8,11 +8,11 @@
   --accent-orange: #EA580C;
   --accent-amber: #F59E0B;
   
-  /* Glassmorphism Token Palette */
-  --glass-bg: rgba(255, 255, 255, 0.58);
-  --glass-bg-hover: rgba(255, 255, 255, 0.78);
-  --glass-border: rgba(255, 255, 255, 0.65);
-  --glass-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  /* Refined Glassmorphism & Depth Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-bg-hover: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
 
   --text-dark: #0F172A;
   --text-light: #F8FAFC;
@@ -45,7 +45,6 @@ body {
   position: relative;
 }
 
-/* Warm tint overlay for readability over background image */
 body::before {
   content: '';
   position: fixed;
@@ -171,16 +170,25 @@ body::before {
 }
 
 /* ==========================================================================
-   Pricing Section
+   Pricing Section & Scroll Zoom Effect
    ========================================================================== */
 
 .pricing-section {
-  padding: 6rem 0 3.5rem 0;
+  padding: 5rem 0 3rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.zoom-on-scroll {
+  will-change: transform;
+  transform: scale(var(--scroll-scale, 1));
+  transform-origin: center top;
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1);
 }
 
 .pricing-header {
   text-align: center;
-  margin-bottom: 3.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .pricing-title {
@@ -304,11 +312,13 @@ body::before {
 }
 
 /* ==========================================================================
-   Order Form Section
+   Order Form Section (With Safe Bottom Clearance)
    ========================================================================== */
 
 .order-section {
-  padding: 3.5rem 0 6rem 0;
+  padding: 4rem 0 8rem 0; /* Expanded bottom padding to avoid any overlap */
+  position: relative;
+  z-index: 2;
 }
 
 .order-card {
@@ -408,10 +418,6 @@ body::before {
   box-shadow: 0 15px 30px rgba(234, 88, 12, 0.4);
 }
 
-/* ==========================================================================
-   Order Summary / Receipt Card & UPI Payment Styling
-   ========================================================================== */
-
 .summary-container {
   margin-top: 3rem;
   padding-top: 3rem;
@@ -434,7 +440,7 @@ body::before {
 .receipt-card {
   max-width: 600px;
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1.5px solid var(--glass-border);
@@ -519,11 +525,10 @@ body::before {
   color: var(--vegan-green);
 }
 
-/* WhatsApp Instructions & Button */
 .whatsapp-instruction-box {
   margin-top: 2rem;
   text-align: left;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(16px);
   border: 1.5px solid var(--glass-border);
   border-radius: 16px;
@@ -588,17 +593,14 @@ body::before {
   flex-shrink: 0;
 }
 
-/* ==========================================================================
-   Custom Editorial Modal Popup Styling
-   ========================================================================== */
-
+/* Modal Styling */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(15, 23, 42, 0.7);
+  background-color: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
@@ -616,15 +618,14 @@ body::before {
 }
 
 .modal-card {
-  background: rgba(15, 23, 42, 0.9);
-  backdrop-filter: blur(20px);
+  background: #0F172A;
   border: 1.5px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   width: 90%;
-  max-width: 440px;
+  max-width: 520px;
   padding: 2.5rem;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  text-align: left;
   animation: modalScaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -640,6 +641,7 @@ body::before {
 }
 
 .modal-header {
+  text-align: center;
   margin-bottom: 1.25rem;
 }
 
@@ -648,7 +650,7 @@ body::before {
   font-size: 0.65rem;
   font-weight: 800;
   letter-spacing: 1.5px;
-  background-color: var(--accent-amber);
+  background-color: #F59E0B;
   color: #0F172A;
   padding: 0.25rem 0.7rem;
   border-radius: 20px;
@@ -663,13 +665,34 @@ body::before {
 }
 
 .modal-body {
-  margin-bottom: 2rem;
+  color: #E2E8F0;
+  font-size: 0.95rem;
+  line-height: 1.65;
 }
 
 .modal-body p {
   color: #94A3B8;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.modal-body ul {
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.modal-body li {
+  color: #F8FAFC;
+}
+
+.modal-body strong {
+  color: #FED7AA;
+}
+
+.modal-body em {
+  color: #CBD5E1;
+  font-style: italic;
 }
 
 .btn-modal-close {
@@ -684,6 +707,7 @@ body::before {
   cursor: pointer;
   letter-spacing: 1px;
   transition: all 0.25s ease;
+  margin-top: 1.5rem;
 }
 
 .btn-modal-close:hover {
@@ -697,16 +721,18 @@ body::before {
 }
 
 /* ==========================================================================
-   Frosted Glass Footer Container
+   Footer
    ========================================================================== */
 
 .footer {
   border-top: 1px solid var(--glass-border);
   padding: 5rem 0;
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.88);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   color: #F8FAFC;
+  position: relative;
+  z-index: 10;
 }
 
 .footer-content {
@@ -780,10 +806,6 @@ body::before {
   font-size: 0.75rem;
   color: #94A3B8;
 }
-
-/* ==========================================================================
-   Responsive Adjustments
-   ========================================================================== */
 
 @media (max-width: 768px) {
   .pricing-title {

@@ -27,7 +27,7 @@
       </div>
     </nav>
 
-    <!-- Hero & Brand Video Showcase Section with Scroll Zoom -->
+    <!-- Hero & Brand Video Showcase Section -->
     <section id="video-story" class="hero-section zoom-on-scroll">
       <div class="container">
         <div class="hero-header">
@@ -252,10 +252,32 @@
         <div class="footer-right">
           <p class="footer-info">100% Vegan | FSSAI Reg No: 22426549000459</p><br>
           <a href="pages/books.html" style="color: inherit; text-decoration: underline;">Book Keeping Workspace</a>
+          <span style="margin: 0 0.5rem; color: #64748B;">|</span>
+          <a href="#" onclick="openDisclaimerModal(event)" style="color: inherit; text-decoration: underline; cursor: pointer;">Product Disclaimer</a>
         </div>
       </div>
     </footer>
 
+  </div>
+
+  <!-- Disclaimer Modal Popup Backdrop -->
+  <div id="disclaimer-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-tag">IMPORTANT</span>
+        <h3>Storage Instructions</h3>
+      </div>
+      <div class="modal-body">
+        <p>To preserve the authentic taste and ensure these treats last until their expiration date, please follow these guidelines:</p>
+        <ul>
+          <li>📦 <strong>Poha Crunch & Sunnundalu (Ulundu Urundai):</strong> Store in an airtight container in a cool, dry place. Keep away from moisture.</li>
+          <li>🌶️ <strong>Idly Podi & Gongura Chutney:</strong> Store in a cool place. <em>Note: We highly recommend refrigerating the Gongura Chutney after opening and always using a clean, dry spoon to prevent spoilage.</em></li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-modal-close" onclick="closeDisclaimerModal()">GOT IT</button>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>

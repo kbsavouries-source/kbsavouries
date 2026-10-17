@@ -1,4 +1,3 @@
-// Select Package from Pricing Table and Smooth Scroll to Form
 function selectPackage(size, qty, price) {
   const sizeSelect = document.getElementById('selected-size');
   if (sizeSelect) {
@@ -12,7 +11,6 @@ function selectPackage(size, qty, price) {
   }
 }
 
-// Update helper text when dropdown selection changes to show centered min quantity callout
 function updateFormSelection() {
   const sizeSelect = document.getElementById('selected-size');
   const infoText = document.getElementById('selected-package-info');
@@ -20,8 +18,6 @@ function updateFormSelection() {
   if (sizeSelect && infoText) {
     const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
     const price = parseInt(selectedOption.getAttribute('data-price'), 10);
-    
-    // Calculate minimum quantity required for ₹200 items subtotal
     const minQtyFor200 = Math.ceil(200 / price);
 
     infoText.innerHTML = `<span id="min-qty-hint" style="color: #16A34A; font-weight: 700; font-size: 1rem;">(Min. Qty for ₹200: ${minQtyFor200} ${minQtyFor200 === 1 ? 'pack' : 'packs'})</span>`;
@@ -33,7 +29,6 @@ function updateFormSelection() {
   }
 }
 
-// Custom Modal Popup Handlers with Auto-Scroll to Top
 function showModal(message) {
   const modal = document.getElementById('custom-modal');
   const msgEl = document.getElementById('modal-message');
@@ -53,12 +48,34 @@ function closeModal() {
   }
 }
 
-// Copy UPI ID to Clipboard Handler
+function openDisclaimerModal(e) {
+  if (e) e.preventDefault();
+  const modal = document.getElementById('disclaimer-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+}
+
+function closeDisclaimerModal() {
+  const modal = document.getElementById('disclaimer-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('disclaimer-modal');
+  if (e.target === modal) {
+    closeDisclaimerModal();
+  }
+});
+
 function copyUpi(upiText, btnElement) {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(upiText);
   } else {
-    // Fallback for non-HTTPS or older environments
     const textArea = document.createElement("textarea");
     textArea.value = upiText;
     document.body.appendChild(textArea);
@@ -67,7 +84,6 @@ function copyUpi(upiText, btnElement) {
     document.body.removeChild(textArea);
   }
 
-  // Visual Feedback (Change icon to checkmark temporarily)
   if (btnElement) {
     const originalHTML = btnElement.innerHTML;
     btnElement.innerHTML = `
@@ -81,7 +97,6 @@ function copyUpi(upiText, btnElement) {
   }
 }
 
-// Calculate and generate order receipt with delivery charge and minimum order validation
 function handleFormSubmit(event) {
   event.preventDefault();
 
@@ -109,7 +124,6 @@ function handleFormSubmit(event) {
   
   const itemsTotal = unitPrice * quantity;
 
-  // Minimum Order Value Validation (₹200 items subtotal)
   if (itemsTotal < 200) {
     showModal(`Minimum order value for online orders is ₹200. Your current items total is ₹${itemsTotal}. Please increase your quantity to proceed.`);
     document.getElementById('customer-qty').focus();
@@ -119,37 +133,47 @@ function handleFormSubmit(event) {
   const deliveryCharge = 50;
   const grandTotal = itemsTotal + deliveryCharge;
 
-  // Populate Receipt Fields
   document.getElementById('summary-contact').innerHTML = `${escapeHtml(name)} (${escapeHtml(phone)})`;
   document.getElementById('summary-size-qty').textContent = `Size ${sizeLetter} (${pouchQty}) × ${quantity} unit(s)`;
   document.getElementById('summary-address').textContent = address;
   
-  // Breakdown Values
   document.getElementById('summary-items-subtotal').textContent = `₹${itemsTotal}`;
   document.getElementById('summary-delivery-charge').textContent = `₹${deliveryCharge}`;
   document.getElementById('summary-grand-total').textContent = `₹${grandTotal}`;
 
-  // Dynamically update WhatsApp button pre-filled text
   const whatsappMsg = `Hi! I placed an order on KB Savouries:\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Order:* Size ${sizeLetter} (${pouchQty}) x ${quantity}\n*Items Subtotal:* ₹${itemsTotal}\n*Delivery Charge:* ₹${deliveryCharge}\n*Grand Total:* ₹${grandTotal}\n*Address:* ${address}\n\nI am paying via UPI (kbsavouries@upi / kbsavouries@cnrb). Here are my Order Summary and UPI Payment screenshots:`;
   const whatsappBtn = document.getElementById('whatsapp-link');
   if (whatsappBtn) {
     whatsappBtn.href = `https://wa.me/919884049021?text=${encodeURIComponent(whatsappMsg)}`;
   }
 
-  // Reveal summary container smoothly
   const summaryContainer = document.getElementById('summary-container');
   summaryContainer.classList.remove('hidden');
   summaryContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// Basic HTML sanitizer for inputs
 function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-// Interactive Window Listeners for Order Page
 document.addEventListener('DOMContentLoaded', () => {
   updateFormSelection();
+
+  const zoomTargets = document.querySelectorAll('.zoom-on-scroll');
+  function updateZoomScale() {
+    const windowHeight = window.innerHeight;
+    zoomTargets.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const progress = Math.min(Math.max((windowHeight - rect.top) / windowHeight, 0), 1);
+      const scaleValue = 1 + (progress * 0.05);
+      el.style.setProperty('--scroll-scale', scaleValue.toFixed(3));
+    });
+  }
+
+  window.addEventListener('scroll', () => {
+    requestAnimationFrame(updateZoomScale);
+  });
+  updateZoomScale();
 
   const navbar = document.querySelector('.navbar');
   let lastScrollY = window.scrollY;
@@ -157,13 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (navbar) {
     window.addEventListener('scroll', () => {
       const currentScrollY = window.scrollY;
-
       if (currentScrollY > lastScrollY && currentScrollY > 80) {
         navbar.classList.add('nav-hidden');
       } else {
         navbar.classList.remove('nav-hidden');
       }
-
       lastScrollY = currentScrollY;
     });
   }
@@ -176,9 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
           footerContent.classList.add('visible');
         }
       });
-    }, {
-      threshold: 0.2
-    });
+    }, { threshold: 0.2 });
 
     observer.observe(footerContent);
   }

@@ -32,14 +32,12 @@
     <section class="pricing-section">
       <div class="container">
         
-        <!-- Header Title -->
         <div class="pricing-header">
           <h1 class="pricing-title">Online Order</h1>
           <p class="pricing-subtitle">Find your perfect portion. <br>(Minimum online order value: ₹200)</p>
         </div>
 
-        <!-- Modern Pricing Table Container -->
-        <div class="pricing-table-wrapper">
+        <div class="pricing-table-wrapper zoom-on-scroll">
           <table class="pricing-table">
             <thead>
               <tr>
@@ -50,39 +48,30 @@
               </tr>
             </thead>
             <tbody>
-              <!-- Row 1: S -->
               <tr class="pricing-row" onclick="selectPackage('S', '30g', 15)">
                 <td class="size-cell"><span class="size-badge">S</span></td>
                 <td class="qty-cell">30g</td>
                 <td class="price-cell">₹15</td>
                 <td class="suggestion-cell">Perfect tea-time companion</td>
               </tr>
-
-              <!-- Row 2: M -->
               <tr class="pricing-row" onclick="selectPackage('M', '50g', 25)">
                 <td class="size-cell"><span class="size-badge">M</span></td>
                 <td class="qty-cell">50g</td>
                 <td class="price-cell">₹25</td>
                 <td class="suggestion-cell">Perfect binge watching partner</td>
               </tr>
-
-              <!-- Row 3: L -->
               <tr class="pricing-row highlight-row" onclick="selectPackage('L', '250g', 110)">
                 <td class="size-cell"><span class="size-badge badge-popular">L</span></td>
                 <td class="qty-cell">250g</td>
                 <td class="price-cell">₹110</td>
                 <td class="suggestion-cell">Get Together Companion</td>
               </tr>
-
-              <!-- Row 4: XL -->
               <tr class="pricing-row" onclick="selectPackage('XL', '500g', 210)">
                 <td class="size-cell"><span class="size-badge">XL</span></td>
                 <td class="qty-cell">500g</td>
                 <td class="price-cell">₹210</td>
                 <td class="suggestion-cell">Best Party Mate</td>
               </tr>
-
-              <!-- Row 5: XXL -->
               <tr class="pricing-row" onclick="selectPackage('XXL', '1 Kg', 400)">
                 <td class="size-cell"><span class="size-badge">XXL</span></td>
                 <td class="qty-cell">1 Kg</td>
@@ -99,10 +88,9 @@
     <!-- Order & Details Form Section -->
     <section id="order-section" class="order-section">
       <div class="container">
-        <div class="order-card">
+        <div class="order-card zoom-on-scroll">
           <div class="order-card-header">
             <h2>Complete Your Order</h2>
-            <!-- Clean Centered Minimum Quantity Display -->
             <p id="selected-package-info" style="text-align: center; margin-top: 0.5rem;">
               <span id="min-qty-hint" style="color: #16A34A; font-weight: 700; font-size: 1rem;">(Min. Qty for ₹200: 2 packs)</span>
             </p>
@@ -146,7 +134,7 @@
             <button type="submit" class="btn btn-submit-order">GENERATE ORDER SUMMARY</button>
           </form>
 
-          <!-- Clean Modern Receipt Output Container -->
+          <!-- Receipt Output Container -->
           <div id="summary-container" class="summary-container hidden">
             <h3 class="summary-title">Order Summary</h3>
             
@@ -166,7 +154,6 @@
 
               <div class="receipt-divider"></div>
 
-              <!-- Price Breakdown Section -->
               <div class="receipt-breakdown">
                 <div class="breakdown-item">
                   <span>Items Subtotal</span>
@@ -183,19 +170,15 @@
               </div>
             </div>
 
-            <!-- UPI Payment Container (Consistent with receipt-card styling) -->
+            <!-- UPI Payment Container -->
             <div class="upi-payment-box receipt-card" style="margin-top: 2.5rem; text-align: center;">
               <h3 class="instruction-title" style="margin-bottom: 1.25rem; font-size: 1.1rem; letter-spacing: 1px;">Scan & Pay via UPI</h3>
               
-              <!-- QR Code Image -->
               <div class="qr-code-wrapper" style="margin-bottom: 1.5rem;">
                 <img src="../Assets/payment-qr.jpeg" alt="KB Savouries BHIM UPI QR Code" style="max-width: 190px; width: 100%; height: auto; border-radius: 12px; border: 2px solid #FED7AA; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);">
               </div>
 
-              <!-- UPI IDs List with Copy Buttons -->
               <div class="upi-ids-container" style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center; justify-content: center;">
-                
-                <!-- UPI ID Item 1 -->
                 <div class="upi-copy-row" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #FFFFFF; border: 1.5px solid #FED7AA; padding: 0.35rem 0.75rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);">
                   <span class="upi-text" style="font-family: monospace; font-size: 1rem; font-weight: 700; color: var(--text-dark);">kbsavouries@upi</span>
                   <button type="button" class="btn-copy-upi" onclick="copyUpi('kbsavouries@upi', this)" aria-label="Copy UPI ID" style="background: none; border: none; cursor: pointer; padding: 0.2rem; display: flex; align-items: center; color: var(--accent-orange); transition: transform 0.2s ease;">
@@ -206,7 +189,6 @@
                   </button>
                 </div>
 
-                <!-- UPI ID Item 2 -->
                 <div class="upi-copy-row" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #FFFFFF; border: 1.5px solid #FED7AA; padding: 0.35rem 0.75rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);">
                   <span class="upi-text" style="font-family: monospace; font-size: 1rem; font-weight: 700; color: var(--text-dark);">kbsavouries@cnrb</span>
                   <button type="button" class="btn-copy-upi" onclick="copyUpi('kbsavouries@cnrb', this)" aria-label="Copy UPI ID" style="background: none; border: none; cursor: pointer; padding: 0.2rem; display: flex; align-items: center; color: var(--accent-orange); transition: transform 0.2s ease;">
@@ -216,14 +198,12 @@
                     </svg>
                   </button>
                 </div>
-
               </div>
             </div>
 
-            <!-- Generative Spacing Buffer for Screenshots -->
             <div style="height: 3rem;"></div>
 
-            <!-- Bulleted Instructions & WhatsApp Button -->
+            <!-- Instructions & WhatsApp Button -->
             <div class="whatsapp-instruction-box">
               <p class="instruction-title">Next Steps to Confirm Your Order:</p>
               <ul class="instruction-list">
@@ -246,13 +226,13 @@
 
     <!-- Custom Modal Popup Backdrop -->
     <div id="custom-modal" class="modal-backdrop hidden">
-      <div class="modal-card">
+      <div class="modal-card" style="background: rgba(15, 23, 42, 0.9);">
         <div class="modal-header">
           <span class="modal-tag">NOTICE</span>
           <h3>Minimum Order Value</h3>
         </div>
         <div class="modal-body">
-          <p id="modal-message">Minimum order value for online orders is ₹200. Please increase your quantity to proceed.</p>
+          <p id="modal-message" style="color: #94A3B8;">Minimum order value for online orders is ₹200. Please increase your quantity to proceed.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-modal-close" onclick="closeModal()">GOT IT</button>
@@ -279,11 +259,34 @@
         </div>
         <div class="footer-right">
           <p class="footer-info">100% Vegan | FSSAI Reg No: 22426549000459</p><br>
-          <p class="copyright">© KB Savouries. All rights reserved.</p>
+          <p class="copyright">© KB Savouries. All rights reserved. 
+            <span style="margin: 0 0.4rem; color: #64748B;">|</span> 
+            <a href="#" onclick="openDisclaimerModal(event)" style="color: inherit; text-decoration: underline; cursor: pointer;">Product Disclaimer</a>
+          </p>
         </div>
       </div>
     </footer>
 
+  </div>
+
+  <!-- Disclaimer Modal Popup Backdrop -->
+  <div id="disclaimer-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-tag">IMPORTANT</span>
+        <h3>Storage Instructions</h3>
+      </div>
+      <div class="modal-body">
+        <p>To preserve the authentic taste and ensure these treats last until their expiration date, please follow these guidelines:</p>
+        <ul>
+          <li>📦 <strong>Poha Crunch & Sunnundalu (Ulundu Urundai):</strong> Store in an airtight container in a cool, dry place. Keep away from moisture.</li>
+          <li>🌶️ <strong>Idly Podi & Gongura Chutney:</strong> Store in a cool place. <em>Note: We highly recommend refrigerating the Gongura Chutney after opening and always using a clean, dry spoon to prevent spoilage.</em></li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-modal-close" onclick="closeDisclaimerModal()">GOT IT</button>
+      </div>
+    </div>
   </div>
 
   <script src="../js/order.js"></script>
