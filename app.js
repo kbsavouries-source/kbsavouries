@@ -70,6 +70,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 50);
   }
 
+  // Scroll-Driven Zoom Effect Handler
+  const heroSection = document.querySelector('.hero-section');
+  
+  if (heroSection) {
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      
+      // Calculate scale factor: starts at 1 and scales up smoothly (max 1.12) as you scroll down
+      let scaleValue = 1 + (scrollY / 1200);
+      
+      if (scaleValue > 1.12) {
+        scaleValue = 1.12;
+      }
+
+      heroSection.style.setProperty('--scroll-scale', scaleValue);
+    });
+  }
+
   // Intercept link and button clicks
   const interactiveElements = document.querySelectorAll('.btn, .nav-brand, a, .snack-order-link');
   

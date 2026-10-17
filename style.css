@@ -158,12 +158,18 @@ body::before {
 }
 
 /* ==========================================================================
-   Hero Section with Bold Typography
+   Hero Section with Bold Typography & Scroll Zoom
    ========================================================================== */
 
 .hero-section {
   padding: 6rem 0 4rem 0;
   text-align: center;
+}
+
+.zoom-on-scroll {
+  will-change: transform;
+  transform: scale(var(--scroll-scale, 1));
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1);
 }
 
 .hero-title {
