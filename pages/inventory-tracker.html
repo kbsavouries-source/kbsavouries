@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KB Savouries - Inventory Tracker</title>
-    <link rel="stylesheet" href="../css/books.css">
+    <title>KB Savouries - Real-Time Inventory Tracker</title>
+    <link rel="stylesheet" href="../css/shared-theme.css">
     <link rel="stylesheet" href="../css/inventory-tracker.css">
-    <!-- Tom Select CSS CDN for Searchable Dropdown -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 </head>
 <body>
@@ -44,44 +43,63 @@
     <!-- Main Workspace -->
     <main>
         <header>
-            <h1 id="page-title">Inventory Tracker</h1>
+            <h1 id="page-title">Real-Time Inventory & Stock Ledger</h1>
             <span id="current-date" class="date-display"></span>
         </header>
 
         <div class="content-area">
-            <div class="card">
-                <h2>Raw Material Inventory Tracker</h2>
-                
-                <!-- Improved Filter Bar with Inline Reset Button -->
-                <div class="date-filter-wrapper" style="margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: rgba(255, 255, 255, 0.5); padding: 12px 16px; border-radius: 14px; border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));">
-                    <span class="filter-label" style="font-size: 0.8rem; font-weight: 800; color: var(--text-secondary, #475569); text-transform: uppercase;">Filter Raw Ingredient:</span>
-                    <div style="flex-grow: 1; min-width: 240px;">
-                        <select id="inventory-ingredient-filter" onchange="renderInventoryTracker()">
-                            <option value="">All Ingredients (Combined)</option>
-                        </select>
-                    </div>
-                    <button type="button" class="btn-clear-filter" onclick="resetInventoryFilter()" style="padding: 8px 16px; font-size: 0.82rem; background: rgba(255, 255, 255, 0.9); color: var(--text-primary, #0F172A); border-radius: 10px; border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8)); font-weight: 700; cursor: pointer; min-height: 38px;">Reset Filter</button>
+            <!-- Glassmorphic Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Total Tracked SKUs</h3>
+                    <div id="stat-total-skus" class="value">0</div>
                 </div>
+                <div class="metric-card">
+                    <h3>Low Stock Alerts (< 2Kg/Units)</h3>
+                    <div id="stat-low-stock" class="value" style="color: var(--danger);">0</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Estimated Inventory Valuation</h3>
+                    <div id="stat-inventory-val" class="value" style="color: var(--success);">₹0.00</div>
+                </div>
+            </div>
 
-                <div class="section-header-flex" style="margin-bottom: 16px;">
-                    <div></div>
-                    <button type="button" class="btn-outline" onclick="exportCSV('inventory')">Export Inventory CSV</button>
+            <!-- Live Stock Ledger Card -->
+            <div class="card">
+                <div class="section-header-flex">
+                    <div class="title-filter-group">
+                        <h2>Live Stock Balance Sheet</h2>
+                        <div class="date-filter-wrapper">
+                            <span class="filter-label">Category:</span>
+                            <select id="filter-category" onchange="renderInventoryLedger()" class="native-select">
+                                <option value="ALL">All Categories</option>
+                                <option value="Raw Material">Raw Material</option>
+                                <option value="Finished Inventory">Finished Inventory</option>
+                            </select>
+                            <input type="text" id="filter-search" oninput="renderInventoryLedger()" placeholder="Search item..." class="filter-search-input">
+                            <button type="button" class="btn-clear-filter" onclick="clearInventoryFilter()">Reset</button>
+                        </div>
+                    </div>
+                    <div class="total-value-box">
+                        Active SKUs: <strong id="active-count">0</strong>
+                    </div>
                 </div>
 
                 <div class="table-responsive">
                     <table class="mobile-stack-table">
                         <thead>
                             <tr>
-                                <th>Raw Ingredient</th>
+                                <th>Item / SKU Name</th>
                                 <th>Category</th>
-                                <th>Total Purchased</th>
-                                <th>Consumed (Batches)</th>
-                                <th>Current Balance Stock</th>
-                                <th>Stock Level Status</th>
+                                <th>Total Procured</th>
+                                <th>Total Consumed</th>
+                                <th>Net Available Balance</th>
+                                <th>Stock Status</th>
+                                <th style="text-align: right;">Quick Action</th>
                             </tr>
                         </thead>
                         <tbody id="inventory-table-body">
-                            <!-- Dynamically Calculated -->
+                            <!-- Populated dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -89,27 +107,25 @@
         </div>
     </main>
 
-    <script type="module">
-        document.addEventListener('DOMContentLoaded', () => {
-            const dateEl = document.getElementById('current-date');
-            if(dateEl) {
-                dateEl.innerText = new Date().toLocaleDateString('en-IN', {
-                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-                });
-            }
-        });
-    </script>
-    <!-- Tom Select JS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-    <script type="module" src="../js/inventory-tracker.js"></script>
+    <!-- Hidden Custom Modal Overlay (Fixed centering position) -->
+    <div id="custom-modal" class="custom-modal-overlay" style="display: none;">
+        <div class="custom-modal-card">
+            <h3 id="modal-title">Notice</h3>
+            <p id="modal-message">Message here...</p>
+            <div class="custom-modal-actions">
+                <button id="modal-btn-cancel" class="btn-outline" style="display: none;">Cancel</button>
+                <button id="modal-btn-primary" class="btn-primary">Okay</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-    window.toggleSidebar = function() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.classList.toggle('open');
-        }
-    };
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('open');
+        };
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script type="module" src="../js/inventory-tracker.js"></script>
 </body>
 </html>
