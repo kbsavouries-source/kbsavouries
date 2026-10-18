@@ -3,84 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Products | KB Savouries</title>
+    <title>KB Savouries - Order Online</title>
     <link rel="stylesheet" href="../css/order.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="storefront-body">
 
-    <!-- Frosted Glass Navbar -->
-    <nav class="navbar">
-        <div class="nav-brand">
-            <span class="logo-text">KB SAVOURIES</span>
-            <span class="badge-vegan">100% VEGAN</span>
+    <!-- Storefront Customer Header -->
+    <header class="customer-header">
+        <div class="header-container">
+            <div class="brand">
+                <img src="../Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'">
+                <span class="brand-name">KB SAVOURIES</span>
+                <span class="vegan-badge">100% VEGAN</span>
+            </div>
+            <div class="header-actions">
+                <a href="../index.html" class="btn-home">HOME</a>
+            </div>
         </div>
-        <div class="nav-right">
-            <span class="date-badge" id="current-date"></span>
+    </header>
+
+    <!-- Storefront Main Content -->
+    <main class="customer-main-wrapper">
+        <div class="storefront-hero">
+            <h1>Authentic Traditional Savouries</h1>
+            <p>Handcrafted with premium ingredients, traditional spice blends, and unmatched crunchiness.</p>
+            <div class="mov-notice">Minimum online order value: <strong>₹200</strong> across any combined items</div>
         </div>
-    </nav>
 
-    <main class="main-content container">
-        <div class="hero-card">
-            <h1 class="hero-title">Authentic Traditional Savouries</h1>
-            <p class="hero-subtitle">Handcrafted with premium ingredients, traditional spice blends, and unmatched crunchiness.</p>
+        <!-- Product Cards Grid with Inline Selectors -->
+        <div class="product-grid" id="product-grid">
+            <!-- Rendered dynamically from products-data.js -->
         </div>
 
-        <div class="catalog-grid">
-            <!-- Poha Crunch Product Card -->
-            <div class="product-card">
-                <div class="card-badge">POPULAR</div>
-                <div class="card-body">
-                    <h3>Poha Crunch</h3>
-                    <p>Crispy, roasted traditional poha savory blended with premium peanuts, curry leaves, and aromatic spices.</p>
+        <!-- Customer Details & Order Summary Container -->
+        <div id="checkout-container" class="checkout-container" style="display: none;">
+            
+            <!-- Step 1: Customer Info Form -->
+            <div id="customer-info-card" class="card summary-card">
+                <h2>Customer & Delivery Details</h2>
+                <form id="checkout-form" onsubmit="generateOrderSummary(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="cust-name">Full Name *</label>
+                            <input type="text" id="cust-name" class="form-control" required placeholder="Enter your name">
+                        </div>
+                        <div class="form-group">
+                            <label for="cust-phone">Phone / WhatsApp Number *</label>
+                            <input type="tel" id="cust-phone" class="form-control" required placeholder="10-digit mobile number">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="cust-address">Delivery Address *</label>
+                        <textarea id="cust-address" class="form-control" rows="3" required placeholder="Complete door address, street, landmark, area, pincode"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 18px; font-size: 1.05rem;">
+                        Generate Order Summary
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 2: Final Order Summary & UPI Payment -->
+            <div id="order-summary-card" class="card summary-card" style="display: none;">
+                <h2 style="text-align: center; margin-bottom: 20px;">Order Summary</h2>
+                
+                <div class="summary-details">
+                    <div class="summary-row">
+                        <span class="summary-label">CUSTOMER DETAILS</span>
+                        <span class="summary-val" id="sum-cust-info">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">ITEMS ORDERED</span>
+                        <div class="summary-val" id="sum-items-list">-</div>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">DELIVERY ADDRESS</span>
+                        <span class="summary-val" id="sum-cust-address">-</span>
+                    </div>
                 </div>
-                <div class="card-footer">
-                    <a href="products/poha-crunch.html" class="btn btn-order">Order Poha Crunch</a>
+
+                <hr class="summary-divider">
+
+                <div class="pricing-breakdown">
+                    <div class="price-row">
+                        <span>Items Subtotal</span>
+                        <strong id="sum-subtotal">₹0</strong>
+                    </div>
+                    <div class="price-row">
+                        <span>Delivery Charges</span>
+                        <strong>₹50</strong>
+                    </div>
+                    <div class="price-row grand-total-row">
+                        <span>Grand Total</span>
+                        <strong id="sum-grand-total" class="grand-total-text">₹0</strong>
+                    </div>
+                </div>
+
+                <!-- Scan & Pay UPI Box -->
+                <div class="payment-box">
+                    <h3>Scan & Pay via UPI</h3>
+                    <p class="payment-sub">Scan using GPay, PhonePe, Paytm or any UPI app</p>
+                    
+                    <div class="qr-container">
+                        <img src="../Assets/payment-qr.jpeg" alt="UPI Payment QR Code" class="qr-code-img" onerror="this.onerror=null; this.src='../Assets/upi-qr.png';">
+                    </div>
+
+                    <div class="upi-id-badge">
+                        <span>UPI ID: <strong>kbsavouries@upi</strong></span>
+                    </div>
+
+                    <p class="post-pay-text">After completing payment, click below to confirm your order on WhatsApp with receipt screenshot.</p>
+                    
+                    <button type="button" class="btn-whatsapp" onclick="sendWhatsAppOrder()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                            <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.762.459 3.48 1.333 5.001l-1.416 5.172 5.293-1.388c1.464.798 3.115 1.218 4.776 1.219h.004c5.505 0 9.988-4.478 9.989-9.985 0-2.668-1.038-5.176-2.925-7.062a9.923 9.923 0 0 0-7.064-2.942z"/>
+                        </svg>
+                        Confirm Order via WhatsApp
+                    </button>
                 </div>
             </div>
 
-            <!-- Idly Podi Product Card -->
-            <div class="product-card product-card-disabled">
-                <div class="card-badge badge-soon">COMING SOON</div>
-                <div class="card-body">
-                    <h3>Idly Podi</h3>
-                    <p>Traditional gun powder condiment made with authentic spices and lentils.</p>
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-disabled" disabled>Coming Soon</button>
-                </div>
-            </div>
-
-            <!-- Gongura Chutney Product Card -->
-            <div class="product-card product-card-disabled">
-                <div class="card-badge badge-soon">COMING SOON</div>
-                <div class="card-body">
-                    <h3>Gongura Chutney</h3>
-                    <p>Tangy and spicy traditional sorrel leaves pickle prepared with authentic spices and rich oil blend.</p>
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-disabled" disabled>Coming Soon</button>
-                </div>
-            </div>
-
-            <!-- Sunnundalu Product Card -->
-            <div class="product-card product-card-disabled">
-                <div class="card-badge badge-soon">COMING SOON</div>
-                <div class="card-body">
-                    <h3>Sunnundalu</h3>
-                    <p>Traditional protein-rich sweet laddoos made with roasted urad dal, pure ghee, and jaggery.</p>
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-disabled" disabled>Coming Soon</button>
-                </div>
-            </div>
         </div>
     </main>
 
-    <script>
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-IN', {
-            weekday: 'short', month: 'short', day: 'numeric'
-        });
-    </script>
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="custom-modal-overlay" style="display: none;">
+        <div class="custom-modal-card">
+            <h3 id="modal-title">Notice</h3>
+            <p id="modal-message">Message here...</p>
+            <div class="custom-modal-actions">
+                <button id="modal-btn-primary" class="btn-primary">Okay</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../js/order.js"></script>
 </body>
 </html>
