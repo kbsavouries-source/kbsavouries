@@ -3,10 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KB Savouries - Real-Time Inventory Tracker</title>
+    <title>KB Savouries - Raw Material Inventory Tracker</title>
     <link rel="stylesheet" href="../css/shared-theme.css">
     <link rel="stylesheet" href="../css/inventory-tracker.css">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <style>
+        /* Searchable raw-material dropdown (Tom Select) inside the filter bar */
+        .date-filter-wrapper .ts-wrapper { min-width: 280px; flex: 1; }
+        .date-filter-wrapper .ts-control {
+            min-height: 40px;
+            border-radius: 10px;
+            border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            background: #ffffff;
+            box-shadow: none;
+        }
+        .date-filter-wrapper .ts-wrapper.focus .ts-control {
+            border-color: var(--accent-orange, #EA580C);
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+        }
+        .date-filter-wrapper .ts-dropdown {
+            border-radius: 12px;
+            border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
+            margin-top: 6px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+            z-index: 9000;
+        }
+        @media (max-width: 768px) {
+            .date-filter-wrapper .ts-wrapper { min-width: 100%; }
+        }
+    </style>
 </head>
 <body>
 
@@ -43,7 +71,7 @@
     <!-- Main Workspace -->
     <main>
         <header>
-            <h1 id="page-title">Real-Time Inventory & Stock Ledger</h1>
+            <h1 id="page-title">Raw Material Inventory & Stock Ledger</h1>
             <span id="current-date" class="date-display"></span>
         </header>
 
@@ -51,11 +79,11 @@
             <!-- Glassmorphic Metrics Grid -->
             <div class="metrics-grid">
                 <div class="metric-card">
-                    <h3>Total Tracked SKUs</h3>
+                    <h3>Total Raw Materials</h3>
                     <div id="stat-total-skus" class="value">0</div>
                 </div>
                 <div class="metric-card">
-                    <h3>Low Stock Alerts (< 2Kg/Units)</h3>
+                    <h3>Low Stock Alerts (&lt; 500 gms / ml)</h3>
                     <div id="stat-low-stock" class="value" style="color: var(--danger);">0</div>
                 </div>
                 <div class="metric-card">
@@ -68,20 +96,18 @@
             <div class="card">
                 <div class="section-header-flex">
                     <div class="title-filter-group">
-                        <h2>Live Stock Balance Sheet</h2>
+                        <h2>Live Raw Material Balance Sheet</h2>
                         <div class="date-filter-wrapper">
-                            <span class="filter-label">Category:</span>
-                            <select id="filter-category" onchange="renderInventoryLedger()" class="native-select">
-                                <option value="ALL">All Categories</option>
-                                <option value="Raw Material">Raw Material</option>
-                                <option value="Finished Inventory">Finished Inventory</option>
+                            <span class="filter-label">Raw Material:</span>
+                            <!-- Options are populated from the SKU Catalog by js/inventory-tracker.js and enhanced with Tom Select -->
+                            <select id="filter-item" placeholder="Search raw material...">
+                                <option value="">All Raw Materials</option>
                             </select>
-                            <input type="text" id="filter-search" oninput="renderInventoryLedger()" placeholder="Search item..." class="filter-search-input">
                             <button type="button" class="btn-clear-filter" onclick="clearInventoryFilter()">Reset</button>
                         </div>
                     </div>
                     <div class="total-value-box">
-                        Active SKUs: <strong id="active-count">0</strong>
+                        Showing: <strong id="active-count">0</strong>
                     </div>
                 </div>
 
@@ -89,8 +115,7 @@
                     <table class="mobile-stack-table">
                         <thead>
                             <tr>
-                                <th>Item / SKU Name</th>
-                                <th>Category</th>
+                                <th>Raw Material</th>
                                 <th>Total Procured</th>
                                 <th>Total Consumed</th>
                                 <th>Net Available Balance</th>
