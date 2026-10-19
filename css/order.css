@@ -134,7 +134,7 @@ main.customer-main-wrapper {
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-    gap: 24px;
+    gap: 28px;
     margin-bottom: 40px;
 }
 
@@ -143,56 +143,89 @@ main.customer-main-wrapper {
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1.5px solid rgba(255, 255, 255, 0.9);
-    border-radius: 24px;
+    border-radius: 28px;
     padding: 28px;
-    box-shadow: 0 15px 35px 0 rgba(31, 38, 135, 0.05);
+    box-shadow: 0 20px 45px 0 rgba(31, 38, 135, 0.06);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
 }
 
 .card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 20px 40px 0 rgba(31, 38, 135, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px 0 rgba(31, 38, 135, 0.1);
 }
 
 .product-inline-card {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+}
+
+/* Product Image Container & Featured Banner */
+.product-image-container {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    border: 1.5px solid rgba(254, 215, 170, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.product-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.card:hover .product-thumb {
+    transform: scale(1.04);
 }
 
 .product-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 
 .product-card-header h3 {
     margin: 0;
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 900;
     color: #0F172A;
+    letter-spacing: -0.01em;
 }
 
 .status-badge {
-    font-size: 0.72rem;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 0.7rem;
     font-weight: 800;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    z-index: 2;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .status-badge.finished {
     background: linear-gradient(135deg, #EA580C, #C2410C);
     color: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
 }
 
 .status-badge.raw {
     background: linear-gradient(135deg, #0284C7, #0369A1);
     color: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+.selector-group {
+    margin-bottom: 16px;
 }
 
 .selector-group label {
@@ -214,9 +247,9 @@ main.customer-main-wrapper {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px);
     border: 1.5px solid rgba(254, 215, 170, 0.7);
-    padding: 8px 14px;
+    padding: 9px 16px;
     border-radius: 12px;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: #0F172A;
     cursor: pointer;
@@ -239,8 +272,8 @@ main.customer-main-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
-    background: rgba(255, 255, 255, 0.6);
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(10px);
     padding: 14px 18px;
     border-radius: 16px;
@@ -255,7 +288,7 @@ main.customer-main-wrapper {
 
 .price-display strong {
     color: #EA580C;
-    font-size: 1.3rem;
+    font-size: 1.35rem;
 }
 
 .qty-stepper {
@@ -265,8 +298,8 @@ main.customer-main-wrapper {
 }
 
 .qty-stepper button {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     padding: 0;
     display: inline-flex;
     align-items: center;
@@ -285,7 +318,7 @@ main.customer-main-wrapper {
 
 .qty-num {
     font-weight: 900;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     min-width: 24px;
     text-align: center;
     color: #0F172A;
@@ -296,18 +329,18 @@ main.customer-main-wrapper {
     background: linear-gradient(135deg, #EA580C, #C2410C);
     color: #FFFFFF;
     border: none;
-    padding: 14px 22px;
+    padding: 15px 24px;
     border-radius: 14px;
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.25s ease;
-    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.25);
+    box-shadow: 0 8px 22px rgba(234, 88, 12, 0.28);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(234, 88, 12, 0.35);
+    box-shadow: 0 10px 28px rgba(234, 88, 12, 0.38);
 }
 
 .btn-outline {
@@ -343,10 +376,10 @@ input[type="text"],
 input[type="tel"],
 textarea {
     width: 100%;
-    padding: 12px 16px;
-    border-radius: 12px;
+    padding: 13px 18px;
+    border-radius: 14px;
     border: 1.5px solid rgba(254, 215, 170, 0.6);
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     font-size: 0.95rem;
     font-family: inherit;
@@ -365,13 +398,14 @@ textarea:focus {
 
 /* Summary Cards */
 .summary-card {
-    margin-top: 28px;
-    padding: 32px;
+    margin-top: 32px;
+    padding: 36px;
+    border-radius: 28px;
 }
 
 .summary-card h2 {
-    margin-bottom: 20px;
-    font-size: 1.5rem;
+    margin-bottom: 22px;
+    font-size: 1.6rem;
     font-weight: 900;
     color: #0F172A;
 }
@@ -380,7 +414,7 @@ textarea:focus {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    margin-bottom: 22px;
+    margin-bottom: 24px;
 }
 
 .summary-row {
@@ -397,7 +431,7 @@ textarea:focus {
 }
 
 .summary-val {
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: #0F172A;
 }
@@ -405,7 +439,7 @@ textarea:focus {
 .summary-divider {
     border: none;
     border-top: 1.5px dashed rgba(254, 215, 170, 0.6);
-    margin: 22px 0;
+    margin: 24px 0;
 }
 
 .pricing-breakdown {
@@ -417,7 +451,7 @@ textarea:focus {
 .price-row {
     display: flex;
     justify-content: space-between;
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: #475569;
     font-weight: 500;
 }
@@ -426,38 +460,38 @@ textarea:focus {
     border-top: 1.5px solid rgba(254, 215, 170, 0.6);
     padding-top: 14px;
     margin-top: 8px;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 900;
     color: #0F172A;
 }
 
 .grand-total-text {
     color: #16A34A !important;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
 }
 
 /* Glassmorphic Payment Box */
 .payment-box {
-    margin-top: 32px;
-    background: rgba(255, 255, 255, 0.6);
+    margin-top: 36px;
+    background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(16px);
-    border: 1.5px solid rgba(255, 255, 255, 0.8);
-    border-radius: 20px;
-    padding: 28px;
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    border-radius: 22px;
+    padding: 32px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.02);
+    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.03);
 }
 
 .payment-box h3 {
     margin: 0 0 6px 0;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 900;
 }
 
 .payment-sub {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: #64748B;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
     font-weight: 500;
 }
 
@@ -468,25 +502,25 @@ textarea:focus {
 }
 
 .qr-code-img {
-    width: 210px;
-    height: 210px;
+    width: 220px;
+    height: 220px;
     object-fit: contain;
-    border-radius: 16px;
+    border-radius: 18px;
     border: 2px solid rgba(255, 255, 255, 0.9);
     padding: 10px;
     background: #FFFFFF;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
 }
 
 .upi-id-badge {
-    margin: 14px 0 20px 0;
-    font-size: 0.95rem;
+    margin: 14px 0 22px 0;
+    font-size: 1rem;
 }
 
 .post-pay-text {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     color: #64748b;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
     font-weight: 500;
 }
 
@@ -495,21 +529,21 @@ textarea:focus {
     background: linear-gradient(135deg, #22C55E, #16A34A);
     color: #FFFFFF;
     border: none;
-    padding: 16px 22px;
+    padding: 16px 24px;
     border-radius: 14px;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 900;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 8px 22px rgba(34, 197, 94, 0.3);
     transition: all 0.25s ease;
 }
 
 .btn-whatsapp:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 10px 26px rgba(34, 197, 94, 0.4);
 }
 
 /* Modal Overlay */
@@ -531,8 +565,8 @@ textarea:focus {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(24px);
     border: 1.5px solid rgba(255, 255, 255, 0.9);
-    border-radius: 20px;
-    padding: 28px;
+    border-radius: 22px;
+    padding: 32px;
     max-width: 400px;
     width: 90%;
     box-shadow: 0 25px 50px rgba(0,0,0,0.12);
@@ -547,5 +581,34 @@ textarea:focus {
 .custom-modal-card p {
     color: #475569;
     font-size: 0.95rem;
-    margin-bottom: 22px;
+    margin-bottom: 24px;
+}
+
+/* Responsive Breakpoints */
+@media screen and (max-width: 600px) {
+    .customer-header {
+        padding: 12px 16px;
+    }
+
+    .brand-name {
+        font-size: 1.2rem;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .card {
+        padding: 20px;
+        border-radius: 22px;
+    }
+
+    .product-image-container {
+        height: 180px;
+    }
+
+    .storefront-hero h1 {
+        font-size: 1.8rem;
+    }
 }

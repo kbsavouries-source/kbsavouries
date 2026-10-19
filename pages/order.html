@@ -38,6 +38,19 @@
         <!-- Customer Details & Order Summary Container -->
         <div id="checkout-container" class="checkout-container" style="display: none;">
             
+            <!-- Live Cart Review & Edit Card -->
+            <div class="card summary-card" style="margin-bottom: 24px;">
+                <h2>Review Your Order</h2>
+                <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 16px;">Need to change or remove an item? Adjust quantities above or clear items below.</p>
+                <div id="live-cart-items-list" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                    <!-- Dynamic Cart Items -->
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1.5px dashed rgba(254, 215, 170, 0.8); padding-top: 14px;">
+                    <span style="font-weight: 800; color: #475569; font-size: 0.95rem;">Current Subtotal:</span>
+                    <strong id="live-cart-subtotal" style="color: #EA580C; font-size: 1.25rem;">₹0</strong>
+                </div>
+            </div>
+
             <!-- Step 1: Customer Info Form -->
             <div id="customer-info-card" class="card summary-card">
                 <h2>Customer & Delivery Details</h2>
@@ -57,7 +70,7 @@
                         <textarea id="cust-address" class="form-control" rows="3" required placeholder="Complete door address, street, landmark, area, pincode"></textarea>
                     </div>
                     <button type="submit" class="btn-primary" style="width: 100%; margin-top: 18px; font-size: 1.05rem;">
-                        Generate Order Summary
+                        Proceed to Payment
                     </button>
                 </form>
             </div>

@@ -2,10 +2,10 @@ import { STORE_PRODUCTS } from './products-data.js';
 
 const PRODUCTS = STORE_PRODUCTS;
 
-// State tracking active card selections per product
+// State tracking active card selections per product (qty starts empty/0)
 window.productSelections = {};
 PRODUCTS.forEach(p => {
-    window.productSelections[p.id] = { sizeIndex: 0, qty: 1 };
+    window.productSelections[p.id] = { sizeIndex: 0, qty: 0 };
 });
 
 export function initOrderStorefront() {
@@ -17,20 +17,27 @@ function renderProductCards() {
     if (!grid) return;
 
     grid.innerHTML = PRODUCTS.map((prod) => {
-        const defaultSize = prod.sizes[0];
+        const sel = window.productSelections[prod.id];
+        const selectedSize = prod.sizes[sel.sizeIndex];
+        const currentPrice = sel.qty > 0 ? selectedSize.price * sel.qty : 0;
+        
         return `
             <div class="card product-inline-card" data-product-id="${prod.id}">
+                <div class="product-image-container">
+                    <img src="${prod.image}" alt="${prod.name}" class="product-thumb" onerror="this.style.display='none'">
+                    <span class="status-badge ${prod.badge === 'POPULAR' ? 'finished' : 'raw'}">${prod.badge}</span>
+                </div>
+
                 <div class="product-card-header">
                     <h3>${prod.name}</h3>
-                    <span class="status-badge ${prod.badge === 'POPULAR' ? 'finished' : 'raw'}">${prod.badge}</span>
                 </div>
 
                 <div class="selector-group">
                     <label>SELECT SIZE:</label>
                     <div class="size-pills" id="sizes-${prod.id}">
                         ${prod.sizes.map((s, sIdx) => `
-                            <button type="button" class="size-pill ${sIdx === 0 ? 'active' : ''}" 
-                                onclick="selectProductSize('${prod.id}', ${sIdx})">
+                            <button type="button" class="size-pill ${sIdx === sel.sizeIndex ? 'active' : ''}" 
+                                onclick="selectProductSize('${prod.id}',${sIdx})">
                                 ${s.weight} - ₹${s.price}
                             </button>
                         `).join('')}
@@ -39,17 +46,17 @@ function renderProductCards() {
 
                 <div class="qty-price-row">
                     <div class="price-display">
-                        Price: <strong id="price-${prod.id}">₹${defaultSize.price}</strong>
+                        Price: <strong id="price-${prod.id}">₹${currentPrice}</strong>
                     </div>
                     <div class="qty-stepper">
                         <button type="button" class="btn-outline" onclick="adjustCardQty('${prod.id}', -1)">-</button>
-                        <span id="qty-${prod.id}" class="qty-num">1</span>
+                        <span id="qty-${prod.id}" class="qty-num">${sel.qty > 0 ? sel.qty : ''}</span>
                         <button type="button" class="btn-outline" onclick="adjustCardQty('${prod.id}', 1)">+</button>
                     </div>
                 </div>
 
-                <button type="button" class="btn-primary" style="width: 100%; margin-top: 14px;" onclick="addToOrderCart('${prod.id}')">
-                    Add to Order
+                <button type="button" class="btn-primary" style="width: 100%; margin-top: 16px;" onclick="addToOrderCart('${prod.id}')">
+                    Add / Update Item
                 </button>
             </div>
         `;
@@ -72,37 +79,75 @@ window.selectProductSize = function(prodId, sIdx) {
     const qty = window.productSelections[prodId].qty;
     const priceEl = document.getElementById(`price-${prodId}`);
     if (priceEl) {
-        priceEl.innerText = `₹${selectedSize.price * qty}`;
+        priceEl.innerText = qty > 0 ? `₹${selectedSize.price * qty}` : `₹0`;
     }
     
-    // Auto-sync cart state whenever selection changes
     syncAllActiveSelectionsToCart();
 };
 
 window.adjustCardQty = function(prodId, change) {
     const sel = window.productSelections[prodId];
-    sel.qty = Math.max(1, sel.qty + change);
+    sel.qty = Math.max(0, sel.qty + change);
     
     const qtyEl = document.getElementById(`qty-${prodId}`);
-    if (qtyEl) qtyEl.innerText = sel.qty;
+    if (qtyEl) qtyEl.innerText = sel.qty > 0 ? sel.qty : '';
 
     const prod = PRODUCTS.find(p => p.id === prodId);
     if (!prod) return;
     const selectedSize = prod.sizes[sel.sizeIndex];
     const priceEl = document.getElementById(`price-${prodId}`);
     if (priceEl) {
-        priceEl.innerText = `₹${selectedSize.price * sel.qty}`;
+        priceEl.innerText = sel.qty > 0 ? `₹${selectedSize.price * sel.qty}` : `₹0`;
     }
 
-    // Auto-sync cart state whenever quantity changes
     syncAllActiveSelectionsToCart();
 };
 
+// Allows clearing or setting quantity directly from the live cart review section with live summary refresh
+window.updateItemQtyDirect = function(prodId, newQty) {
+    const sel = window.productSelections[prodId];
+    if (!sel) return;
+    sel.qty = Math.max(0, newQty);
+
+    // Refresh card UI
+    const qtyEl = document.getElementById(`qty-${prodId}`);
+    if (qtyEl) qtyEl.innerText = sel.qty > 0 ? sel.qty : '';
+
+    const prod = PRODUCTS.find(p => p.id === prodId);
+    if (prod) {
+        const selectedSize = prod.sizes[sel.sizeIndex];
+        const priceEl = document.getElementById(`price-${prodId}`);
+        if (priceEl) {
+            priceEl.innerText = sel.qty > 0 ? `₹${selectedSize.price * sel.qty}` : `₹0`;
+        }
+    }
+
+    syncAllActiveSelectionsToCart();
+
+    // If order summary is visible, instantly re-evaluate and refresh it
+    const summaryCard = document.getElementById('order-summary-card');
+    if (summaryCard && summaryCard.style.display !== 'none') {
+        const total = calculateCombinedTotal();
+        if (total < 200) {
+            summaryCard.style.display = 'none';
+        } else {
+            refreshOrderSummaryDisplay();
+        }
+    }
+};
+
 window.addToOrderCart = function(prodId) {
-    // Sync all current card configurations into cart
     syncAllActiveSelectionsToCart();
 
     const total = calculateCombinedTotal();
+
+    if (total <= 0) {
+        showModal(
+            "No Items Selected",
+            "Please select a quantity for at least one item before proceeding."
+        );
+        return;
+    }
 
     if (total < 200) {
         const deficit = 200 - total;
@@ -144,17 +189,52 @@ function syncAllActiveSelectionsToCart() {
         }
     });
 
-    // If checkout container is already open, live-update summary
+    updateLiveCartReviewDisplay();
+
     const summaryCard = document.getElementById('order-summary-card');
     if (summaryCard && summaryCard.style.display !== 'none') {
         refreshOrderSummaryDisplay();
     }
 }
 
+function updateLiveCartReviewDisplay() {
+    const checkoutContainer = document.getElementById('checkout-container');
+    const itemsListContainer = document.getElementById('live-cart-items-list');
+    const subtotalDisplay = document.getElementById('live-cart-subtotal');
+    
+    const items = Object.values(window.cart);
+    const combinedSubtotal = calculateCombinedTotal();
+
+    if (items.length === 0) {
+        if (checkoutContainer) checkoutContainer.style.display = 'none';
+        return;
+    }
+
+    if (checkoutContainer) checkoutContainer.style.display = 'block';
+    if (subtotalDisplay) subtotalDisplay.innerText = `₹${combinedSubtotal}`;
+
+    if (itemsListContainer) {
+        itemsListContainer.innerHTML = items.map(item => `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.7); padding: 10px 14px; border-radius: 12px; border: 1.5px solid rgba(254, 215, 170, 0.6);">
+                <div>
+                    <strong>${item.name}</strong> (${item.sizeLabel}) × ${item.qty}
+                    <div style="color: #EA580C; font-weight: 800; font-size: 0.85rem; margin-top: 2px;">₹${item.unitPrice * item.qty}</div>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 8px;" onclick="updateItemQtyDirect('${item.productId}', ${item.qty - 1})">-</button>
+                    <span style="font-weight: 800; min-width: 18px; text-align: center;">${item.qty}</span>
+                    <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 8px;" onclick="updateItemQtyDirect('${item.productId}', ${item.qty + 1})">+</button>
+                    <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; border-color: #ef4444; color: #ef4444; margin-left: 6px;" onclick="updateItemQtyDirect('${item.productId}', 0)" title="Remove Item">Remove</button>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
 function calculateCombinedTotal() {
     return PRODUCTS.reduce((sum, prod) => {
         const sel = window.productSelections[prod.id];
-        if (!sel) return sum;
+        if (!sel || sel.qty <= 0) return sum;
         const sizeObj = prod.sizes[sel.sizeIndex];
         return sum + (sizeObj.price * sel.qty);
     }, 0);
@@ -209,7 +289,6 @@ function refreshOrderSummaryDisplay() {
     const summaryCard = document.getElementById('order-summary-card');
     if (summaryCard) {
         summaryCard.style.display = 'block';
-        summaryCard.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
