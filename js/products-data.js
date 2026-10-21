@@ -27,8 +27,8 @@ export const STORE_PRODUCTS = [
         ]
     },
     {
-        id: 'sunnundalu',
-        name: 'Sunnundalu',
+        id: 'ulundhu urundai',
+        name: 'Ulundhu Urundai',
         badge: 'TRADITIONAL',
         image: '../Assets/products-img/sunnundalu.png',
         sizes: [
