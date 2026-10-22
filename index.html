@@ -23,16 +23,35 @@
         <span class="badge-vegan">100% VEGAN</span>
       </a>
 
-      <!-- Middle Navigation Links -->
-      <div class="nav-center">
+      <!-- Desktop Navigation Links -->
+      <div class="nav-center desktop-nav">
         <a href="pages/about.html" class="nav-link">About</a>
         <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries%2C%20I%20would%20like%20to%20get%20in%20touch!" target="_blank" rel="noopener noreferrer" class="nav-link">Contact</a>
       </div>
 
-      <div class="nav-right">
+      <div class="nav-right desktop-order">
         <a href="pages/order.html" class="btn btn-order">ORDER FRESH</a>
       </div>
+
+      <!-- Mobile Hamburger Toggle Button -->
+      <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle Mobile Menu" onclick="toggleMobileMenu()">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
     </nav>
+
+    <!-- Mobile Dropdown Menu Drawer -->
+    <div class="mobile-menu-drawer" id="mobileMenuDrawer">
+      <div class="mobile-menu-links">
+        <a href="pages/order.html" class="mobile-nav-link" onclick="toggleMobileMenu()">Shop</a>
+        <a href="pages/about.html" class="mobile-nav-link" onclick="toggleMobileMenu()">About</a>
+        <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries%2C%20I%20would%20like%20to%20get%20in%20touch!" target="_blank" rel="noopener noreferrer" class="mobile-nav-link" onclick="toggleMobileMenu()">Contact</a>
+      </div>
+      <div class="mobile-menu-footer">
+        <a href="pages/order.html" class="btn btn-order btn-mobile-order" onclick="toggleMobileMenu()">ORDER FRESH</a>
+      </div>
+    </div>
 
     <!-- Hero & Product Showcase Section -->
     <section id="video-story" class="hero-section zoom-on-scroll">
@@ -42,7 +61,7 @@
           <p class="hero-subtitle">Poha Crunch — Fresh from kitchen, Not factory.</p>
         </div>
 
-        <!-- Glassmorphic Cover Image Slideshow Frame (Badges Removed) -->
+        <!-- Glassmorphic Cover Image Slideshow Frame -->
         <div class="slideshow-glass-container">
           <div class="slideshow-viewport">
             <!-- Slide 1 -->

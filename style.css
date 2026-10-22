@@ -96,7 +96,7 @@ body::before {
   gap: 1rem;
 }
 
-.nav-center {
+.desktop-nav {
   display: flex;
   gap: 2rem;
   align-items: center;
@@ -159,6 +159,135 @@ body::before {
   box-shadow: 0 12px 25px rgba(234, 88, 12, 0.4);
 }
 
+/* Mobile Hamburger Menu Toggle Button */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 32px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+  padding: 0;
+}
+
+.hamburger-bar {
+  width: 100%;
+  height: 3px;
+  background-color: var(--text-dark);
+  border-radius: 3px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hamburger Active State Animation */
+.mobile-menu-toggle.active .hamburger-bar:nth-child(1) {
+  transform: translateY(10.5px) rotate(45deg);
+}
+.mobile-menu-toggle.active .hamburger-bar:nth-child(2) {
+  opacity: 0;
+}
+.mobile-menu-toggle.active .hamburger-bar:nth-child(3) {
+  transform: translateY(-10.5px) rotate(-45deg);
+}
+
+/* Mobile Full-Screen/Fixed Overlay Menu Drawer */
+.mobile-menu-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 247, 237, 0.98);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  z-index: 998; /* Just below the sticky navbar (1000) */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-menu-drawer.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.mobile-nav-link {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+
+.mobile-nav-link:hover {
+  color: var(--accent-orange);
+}
+
+.mobile-menu-footer {
+  width: 80%;
+  max-width: 300px;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+  text-align: center;
+}
+
+.btn-mobile-order {
+  width: 100%;
+  padding: 1rem;
+  text-align: center;
+}
+
+.mobile-menu-drawer.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.mobile-nav-link {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+
+.mobile-nav-link:hover {
+  color: var(--accent-orange);
+}
+
+.mobile-menu-footer {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+  text-align: center;
+}
+
+.btn-mobile-order {
+  width: 100%;
+  padding: 1rem;
+  text-align: center;
+}
+
 .hero-section {
   padding: 5rem 0 3rem 0;
 }
@@ -198,7 +327,7 @@ body::before {
   font-weight: 500;
 }
 
-/* Glassmorphism Slideshow Frame (Clean & Badge-free) */
+/* Glassmorphism Slideshow Frame */
 .slideshow-glass-container {
   max-width: 900px;
   margin: 0 auto;
@@ -238,46 +367,21 @@ body::before {
   animation: smoothZoomOut 3s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
 }
 
-/* Slide timing sequences (3 seconds per image over 9s total) */
-.slide-1 {
-  animation-delay: 0s;
-}
+.slide-1 { animation-delay: 0s; }
+.slide-2 { animation-delay: 3s; }
+.slide-3 { animation-delay: 6s; }
 
-.slide-2 {
-  animation-delay: 3s;
-}
-
-.slide-3 {
-  animation-delay: 6s;
-}
-
-/* Continuous smooth 3-second zoom out animation */
 @keyframes smoothZoomOut {
-  0% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
-/* Seamless opacity fade transition across 3 slides (9s cycle) */
 @keyframes slideshowSequence {
-  0% {
-    opacity: 0;
-  }
-  3% {
-    opacity: 1;
-  }
-  30% {
-    opacity: 1;
-  }
-  33% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 0;
-  }
+  0% { opacity: 0; }
+  3% { opacity: 1; }
+  30% { opacity: 1; }
+  33% { opacity: 0; }
+  100% { opacity: 0; }
 }
 
 .recipes-section {
@@ -325,7 +429,6 @@ body::before {
   display: none;
 }
 
-/* Refined "Why Poha Crunch" Cards with Soft Ambient Shadow */
 .recipe-card {
   flex: 0 0 calc(33.333% - 1.2rem);
   scroll-snap-align: start;
@@ -743,7 +846,7 @@ body::before {
   color: #FFFFFF;
 }
 
-/* Floating WhatsApp Button (Global & Fixed) */
+/* Floating WhatsApp Button */
 .whatsapp-float {
     position: fixed;
     width: 60px;
@@ -773,7 +876,15 @@ body::before {
     height: 32px;
 }
 
+/* Media Queries for Mobile Hamburger Layout */
 @media (max-width: 900px) {
+  .desktop-nav,
+  .desktop-order {
+    display: none !important;
+  }
+  .mobile-menu-toggle {
+    display: flex;
+  }
   .slideshow-viewport {
     height: 320px;
   }
@@ -784,12 +895,7 @@ body::before {
     font-size: 2.6rem;
   }
   .navbar {
-    flex-direction: column;
-    gap: 1rem;
     padding: 1.25rem 1.5rem;
-  }
-  .nav-center {
-    gap: 1.5rem;
   }
   .footer-content {
     flex-direction: column;

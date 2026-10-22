@@ -1,6 +1,5 @@
-// Interactive FAQ Toggle & Page Fade-in
+// Fade in main content smoothly & handle FAQ/Hamburger interactivity
 document.addEventListener('DOMContentLoaded', () => {
-  // Fade in main content smoothly
   const mainContent = document.getElementById('main-content');
   if (mainContent) {
     setTimeout(() => {
@@ -12,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleFaq(element) {
   const isActive = element.classList.contains('active');
   
-  // Optional: Close all other FAQs
+  // Close all other FAQs
   document.querySelectorAll('.faq-item').forEach(item => {
     item.classList.remove('active');
   });
@@ -20,5 +19,20 @@ function toggleFaq(element) {
   // Toggle clicked FAQ
   if (!isActive) {
     element.classList.add('active');
+  }
+}
+
+// Toggle Mobile Menu Drawer with Automatic Scroll to Top
+function toggleMobileMenu() {
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const menuDrawer = document.getElementById('mobileMenuDrawer');
+  
+  if (menuBtn && menuDrawer) {
+    if (!menuDrawer.classList.contains('open')) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    menuBtn.classList.toggle('active');
+    menuDrawer.classList.toggle('open');
   }
 }

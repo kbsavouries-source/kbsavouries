@@ -19,6 +19,22 @@ function playInitialCrunch() {
   });
 }
 
+// Toggle Mobile Menu Drawer with Automatic Scroll to Top
+function toggleMobileMenu() {
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const menuDrawer = document.getElementById('mobileMenuDrawer');
+  
+  if (menuBtn && menuDrawer) {
+    // If the menu is currently closed and we are opening it, scroll to top first
+    if (!menuDrawer.classList.contains('open')) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    menuBtn.classList.toggle('active');
+    menuDrawer.classList.toggle('open');
+  }
+}
+
 function toggleRecipe(cardElement) {
   if (cardElement) {
     playCrunchSound();

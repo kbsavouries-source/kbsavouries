@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/about.css">
+  <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0F172A">
 </head>
 <body>
@@ -15,44 +16,62 @@
   <!-- Main Website Wrapper -->
   <div id="main-content" class="main-content">
 
-    <!-- Header Navbar -->
+    <!-- Header -->
     <nav class="navbar">
-      <a href="../index.html" class="nav-brand" style="text-decoration: none; color: inherit; cursor: pointer;">
+      <a href="../index.html" id="logo-link" class="nav-brand" style="text-decoration: none; color: inherit; cursor: pointer;">
         <span class="logo-text">KB SAVOURIES</span>
         <span class="badge-vegan">100% VEGAN</span>
       </a>
 
-      <!-- Middle Navigation Links -->
-      <div class="nav-center">
+      <!-- Desktop Navigation Links -->
+      <div class="nav-center desktop-nav">
         <a href="about.html" class="nav-link active">About</a>
         <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries%2C%20I%20would%20like%20to%20get%20in%20touch!" target="_blank" rel="noopener noreferrer" class="nav-link">Contact</a>
       </div>
 
-      <div class="nav-right">
+      <div class="nav-right desktop-order">
         <a href="order.html" class="btn btn-order">ORDER FRESH</a>
       </div>
+
+      <!-- Mobile Hamburger Toggle Button -->
+      <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle Mobile Menu" onclick="toggleMobileMenu()">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
     </nav>
 
-    <!-- Our Story Hero Section -->
+    <!-- Mobile Dropdown Menu Drawer -->
+    <div class="mobile-menu-drawer" id="mobileMenuDrawer">
+      <div class="mobile-menu-links">
+        <a href="order.html" class="mobile-nav-link" onclick="toggleMobileMenu()">Shop</a>
+        <a href="about.html" class="mobile-nav-link" onclick="toggleMobileMenu()">About</a>
+        <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries%2C%20I%20would%20like%20to%20get%20in%20touch!" target="_blank" rel="noopener noreferrer" class="mobile-nav-link" onclick="toggleMobileMenu()">Contact</a>
+      </div>
+      <div class="mobile-menu-footer">
+        <a href="order.html" class="btn btn-order btn-mobile-order" onclick="toggleMobileMenu()">ORDER FRESH</a>
+      </div>
+    </div>
+
+    <!-- About Hero Section -->
     <section class="about-hero-section">
       <div class="container">
-        <div class="section-tag">OUR STORY</div>
-        <h1 class="about-title">About KB Savouries</h1>
-        <p class="about-tagline">Fresh from Kitchen, Not Factory.</p>
+        <p class="section-tag">OUR STORY & HERITAGE</p>
+        <h1 class="about-title">Rooted in Tradition, <span>Crafted for Today</span></h1>
+        <p class="about-tagline">100% Vegan, small-batch snacking made with absolute transparency.</p>
         
         <p class="about-description">
-          At KB Savouries, we bring the timeless flavours of traditional snacking to every home, celebration, and special occasion. Rooted in a love for authentic crunch and wholesome ingredients, we carefully prepare and pack much-loved favourites such as Poha Crunch, Ulundhu Urundai, Idly Podi, and regional delicacies — crafted with care in modest kitchen batches, never mass-produced in cold industrial plants.
+          At KB Savouries, we believe that true quality comes from a kitchen, not an assembly line. Founded out of a passion for authentic flavours and wholesome ingredients, we combine treasured family recipes with modern, hygienic packaging to bring you snacks you can enjoy with complete confidence.
         </p>
 
-        <!-- Two Cards Highlight Grid -->
         <div class="about-cards-grid">
           <div class="info-card">
-            <h3>Quality You Can Trust</h3>
-            <p>Crafted with absolute transparency and uncompromising standards, every batch of KB Savouries brings you the genuine warmth of home-style snacking.</p>
+            <h3>Our Philosophy</h3>
+            <p>We keep things simple—real ingredients, honest recipes, and zero shortcuts. Every batch of Poha Crunch and traditional snacks is prepared with strict quality control and zero artificial preservatives.</p>
           </div>
           <div class="info-card">
-            <h3>Made for Every Moment</h3>
-            <p>From a quiet evening tea at home to lively family gatherings, festive milestones, and heartfelt gifting, KB Savouries brings the comforting warmth and authentic crunch of home-style goodness to every occasion.</p>
+            <h3>The Kitchen Standard</h3>
+            <p>Unlike mass-produced commercial brands, our small-batch process ensures peak freshness, authentic crunch, and deep-rooted flavors that take you straight back home.</p>
           </div>
         </div>
       </div>
@@ -60,42 +79,42 @@
 
     <!-- Quote Banner Section -->
     <section class="quote-banner-section">
-      <div class="container text-center">
-        <h2 class="quote-text">“KB Savouries — A Taste of Tradition, Made to Share.”</h2>
+      <div class="container" style="text-align: center;">
+        <h2 class="quote-text">"Good taste, familiar flavours, and quality you can enjoy with confidence."</h2>
         <div class="quote-actions">
-          <a href="order.html" class="btn btn-primary">Shop Our Snacks &rarr;</a>
-          <a href="https://wa.me/919884049021?text=Hi!%20I%20would%20like%20to%20chat%20with%20KB%20Savouries." target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Chat with us on WhatsApp &rarr;</a>
+          <a href="order.html" class="btn btn-primary">Explore Our Snacks</a>
+          <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries!" target="_blank" rel="noopener" class="btn btn-secondary">Chat on WhatsApp</a>
         </div>
       </div>
     </section>
 
-    <!-- Standards / What we won't compromise on -->
+    <!-- Standards Dark Section -->
     <section class="standards-section">
       <div class="container">
         <div class="standards-box">
-          <div class="section-tag light-tag">OUR STANDARDS</div>
-          <h2 class="standards-title">What we won't compromise on</h2>
-
+          <p class="section-tag light-tag">UNCOMPROMISING QUALITY</p>
+          <h2 class="standards-title">The KB Savouries Standard</h2>
+          
           <div class="standards-grid">
             <div class="standard-item">
-              <div class="standard-icon">🌿</div>
-              <h4>100% Plant-Based & Clean</h4>
-              <p>No blended or substitute fats, ever — the defining clean flavour of every traditional product.</p>
+              <div class="standard-icon">🌱</div>
+              <h4>100% Plant-Based</h4>
+              <p>Completely free from dairy, animal fats, and hidden animal-derived ingredients.</p>
             </div>
             <div class="standard-item">
-              <div class="standard-icon">🚫</div>
-              <h4>No Additives</h4>
-              <p>Zero chemical preservatives, artificial colors, or flavor enhancers in any product.</p>
+              <div class="standard-icon">🛡️</div>
+              <h4>Hygienic Sealing</h4>
+              <p>Packed carefully in modern airtight containers to lock in crisp freshness for months.</p>
             </div>
             <div class="standard-item">
-              <div class="standard-icon">🍳</div>
-              <h4>Small Kitchen Batches</h4>
-              <p>Roasted and prepared in modest kitchen batches under master supervision, not mass-line factory production.</p>
+              <div class="standard-icon">🔥</div>
+              <h4>Small Batch Roasted</h4>
+              <p>Never mass-fried or chemically preserved. Roasted slowly with traditional care.</p>
             </div>
           </div>
 
           <div class="standards-footer">
-            <a href="https://wa.me/919884049021?text=Hi!%20I%20have%20a%20question%20about%20your%20process." target="_blank" rel="noopener noreferrer">Have a question about our process? Get in touch &rarr;</a>
+            <a href="order.html">View Available Pack Sizes &rarr;</a>
           </div>
         </div>
       </div>
@@ -104,57 +123,42 @@
     <!-- FAQ Section -->
     <section class="faq-section">
       <div class="container">
-        <div class="section-tag">FAQ</div>
-        <h2 class="faq-title">Frequently asked questions</h2>
-
+        <h2 class="faq-title">Frequently Asked Questions</h2>
+        
         <div class="faq-list">
-          <!-- FAQ Item 1 -->
           <div class="faq-item" onclick="toggleFaq(this)">
             <div class="faq-question">
-              <span>Are KB Savouries snacks prepared in fresh kitchen batches?</span>
-              <svg class="faq-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <span>Are all products 100% vegan?</span>
+              <svg class="faq-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
             <div class="faq-answer">
-              <p>Yes — every single batch is prepared fresh in our kitchen following traditional methods. We never rely on factory mass production or automated stock piling, ensuring authentic home taste and crispness.</p>
+              <p>Yes! Every single product at KB Savouries is 100% vegan, containing zero dairy, ghee, or animal-based fats.</p>
             </div>
           </div>
 
-          <!-- FAQ Item 2 -->
           <div class="faq-item" onclick="toggleFaq(this)">
             <div class="faq-question">
-              <span>Are your snacks 100% vegan and free from preservatives?</span>
-              <svg class="faq-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <span>How should I store my savouries after opening?</span>
+              <svg class="faq-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
             <div class="faq-answer">
-              <p>Absolutely. All our savouries are 100% plant-based/vegan, crafted without any artificial preservatives, chemical additives, or hydrogenated oils.</p>
+              <p>Store your Poha Crunch in a cool, dry place inside an airtight container. For items like Gongura Chutney, refrigeration after opening is strongly recommended.</p>
             </div>
           </div>
 
-          <!-- FAQ Item 3 -->
           <div class="faq-item" onclick="toggleFaq(this)">
             <div class="faq-question">
-              <span>Where do you ship, and how long does delivery take?</span>
-              <svg class="faq-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <span>Do you accept bulk orders for gifting or events?</span>
+              <svg class="faq-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
             <div class="faq-answer">
-              <p>We ship all across Tamil Nadu with reliable courier partners. Standard orders are packed fresh and dispatched within 3 to 5 days.</p>
-            </div>
-          </div>
-
-          <!-- FAQ Item 4 -->
-          <div class="faq-item" onclick="toggleFaq(this)">
-            <div class="faq-question">
-              <span>Who makes KB Savouries?</span>
-              <svg class="faq-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </div>
-            <div class="faq-answer">
-              <p>KB Savouries is crafted with passion in small dedicated kitchen batches, preserving age-old culinary secrets and authentic flavours for your tea-time enjoyment.</p>
+              <p>Absolutely! We specialize in custom bulk quantities for family gatherings, festive gifting, and corporate events. Contact us directly via WhatsApp to discuss your requirement.</p>
             </div>
           </div>
         </div>
 
         <div class="faq-cta">
-          <a href="https://wa.me/919884049021?text=Hi!%20I%20have%20an%20enquiry." target="_blank" rel="noopener noreferrer" class="btn btn-outline">Or ask us on WhatsApp &rarr;</a>
+          <a href="https://wa.me/919884049021?text=Hi!%20I%20have%20a%20question." target="_blank" rel="noopener" class="btn btn-outline">Ask Us Directly</a>
         </div>
       </div>
     </section>
@@ -166,16 +170,25 @@
           <span class="footer-heading">Reach Out To Us</span>
           <div class="footer-socials">
             <a href="https://wa.me/919884049021?text=Hi!%20I%20have%20a%20query%20about%20KB%20Poha%20Savouries." target="_blank" rel="noopener" aria-label="WhatsApp" class="social-link">
-              <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+              <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+              </svg>
             </a>
+
             <a href="https://youtube.com/@kbsavouries?si=_NN8tWOX3mIMyMUj" target="_blank" rel="noopener" aria-label="YouTube" class="social-link">
-              <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
             </a>
+
             <a href="https://www.instagram.com/kbsavouries/" target="_blank" rel="noopener" aria-label="Instagram" class="social-link">
-              <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
             </a>
           </div>
         </div>
+
         <div class="footer-right">
           <p class="footer-info">100% Vegan | FSSAI Reg No: 22426549000459</p><br>
           <a href="books.html" style="color: inherit; text-decoration: underline;">Book Keeping Workspace</a>
@@ -186,11 +199,7 @@
   </div>
 
   <!-- Floating WhatsApp Button -->
-  <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries%2C%20I%20have%20an%20enquiry!" 
-     class="whatsapp-float" 
-     target="_blank" 
-     rel="noopener noreferrer" 
-     aria-label="Chat with us on WhatsApp">
+  <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries!" class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
       <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
           <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.762.459 3.48 1.333 5.001l-1.416 5.172 5.293-1.388c1.464.798 3.115 1.218 4.776 1.219h.004c5.505 0 9.988-4.478 9.989-9.985 0-2.668-1.038-5.176-2.925-7.062a9.923 9.923 0 0 0-7.064-2.942zm.004 1.667c4.582 0 8.317 3.733 8.318 8.315 0 2.223-.865 4.312-2.438 5.885a8.273 8.273 0 0 1-5.88 2.433h-.003c-1.42 0-2.825-.371-4.061-1.072l-.291-.166-3.021.792.806-2.944-.183-.292a8.27 8.27 0 0 1-1.251-4.35c0-4.582 3.734-8.315 8.316-8.315zm-3.568 4.318c-.22 0-.472.083-.719.351-.247.268-.948.926-.948 2.259 0 1.333.972 2.619 1.107 2.8.136.182 1.91 2.918 4.63 4.093.647.28 1.152.447 1.546.572.65.207 1.242.178 1.71.108.522-.078 1.602-.655 1.827-1.287.225-.632.225-1.173.158-1.286-.068-.113-.248-.182-.518-.318-.27-.135-1.602-.79-1.85-.88-.248-.09-.428-.135-.608.135-.18.27-.698.88-.855 1.06-.158.18-.315.203-.585.068-.27-.135-1.14-.42-2.172-1.34-.803-.716-1.345-1.6-1.503-1.87-.158-.27-.017-.416.118-.55.121-.122.27-.315.405-.472.135-.158.18-.27.27-.45.09-.18.045-.338-.023-.473-.068-.135-.608-1.463-.833-2.003-.22-.527-.442-.455-.608-.464-.158-.008-.338-.01-.518-.01z"/>
       </svg>
