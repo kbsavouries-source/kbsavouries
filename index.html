@@ -22,12 +22,19 @@
         <span class="logo-text">KB SAVOURIES</span>
         <span class="badge-vegan">100% VEGAN</span>
       </a>
+
+      <!-- Middle Navigation Links -->
+      <div class="nav-center">
+        <a href="pages/about.html" class="nav-link">About</a>
+        <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries%2C%20I%20would%20like%20to%20get%20in%20touch!" target="_blank" rel="noopener noreferrer" class="nav-link">Contact</a>
+      </div>
+
       <div class="nav-right">
         <a href="pages/order.html" class="btn btn-order">ORDER FRESH</a>
       </div>
     </nav>
 
-    <!-- Hero & Brand Video Showcase Section -->
+    <!-- Hero & Product Showcase Section -->
     <section id="video-story" class="hero-section zoom-on-scroll">
       <div class="container">
         <div class="hero-header">
@@ -35,41 +42,22 @@
           <p class="hero-subtitle">Poha Crunch — Fresh from kitchen, Not factory.</p>
         </div>
 
-        <!-- Modern Video Grid Stack -->
-        <div class="video-grid-stack">
-          <!-- Video Box 1: KB Savouries Story -->
-          <div class="video-frame">
-            <div class="video-bar">
-              <div class="video-dots">
-                <span class="dot dot-red"></span>
-                <span class="dot dot-yellow"></span>
-                <span class="dot dot-green"></span>
-              </div>
-              <span class="video-bar-title">KB Savouries Story</span>
+        <!-- Glassmorphic Cover Image Slideshow Frame (Badges Removed) -->
+        <div class="slideshow-glass-container">
+          <div class="slideshow-viewport">
+            <!-- Slide 1 -->
+            <div class="slideshow-slide slide-1">
+              <img src="Assets/cover-image.png" alt="Signature Poha Crunch Showcase">
             </div>
-            <div class="video-wrapper">
-              <video id="brand-video" controls poster="Assets/video-thumbnail.jpg" preload="metadata">
-                <source src="Assets/brand-story.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          </div>
 
-          <!-- Video Box 2: Customer Reviews -->
-          <div class="video-frame">
-            <div class="video-bar">
-              <div class="video-dots">
-                <span class="dot dot-red"></span>
-                <span class="dot dot-yellow"></span>
-                <span class="dot dot-green"></span>
-              </div>
-              <span class="video-bar-title">Customer Reviews</span>
+            <!-- Slide 2 -->
+            <div class="slideshow-slide slide-2">
+              <img src="Assets/cover-image-2.png" alt="Traditional Small Batch Freshness">
             </div>
-            <div class="video-wrapper">
-              <video id="customer-reviews-video" controls poster="Assets/reviews-thumbnail.jpg" preload="metadata">
-                <source src="Assets/customer-reviews.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
+
+            <!-- Slide 3 -->
+            <div class="slideshow-slide slide-3">
+              <img src="Assets/cover-image-3.png" alt="Authentic Spices and Crunch">
             </div>
           </div>
         </div>
@@ -279,6 +267,17 @@
       </div>
     </div>
   </div>
+
+  <!-- Floating WhatsApp Button -->
+  <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries%2C%20I%20have%20an%20enquiry!" 
+     class="whatsapp-float" 
+     target="_blank" 
+     rel="noopener noreferrer" 
+     aria-label="Chat with us on WhatsApp">
+      <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+          <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.762.459 3.48 1.333 5.001l-1.416 5.172 5.293-1.388c1.464.798 3.115 1.218 4.776 1.219h.004c5.505 0 9.988-4.478 9.989-9.985 0-2.668-1.038-5.176-2.925-7.062a9.923 9.923 0 0 0-7.064-2.942zm.004 1.667c4.582 0 8.317 3.733 8.318 8.315 0 2.223-.865 4.312-2.438 5.885a8.273 8.273 0 0 1-5.88 2.433h-.003c-1.42 0-2.825-.371-4.061-1.072l-.291-.166-3.021.792.806-2.944-.183-.292a8.27 8.27 0 0 1-1.251-4.35c0-4.582 3.734-8.315 8.316-8.315zm-3.568 4.318c-.22 0-.472.083-.719.351-.247.268-.948.926-.948 2.259 0 1.333.972 2.619 1.107 2.8.136.182 1.91 2.918 4.63 4.093.647.28 1.152.447 1.546.572.65.207 1.242.178 1.71.108.522-.078 1.602-.655 1.827-1.287.225-.632.225-1.173.158-1.286-.068-.113-.248-.182-.518-.318-.27-.135-1.602-.79-1.85-.88-.248-.09-.428-.135-.608.135-.18.27-.698.88-.855 1.06-.158.18-.315.203-.585.068-.27-.135-1.14-.42-2.172-1.34-.803-.716-1.345-1.6-1.503-1.87-.158-.27-.017-.416.118-.55.121-.122.27-.315.405-.472.135-.158.18-.27.27-.45.09-.18.045-.338-.023-.473-.068-.135-.608-1.463-.833-2.003-.22-.527-.442-.455-.608-.464-.158-.008-.338-.01-.518-.01z"/>
+      </svg>
+  </a>
 
   <script src="app.js"></script>
 </body>

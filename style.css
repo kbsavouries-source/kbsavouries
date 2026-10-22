@@ -3,7 +3,7 @@
   --accent-orange: #EA580C;
   --accent-amber: #F59E0B;
   
-  /* Refined Glassmorphism & Soft Ambient Shadow Palette */
+  /* Glassmorphism & Soft Ambient Shadow Palette */
   --glass-bg: rgba(255, 255, 255, 0.72);
   --glass-bg-hover: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(255, 255, 255, 0.85);
@@ -96,6 +96,25 @@ body::before {
   gap: 1rem;
 }
 
+.nav-center {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent-orange);
+  transform: translateY(-1px);
+}
+
 .logo-text {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 800;
@@ -179,75 +198,86 @@ body::before {
   font-weight: 500;
 }
 
-.video-grid-stack {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2.5rem;
-  max-width: 1050px;
+/* Glassmorphism Slideshow Frame (Clean & Badge-free) */
+.slideshow-glass-container {
+  max-width: 900px;
   margin: 0 auto;
-}
-
-.video-frame {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1.5px solid var(--glass-border);
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: var(--glass-shadow);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1), 0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
-.video-frame:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-}
-
-.video-bar {
-  display: flex;
-  align-items: center;
-  padding: 0.9rem 1.25rem;
-  background: rgba(15, 23, 42, 0.85);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.video-dots {
-  display: flex;
-  gap: 6px;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.dot-red { background-color: #EF4444; }
-.dot-yellow { background-color: #F59E0B; }
-.dot-green { background-color: #10B981; }
-
-.video-bar-title {
-  margin-left: 1rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: #94A3B8;
-}
-
-.video-wrapper {
+.slideshow-viewport {
   position: relative;
   width: 100%;
-  padding-top: 56.25%;
-  background-color: #000000;
+  height: 480px;
+  overflow: hidden;
+  background-color: #0F172A;
 }
 
-.video-wrapper video {
+.slideshow-slide {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  animation: slideshowSequence 9s infinite ease-in-out;
+}
+
+.slideshow-slide img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  transform: scale(1.15);
+  animation: smoothZoomOut 3s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
+}
+
+/* Slide timing sequences (3 seconds per image over 9s total) */
+.slide-1 {
+  animation-delay: 0s;
+}
+
+.slide-2 {
+  animation-delay: 3s;
+}
+
+.slide-3 {
+  animation-delay: 6s;
+}
+
+/* Continuous smooth 3-second zoom out animation */
+@keyframes smoothZoomOut {
+  0% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Seamless opacity fade transition across 3 slides (9s cycle) */
+@keyframes slideshowSequence {
+  0% {
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 1;
+  }
+  33% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .recipes-section {
@@ -713,9 +743,39 @@ body::before {
   color: #FFFFFF;
 }
 
+/* Floating WhatsApp Button (Global & Fixed) */
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 24px;
+    right: 24px;
+    background-color: #25D366;
+    color: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+    z-index: 99999;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    text-decoration: none;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    background-color: #20BA5A;
+    box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6);
+}
+
+.whatsapp-float svg {
+    width: 32px;
+    height: 32px;
+}
+
 @media (max-width: 900px) {
-  .video-grid-stack {
-    grid-template-columns: 1fr;
+  .slideshow-viewport {
+    height: 320px;
   }
   .recipe-card {
     flex: 0 0 calc(85% - 1rem);
@@ -728,6 +788,9 @@ body::before {
     gap: 1rem;
     padding: 1.25rem 1.5rem;
   }
+  .nav-center {
+    gap: 1.5rem;
+  }
   .footer-content {
     flex-direction: column;
     align-items: center;
@@ -736,4 +799,17 @@ body::before {
   .footer-right {
     text-align: center;
   }
+}
+
+@media (max-width: 768px) {
+    .whatsapp-float {
+        width: 52px;
+        height: 52px;
+        bottom: 18px;
+        right: 18px;
+    }
+    .whatsapp-float svg {
+        width: 28px;
+        height: 28px;
+    }
 }
