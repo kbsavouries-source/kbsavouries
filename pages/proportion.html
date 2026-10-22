@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOM & Batch Calculator — Bookkeeping</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/proportion.css">
+</head>
+<body class="workspace-body">
+
+  <div class="workspace-container">
+    
+    <!-- Top Action Header -->
+    <header class="workspace-header">
+      <div>
+        <span class="workspace-tag">INTERNAL BOOKKEEPING TOOL</span>
+        <h2>Bill of Materials (BOM) & Batch Proportion Calculator</h2>
+      </div>
+      <a href="books.html" class="btn btn-back">&larr; Back to Workspace</a>
+    </header>
+
+    <!-- Control Bar: Products & Target Weight -->
+    <div class="control-card">
+      <div class="control-grid">
+        <!-- Dynamic Product Selector -->
+        <div class="control-group">
+          <label for="productSelect">Finished Inventory Item:</label>
+          <div class="inline-input-group">
+            <select id="productSelect" onchange="loadSelectedProduct()"></select>
+            <button type="button" class="btn btn-accent" onclick="promptAddProduct()">+ New Product</button>
+            <button type="button" class="btn btn-danger-icon" title="Delete current product" onclick="deleteCurrentProduct()">🗑</button>
+          </div>
+        </div>
+
+        <!-- Target Batch Output -->
+        <div class="control-group">
+          <label for="targetWeight">Target Batch Production Quantity:</label>
+          <div class="inline-input-group">
+            <input type="number" id="targetWeight" value="2" min="0.01" step="0.1" oninput="calculateProportions()">
+            <select id="weightUnit" onchange="calculateProportions()">
+              <option value="kg" selected>KG</option>
+              <option value="g">Grams (g)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Recipe Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3 id="recipeTitle">Recipe Mapping</h3>
+        <span id="validationBadge" class="badge badge-valid">✓ 100% Ratio</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="bom-table">
+          <thead>
+            <tr>
+              <th style="width: 40%;">Ingredient Name (Raw Material)</th>
+              <th style="width: 20%;">Proportion Ratio (%)</th>
+              <th style="width: 25%;">Required Quantity</th>
+              <th style="width: 15%; text-align: center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="ingredientTableBody">
+            <!-- Dynamically populated via JS -->
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td><strong>Total Batch Requirement</strong></td>
+              <td><strong id="totalPercentDisplay">100%</strong></td>
+              <td colspan="2"><strong id="totalYieldDisplay">2.00 KG</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Add New Ingredient Control -->
+      <div class="add-row-card">
+        <h4>Add Raw Ingredient to Recipe</h4>
+        <div class="add-row-form">
+          <input type="text" id="newIngName" placeholder="Ingredient name (e.g. Thin Poha, Peanuts)">
+          <input type="number" id="newIngPercent" placeholder="Ratio % (e.g. 60)" min="0.1" max="100" step="0.1">
+          <button type="button" class="btn btn-primary" onclick="addIngredient()">+ Add Raw Material</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/proportion.js"></script>
+</body>
+</html>
