@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kb-savouries-v51';
+const CACHE_NAME = 'kb-savouries-v53';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -10,7 +10,8 @@ const ASSETS_TO_CACHE = [
   './Assets/logo.png',
   './Assets/bg.png',
   './Assets/crunch sfx.wav',
-  './Assets/payment-qr.jpeg'
+  './Assets/payment-qr.jpeg',
+  './js/products-data.js',
 ];
 
 // Install Event — Caches core assets
