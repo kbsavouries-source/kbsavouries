@@ -183,4 +183,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     observer.observe(footerContent);
   }
+
+let deferredPrompt;
+
+// Capture the browser's install prompt event
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+// Triggered when clicking "Our App" in the footer
+function triggerInstallApp(e) {
+  if (e) e.preventDefault();
+
+  // Detect iOS Safari
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    alert("To install KB Savouries on your iPhone:\n1. Tap the 'Share' button at the bottom of Safari.\n2. Scroll down and select 'Add to Home Screen'.");
+    return;
+  }
+
+  // Trigger Chrome / Android / Desktop prompt
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      }
+      deferredPrompt = null;
+    });
+  } else {
+    alert("App is already installed, or your browser doesn't support direct installation prompts. You can check your browser menu to install the app.");
+  }
+}
+
 });
