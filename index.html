@@ -92,7 +92,7 @@
       </div>
     </section>
 
-    <!-- Health Benefits Section -->
+    <!-- Product 1: Poha Crunch -->
     <section id="benefits" class="recipes-section">
       <div class="container">
         <div class="section-header">
@@ -100,18 +100,16 @@
           <p>Discover why our traditional preparation elevates your everyday tea-time snacking.</p>
         </div>
 
-        <!-- Inserted Poha Crunch Product Image right under the subtitle -->
         <div class="poha-center-image-wrapper">
           <img src="Assets/products-img/poha-crunch.png" alt="Poha Crunch" class="poha-center-img">
         </div>
 
         <div class="carousel-container">
-          <button class="carousel-btn prev-btn" aria-label="Previous Benefit" onclick="scrollCarousel('benefitGrid', -1)">
+          <button class="carousel-btn prev-btn" aria-label="Previous Benefit" onclick="scrollCarousel('benefitGrid1', -1)">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
 
-          <div class="recipe-grid" id="benefitGrid">
-            <!-- Benefit Card 1 -->
+          <div class="recipe-grid" id="benefitGrid1">
             <article class="recipe-card" onclick="toggleRecipe(this)">
               <div class="recipe-card-header">
                 <h3>100% Veg & Plant-Based</h3>
@@ -131,7 +129,6 @@
               </div>
             </article>
 
-            <!-- Benefit Card 2 -->
             <article class="recipe-card" onclick="toggleRecipe(this)">
               <div class="recipe-card-header">
                 <h3>Light & Easily Digestible</h3>
@@ -151,7 +148,6 @@
               </div>
             </article>
 
-            <!-- Benefit Card 3 -->
             <article class="recipe-card" onclick="toggleRecipe(this)">
               <div class="recipe-card-header">
                 <h3>Zero Artificial Preservatives</h3>
@@ -171,7 +167,6 @@
               </div>
             </article>
 
-            <!-- Benefit Card 4 -->
             <article class="recipe-card" onclick="toggleRecipe(this)">
               <div class="recipe-card-header">
                 <h3>Rich in Iron & Minerals</h3>
@@ -192,7 +187,313 @@
             </article>
           </div>
 
-          <button class="carousel-btn next-btn" aria-label="Next Benefit" onclick="scrollCarousel('benefitGrid', 1)">
+          <button class="carousel-btn next-btn" aria-label="Next Benefit" onclick="scrollCarousel('benefitGrid1', 1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product 2: Ulundhu Urundai (Sunnundalu) -->
+    <section id="ulundhu-urundai" class="recipes-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Why Ulundhu Urundai?</h2>
+          <p>Experience the timeless nourishment of nutrient-dense black gram and pure ghee laddoos.</p>
+        </div>
+
+        <div class="poha-center-image-wrapper">
+          <img src="Assets/products-img/sunnundalu.png" alt="Ulundhu Urundai" class="poha-center-img">
+        </div>
+
+        <div class="carousel-container">
+          <button class="carousel-btn prev-btn" aria-label="Previous Benefit" onclick="scrollCarousel('benefitGrid2', -1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+
+          <div class="recipe-grid" id="benefitGrid2">
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Powerhouse of Protein & Iron</h3>
+                <p class="recipe-desc">Roasted whole urad dal (black gram) naturally builds muscle strength and stamina.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Exceptional plant-based protein content for active lifestyles.</li>
+                  <li>High iron and mineral density boosts overall blood health.</li>
+                  <li>Traditional wholesome energy snack for all age groups.</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Pure Cow Ghee & Jaggery</h3>
+                <p class="recipe-desc">Bound using aromatic country ghee and unrefined jaggery instead of refined white sugar.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Rich in healthy fats that aid joint health and digestion.</li>
+                  <li>Unrefined sweetness keeps energy levels stable without sugar crashes.</li>
+                  <li>Deeply authentic traditional South Indian flavor profile.</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Bone & Joint Support</h3>
+                <p class="recipe-desc">Urad dal is rich in calcium, magnesium, and phosphorus essential for skeletal strength.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Nourishes bone density naturally.</li>
+                  <li>Supports growing children and active adults alike.</li>
+                  <li>Wholesome traditional remedy for daily vitality.</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Zero Artificial Additives</h3>
+                <p class="recipe-desc">Handcrafted in small batches with zero preservatives, artificial colors, or stabilizers.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Pure, honest ingredients just like grandma's kitchen.</li>
+                  <li>Retains maximum natural aroma and nutty flavor.</li>
+                  <li>Safe and wholesome sweet treat for the whole family.</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+
+          <button class="carousel-btn next-btn" aria-label="Next Benefit" onclick="scrollCarousel('benefitGrid2', 1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product 3: Idly Podi -->
+    <section id="idly-podi" class="recipes-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Why Idly Podi?</h2>
+          <p>The ultimate aromatic lentil condiment roasted and stone-ground to perfection.</p>
+        </div>
+
+        <div class="poha-center-image-wrapper">
+          <img src="Assets/products-img/idly-podi.png" alt="Idly Podi" class="poha-center-img">
+        </div>
+
+        <div class="carousel-container">
+          <button class="carousel-btn prev-btn" aria-label="Previous Benefit" onclick="scrollCarousel('benefitGrid3', -1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+
+          <div class="recipe-grid" id="benefitGrid3">
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Lentil-Rich Nutrition</h3>
+                <p class="recipe-desc"> Blended with nutrient-dense dals (toor and urad) to deliver a protein boost with every meal.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Packed with plant protein and essential dietary fiber.</li>
+                  <li>Complements soft idlis and dosas with balanced nutrition.</li>
+                  <li>Keeps you satiated and energized longer.</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Authentic Spice Blend</h3>
+                <p class="recipe-desc">Infused with dry red chilies, black pepper, garlic, and aromatic curry leaves.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Natural spices stimulate healthy digestion and metabolism.</li>
+                  <li>Delivers a bold, aromatic kick to daily breakfasts.</li>
+                  <li>Zero synthetic flavor enhancers or artificial colors.</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Best Paired With Ghee</h3>
+                <p class="recipe-desc">Mix generously with warm sesame oil or melted ghee for an unbeatable traditional experience.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Enhances the fat-soluble nutrient absorption of spices.</li>
+                  <li>Creates a luxurious, melt-in-the-mouth texture.</li>
+                  <li>The ultimate soul-food accompaniment for South Indian tiffins.</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Long-Lasting Pantry Staple</h3>
+                <p class="recipe-desc">Dry roasted to perfection ensuring natural shelf stability without chemical preservatives.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Retains fresh fragrance and crunch over weeks of storage.</li>
+                  <li>Quick and effortless meal savior for busy mornings.</li>
+                  <li>Hygienically sealed in moisture-proof containers.</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+
+          <button class="carousel-btn next-btn" aria-label="Next Benefit" onclick="scrollCarousel('benefitGrid3', 1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product 4: Gongura Chutney -->
+    <section id="gongura-chutney" class="recipes-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Why Gongura Chutney?</h2>
+          <p>The iconic tangy sorrel leaf pickle slow-cooked with authentic spices and rich sesame oil.</p>
+        </div>
+
+        <div class="poha-center-image-wrapper">
+          <img src="Assets/products-img/gongura-chutney.png" alt="Gongura Chutney" class="poha-center-img">
+        </div>
+
+        <div class="carousel-container">
+          <button class="carousel-btn prev-btn" aria-label="Previous Benefit" onclick="scrollCarousel('benefitGrid4', -1)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+
+          <div class="recipe-grid" id="benefitGrid4">
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Rich in Antioxidants & Iron</h3>
+                <p class="recipe-desc">Gongura (sorrel leaves) is a nutritional powerhouse loaded with vital vitamins and minerals.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>High concentrations of Vitamin C, iron, and folic acid.</li>
+                  <li>Supports healthy immunity and natural cellular renewal.</li>
+                  <li>Traditional medicinal greens celebrated across Andhra cuisine.</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Distinct Tangy Flavor</h3>
+                <p class="recipe-desc">Provides a characteristic tartness that instantly awakens the palate and boosts appetite.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Pairs exquisitely with hot steamed rice and a dollop of ghee.</li>
+                  <li>Transforms simple everyday meals into a royal feast.</li>
+                  <li>Stimulates healthy digestion with its natural acidity.</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Slow-Cooked in Sesame Oil</h3>
+                <p class="recipe-desc">Simmered patiently in pure cold-pressed sesame oil with traditional garlic and spices.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Natural preservative properties of sesame oil keep it fresh.</li>
+                  <li>Deep, rich, and robust homemade consistency.</li>
+                  <li>Zero artificial thickeners or chemical preservatives.</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="recipe-card" onclick="toggleRecipe(this)">
+              <div class="recipe-card-header">
+                <h3>Authentic Heritage Recipe</h3>
+                <p class="recipe-desc">Crafted following generational culinary traditions from farm-fresh sorrel harvests.</p>
+                <div class="recipe-toggle">
+                  <span class="toggle-text">Learn More</span>
+                  <svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+              </div>
+              <div class="recipe-details">
+                <h4>Why It Matters</h4>
+                <ul>
+                  <li>Brings the genuine rustic taste of regional heritage home.</li>
+                  <li>Rigorously inspected for premium quality and hygiene.</li>
+                  <li>An indispensable accompaniment for true pickle connoisseurs.</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+
+          <button class="carousel-btn next-btn" aria-label="Next Benefit" onclick="scrollCarousel('benefitGrid4', 1)">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
         </div>
