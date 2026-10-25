@@ -291,17 +291,17 @@ body::before {
   font-weight: 500;
 }
 
-/* Glassmorphic Why KB Savouries Guarantee Card (Universal Desktop & Mobile) */
+/* Glassmorphic Why KB Savouries Guarantee Card */
 .why-kb-card {
   max-width: 680px;
   margin: 2rem auto 3rem auto;
   padding: 2rem 2.5rem;
-  background: var(--glass-bg, rgba(255, 255, 255, 0.75));
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid var(--glass-border, rgba(255, 255, 255, 0.85));
+  border: 1.5px solid var(--glass-border);
   border-radius: 24px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05), 0 2px 6px rgba(15, 23, 42, 0.03);
+  box-shadow: var(--glass-shadow);
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -327,27 +327,25 @@ body::before {
 .why-kb-heading {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--text-dark);
   margin-bottom: 0.5rem;
   letter-spacing: -0.3px;
-  text-align: center;
 }
 
 .why-kb-description {
   font-size: 1rem;
-  color: #475569;
+  color: var(--text-muted);
   line-height: 1.6;
   font-weight: 500;
   margin: 0;
-  text-align: center;
 }
 
 .why-kb-description strong {
-  color: #0F172A;
+  color: var(--text-dark);
   font-weight: 800;
 }
 
-/* Glassmorphism Slideshow Frame */
+/* Glassmorphic Slideshow Frame */
 .slideshow-glass-container {
   max-width: 900px;
   margin: 0 auto;
@@ -424,6 +422,32 @@ body::before {
 .section-header p {
   color: var(--text-muted);
   font-size: 1.1rem;
+}
+
+/* Centered Poha Crunch Image Styles */
+.poha-center-image-wrapper {
+  max-width: 400px;
+  margin: 0 auto 3rem auto;
+  padding: 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  text-align: center;
+}
+
+.poha-center-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.poha-center-img:hover {
+  transform: scale(1.03);
 }
 
 .carousel-container {
