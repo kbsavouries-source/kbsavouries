@@ -441,6 +441,7 @@ body::before {
 .poha-center-img {
   width: 100%;
   height: auto;
+  max-height: 480px; /* Forces live servers to respect a clean maximum height */
   object-fit: contain;
   border-radius: 12px;
   transition: transform 0.3s ease;
