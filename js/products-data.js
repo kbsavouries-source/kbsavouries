@@ -9,8 +9,8 @@ export const STORE_PRODUCTS = [
         badge: 'POPULAR',
         image: '../Assets/products-img/poha-crunch.png',
         sizes: [
-            { label: '30g (S)', weight: '30g', price: 15 },
-            { label: '50g (M)', weight: '50g', price: 25 },
+            { label: '30g (S)', weight: '50g', price: 20 },
+            { label: '50g (M)', weight: '100g', price: 40 },
             { label: '250g (L)', weight: '250g', price: 110 },
             { label: '500g (XL)', weight: '500g', price: 210 },
             { label: '1Kg (XXL)', weight: '1Kg', price: 400 }
