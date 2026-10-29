@@ -42,8 +42,8 @@ export const STORE_PRODUCTS = [
         badge: 'SPECIAL',
         image: '../Assets/products-img/gongura-chutney.png',
         sizes: [
-            { label: '100g (M)', weight: '100g', price: 95 },
-            { label: '250g (L)', weight: '250g', price: 150 }
+            { label: '100g (M)', weight: '100g', price: 105 },
+            { label: '250g (L)', weight: '250g', price: 200 }
         ]
     }
 ];
