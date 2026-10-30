@@ -33,7 +33,14 @@ export async function initSalesRegister() {
         const collections = ['skus', 'sales', 'batches'];
         for (const colName of collections) {
             const querySnapshot = await getDocs(collection(db, colName));
-            window.appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+            window.appData[colName] = querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    firebaseId: doc.id,
+                    id: doc.id, // backup reference
+                    ...data
+                };
+            });
         }
     } catch (err) {
         console.error("Error loading cloud data:", err);
@@ -231,7 +238,15 @@ export async function addSale(e) {
 
         const skuRecord = window.appData.skus.find(s => s.name === skuName);
         const measure = skuRecord ? (skuRecord.measure || 'Pkts') : 'Pkts';
-        const singleGrams = skuRecord ? skuRecord.grams : 50;
+        
+        // Robustly parse grams from SKU record or SKU name string
+        let rawGrams = skuRecord ? (skuRecord.grams !== undefined ? skuRecord.grams : skuRecord.weight) : null;
+        let singleGrams = Number(rawGrams);
+        if (isNaN(singleGrams) || singleGrams <= 0) {
+            const match = skuName.match(/(\d+)\s*g/i);
+            singleGrams = match ? parseFloat(match[1]) : 50; // Fallback to 50g if not found
+        }
+        
         const totalGramsSold = qty * singleGrams;
 
         const batch = window.appData.batches.find(b => b.code === batchCode);
