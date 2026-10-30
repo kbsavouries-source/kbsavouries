@@ -134,7 +134,9 @@ export async function addBatch(e) {
 
     window.appData.batches.push(batch);
     try {
-        await addDoc(collection(db, 'batches'), batch);
+        const docRef = await addDoc(collection(db, 'batches'), batch);
+        // Keep the Firestore id so stock changes and deletes reach the cloud for this batch
+        batch.firebaseId = docRef.id;
     } catch (err) {
         console.error("Error saving batch:", err);
     }

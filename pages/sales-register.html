@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KB Savouries - Sales Register</title>
     <link rel="stylesheet" href="../css/books.css">
-    <link rel="stylesheet" href="../css/sales-register.css">
+    <link rel="stylesheet" href="../css/sales-register.css?v=3">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <style>
+        /* First-tap fix: stop touch devices from treating the first tap as a hover or double-tap-zoom */
+        .sale-action-btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    </style>
 </head>
 <body>
 
@@ -216,7 +220,7 @@
             }
         });
     </script>
-    <script type="module" src="../js/sales-register.js"></script>
+    <script type="module" src="../js/sales-register.js?v=3"></script>
 
     <script>
     window.toggleSidebar = function() {

@@ -4,6 +4,19 @@
 
 .sale-form-card {
   position: relative;
+  z-index: 20;              /* keep the form (and its dropdowns) above the Sales History card */
+  overflow: visible !important; /* never clip the Tom Select dropdown */
+}
+
+.sale-form-card form,
+#sale-items-container,
+.sale-item-row {
+  overflow: visible;
+}
+
+/* Tom Select dropdown: always above cards, sidebar and sticky areas */
+.ts-dropdown {
+  z-index: 2000 !important;
 }
 
 /* Order Line Item Input Row (Desktop Grid) */

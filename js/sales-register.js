@@ -2,7 +2,7 @@
 // Sales Register Module Logic (Multi-Product Invoice Support)
 // ==========================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCullX49Und6AmRgg8UL9hP1cLvQ-KVnEI",
@@ -99,6 +99,7 @@ window.addSaleLineItem = function() {
     if (window.TomSelect && productSelect) {
         new TomSelect(productSelect, {
             create: false,
+            dropdownParent: 'body',
             sortField: { field: "text", direction: "asc" },
             onChange: () => {
                 onRowProductChange(rowId);
@@ -148,6 +149,7 @@ window.onRowProductChange = function(rowId) {
     if (window.TomSelect) {
         new TomSelect(batchSelect, {
             create: false,
+            dropdownParent: 'body',
             sortField: { field: "text", direction: "asc" }
         });
     }
@@ -303,7 +305,10 @@ export async function addSale(e) {
 
     window.appData.sales.push(saleRecord);
     try {
-        await addDoc(collection(db, 'sales'), saleRecord);
+        const docRef = await addDoc(collection(db, 'sales'), saleRecord);
+        // Keep the Firestore id so this sale can be deleted from the cloud later
+        saleRecord.firebaseId = docRef.id;
+        saleRecord.id = docRef.id;
     } catch (err) {
         console.error("Error saving sale:", err);
     }
@@ -423,55 +428,83 @@ export function renderSales() {
     }).join('');
 }
 
+const pendingSaleDeletes = new Set(); // blocks rapid repeat clicks on the same sale
+
 export async function deleteSaleItem(index) {
-    const saleToDelete = window.appData.sales[index];
-    
-    if (saleToDelete) {
-        let saleItems = saleToDelete.items || [{
-            batchCode: saleToDelete.batchCode,
-            gramsSold: saleToDelete.gramsSold
-        }];
+    const sale = window.appData.sales[index];
+    if (!sale) return;
 
-        for (let item of saleItems) {
-            if (item.batchCode && item.batchCode !== 'N/A') {
-                const batch = window.appData.batches.find(b => b.code === item.batchCode);
-                if (batch) {
-                    const restoredGrams = Number(item.gramsSold) || 0;
-                    const currentRemaining = Number(batch.remainingGrams) || 0;
-                    const maxAllowedGrams = Number(batch.totalGrams || batch.weightGrams || batch.outputGrams) || (currentRemaining + restoredGrams);
+    if (pendingSaleDeletes.has(sale)) return;
+    pendingSaleDeletes.add(sale);
 
-                    let newRemaining = currentRemaining + restoredGrams;
-                    if (maxAllowedGrams > 0 && newRemaining > maxAllowedGrams) {
-                        newRemaining = maxAllowedGrams;
-                    }
+    // 1. Work out stock to restore, aggregated per batch
+    const saleItems = sale.items || [{
+        batchCode: sale.batchCode,
+        gramsSold: sale.gramsSold
+    }];
 
-                    batch.remainingGrams = newRemaining;
-                    batch.status = batch.remainingGrams > 0 ? 'Available' : 'Sold Out';
+    const restoreMap = new Map(); // batch -> grams to restore
+    for (const item of saleItems) {
+        if (!item.batchCode || item.batchCode === 'N/A') continue;
+        const batch = window.appData.batches.find(b => b.code === item.batchCode);
+        if (!batch) continue;
+        restoreMap.set(batch, (restoreMap.get(batch) || 0) + (Number(item.gramsSold) || 0));
+    }
 
-                    if (batch.firebaseId) {
-                        try {
-                            await updateDoc(doc(db, 'batches', batch.firebaseId), {
-                                remainingGrams: batch.remainingGrams,
-                                status: batch.status
-                            });
-                        } catch (err) {
-                            console.error("Error restoring batch stock:", err);
-                        }
-                    }
-                }
-            }
+    // 2. Optimistic local update (instant UI), keeping rollback info
+    const rollbackInfo = [];
+    const batchUpdates = [];
+
+    for (const [batch, restoredGrams] of restoreMap) {
+        const currentRemaining = Number(batch.remainingGrams) || 0;
+        const maxAllowedGrams = Number(batch.totalGrams || batch.weightGrams || batch.outputGrams) || (currentRemaining + restoredGrams);
+
+        let newRemaining = currentRemaining + restoredGrams;
+        if (maxAllowedGrams > 0 && newRemaining > maxAllowedGrams) {
+            newRemaining = maxAllowedGrams;
+        }
+        const newStatus = newRemaining > 0 ? 'Available' : 'Sold Out';
+
+        rollbackInfo.push({ batch, remainingGrams: batch.remainingGrams, status: batch.status });
+        batch.remainingGrams = newRemaining;
+        batch.status = newStatus;
+
+        if (batch.firebaseId) {
+            batchUpdates.push({ firebaseId: batch.firebaseId, data: { remainingGrams: newRemaining, status: newStatus } });
         }
     }
 
-    if (saleToDelete && saleToDelete.firebaseId) {
-        try {
-            await deleteDoc(doc(db, 'sales', saleToDelete.firebaseId));
-        } catch (err) {
-            console.error("Error deleting sale:", err);
-        }
-    }
     window.appData.sales.splice(index, 1);
-    renderSales();
+    renderSales(); // row disappears on the first click
+
+    // 3. One atomic Firestore commit: stock restore + sale delete
+    try {
+        if (batchUpdates.length > 0 || sale.firebaseId) {
+            const wb = writeBatch(db);
+            for (const { firebaseId, data } of batchUpdates) {
+                wb.update(doc(db, 'batches', firebaseId), data);
+            }
+            if (sale.firebaseId) {
+                wb.delete(doc(db, 'sales', sale.firebaseId));
+            }
+            await wb.commit();
+        }
+    } catch (err) {
+        console.error("Error deleting sale / restoring stock:", err);
+
+        // 4. Roll back local state so the UI matches the database
+        for (const { batch, remainingGrams, status } of rollbackInfo) {
+            batch.remainingGrams = remainingGrams;
+            batch.status = status;
+        }
+        if (!window.appData.sales.includes(sale)) {
+            window.appData.sales.splice(Math.min(index, window.appData.sales.length), 0, sale);
+        }
+        renderSales();
+        alert("Could not delete the sale. Your data has been restored. Please check your connection and try again.");
+    } finally {
+        pendingSaleDeletes.delete(sale);
+    }
 }
 
 export function exportCSV(type) {

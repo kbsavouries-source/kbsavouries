@@ -2,7 +2,7 @@
 // Samples & Marketing Module Logic
 // ==========================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCullX49Und6AmRgg8UL9hP1cLvQ-KVnEI",
@@ -24,6 +24,40 @@ window.appData = {
     samples: []
 };
 
+// Produced quantity of a batch (the ceiling remaining stock can never exceed)
+function getBatchCapacity(batch) {
+    return Number(batch.totalGrams || batch.weightGrams || batch.outputGrams) || 0;
+}
+
+// Self-heal: any batch showing more stock than was produced is clamped back
+// to its produced quantity (and saved), fixing earlier over-restores.
+async function reconcileOverfilledBatches() {
+    const overfilled = window.appData.batches.filter(b => {
+        const cap = getBatchCapacity(b);
+        return cap > 0 && Number(b.remainingGrams) > cap;
+    });
+    if (overfilled.length === 0) return;
+
+    const wb = writeBatch(db);
+    let hasWrites = false;
+    for (const b of overfilled) {
+        b.remainingGrams = getBatchCapacity(b);
+        b.status = 'Available';
+        if (b.firebaseId) {
+            wb.update(doc(db, 'batches', b.firebaseId), { remainingGrams: b.remainingGrams, status: b.status });
+            hasWrites = true;
+        }
+    }
+    if (hasWrites) {
+        try {
+            await wb.commit();
+            console.info(`Corrected ${overfilled.length} batch(es) that exceeded produced quantity.`);
+        } catch (err) {
+            console.error("Error correcting over-filled batches:", err);
+        }
+    }
+}
+
 export async function initMarketingLog() {
     const todayStr = new Date().toISOString().split('T')[0];
     const sampleDateEl = document.getElementById('sample-date');
@@ -33,13 +67,22 @@ export async function initMarketingLog() {
         const collections = ['batches', 'samples'];
         for (const colName of collections) {
             const querySnapshot = await getDocs(collection(db, colName));
-            window.appData[colName] = querySnapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+            window.appData[colName] = querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    firebaseId: doc.id,
+                    id: doc.id, // backup reference
+                    ...data
+                };
+            });
         }
     } catch (err) {
         console.error("Error loading cloud data for samples:", err);
     }
 
     if (!window.appData.samples) window.appData.samples = [];
+
+    await reconcileOverfilledBatches();
 
     populateSampleBatchOptions();
     renderSamples();
@@ -131,7 +174,10 @@ export async function addSample(e) {
 
     window.appData.samples.push(sample);
     try {
-        await addDoc(collection(db, 'samples'), sample);
+        const docRef = await addDoc(collection(db, 'samples'), sample);
+        // Keep the Firestore id so this sample can be deleted from the cloud later
+        sample.firebaseId = docRef.id;
+        sample.id = docRef.id;
     } catch (err) {
         console.error("Error saving sample:", err);
     }
@@ -166,39 +212,79 @@ export function renderSamples() {
     }).join('');
 }
 
+const pendingSampleDeletes = new Set(); // blocks rapid repeat clicks on the same sample
+
 export async function deleteSampleItem(index) {
     if (!window.appData) return;
-    const sampleToDelete = window.appData.samples[index];
-    
-    if (sampleToDelete && sampleToDelete.batchCode && sampleToDelete.batchCode !== 'N/A') {
-        const batch = window.appData.batches.find(b => b.code === sampleToDelete.batchCode);
-        if (batch) {
-            batch.remainingGrams = Number(batch.remainingGrams || 0) + Number(sampleToDelete.gramsGiven || 0);
-            batch.status = 'Available';
-            if (batch.firebaseId) {
-                try {
-                    await updateDoc(doc(db, 'batches', batch.firebaseId), {
-                        remainingGrams: batch.remainingGrams,
-                        status: batch.status
-                    });
-                } catch (err) {
-                    console.error("Error restoring batch stock:", err);
-                }
-            }
+    const sample = window.appData.samples[index];
+    if (!sample) return;
+
+    if (pendingSampleDeletes.has(sample)) return;
+    pendingSampleDeletes.add(sample);
+
+    // 1. Work out the restored stock, capped at the produced quantity
+    let batch = null;
+    let rollback = null;
+    let batchUpdate = null;
+
+    if (sample.batchCode && sample.batchCode !== 'N/A') {
+        batch = window.appData.batches.find(b => b.code === sample.batchCode) || null;
+    }
+
+    if (batch) {
+        const restoredGrams = Number(sample.gramsGiven) || 0;
+        const currentRemaining = Number(batch.remainingGrams) || 0;
+        const capacity = getBatchCapacity(batch);
+
+        let newRemaining = currentRemaining + restoredGrams;
+        if (capacity > 0 && newRemaining > capacity) {
+            newRemaining = capacity; // never show more than was produced
+        }
+        const newStatus = newRemaining > 0 ? 'Available' : 'Sold Out';
+
+        rollback = { remainingGrams: batch.remainingGrams, status: batch.status };
+        batch.remainingGrams = newRemaining;
+        batch.status = newStatus;
+
+        if (batch.firebaseId) {
+            batchUpdate = { firebaseId: batch.firebaseId, data: { remainingGrams: newRemaining, status: newStatus } };
         }
     }
 
-    if (sampleToDelete && sampleToDelete.firebaseId) {
-        try {
-            await deleteDoc(doc(db, 'samples', sampleToDelete.firebaseId));
-        } catch (err) {
-            console.error("Error deleting sample:", err);
-        }
-    }
-
+    // 2. Optimistic local update (instant UI)
     window.appData.samples.splice(index, 1);
     renderSamples();
     populateSampleBatchOptions();
+
+    // 3. One atomic Firestore commit: stock restore + sample delete
+    try {
+        if (batchUpdate || sample.firebaseId) {
+            const wb = writeBatch(db);
+            if (batchUpdate) {
+                wb.update(doc(db, 'batches', batchUpdate.firebaseId), batchUpdate.data);
+            }
+            if (sample.firebaseId) {
+                wb.delete(doc(db, 'samples', sample.firebaseId));
+            }
+            await wb.commit();
+        }
+    } catch (err) {
+        console.error("Error deleting sample / restoring stock:", err);
+
+        // 4. Roll back local state so the UI matches the database
+        if (batch && rollback) {
+            batch.remainingGrams = rollback.remainingGrams;
+            batch.status = rollback.status;
+        }
+        if (!window.appData.samples.includes(sample)) {
+            window.appData.samples.splice(Math.min(index, window.appData.samples.length), 0, sample);
+        }
+        renderSamples();
+        populateSampleBatchOptions();
+        alert("Could not delete the sample. Your data has been restored. Please check your connection and try again.");
+    } finally {
+        pendingSampleDeletes.delete(sample);
+    }
 }
 
 // Bind functions to window scope for inline HTML event handling
