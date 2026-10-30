@@ -28,8 +28,8 @@ export const STORE_PRODUCTS = [
     },
     {
         id: 'ulundhu urundai',
-        name: 'Ulundhu Urundai (Andhra Sweet)',
-        badge: 'TRADITIONAL',
+        name: 'Sunnundalu(Ulundhu Urundai)',
+        badge: 'Andhra Sweet',
         image: '../Assets/products-img/sunnundalu.png',
         sizes: [
             { label: '6 pcs (M)', weight: '6 pcs', price: 200 },
@@ -42,8 +42,8 @@ export const STORE_PRODUCTS = [
         badge: 'SPECIAL',
         image: '../Assets/products-img/gongura-chutney.png',
         sizes: [
-            { label: '100g (M)', weight: '100g', price: 105 },
-            { label: '250g (L)', weight: '250g', price: 200 }
+            { label: '100g (M)', weight: '100g', price: 100 },
+            { label: '250g (L)', weight: '250g', price: 150 }
         ]
     }
 ];
