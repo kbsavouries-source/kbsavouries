@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KB Savouries - Order Management</title>
+    <!-- Shared Glassmorphic Theme & Workspace CSS -->
+    <link rel="stylesheet" href="../css/books.css">
+    <link rel="stylesheet" href="../css/order-mgmt.css">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Mobile Hamburger Toggle -->
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+        <div class="brand">
+            <img src="../Assets/logo.png" alt="KB Savouries Logo" class="brand-logo" onerror="this.style.display='none'">
+            <span>KB SAVOURIES</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="books.html">Dashboard</a></li>
+            <li class="active"><a href="order-mgmt.html">Order Management</a></li>
+            <li><a href="sku-catalog.html">SKU Catalog</a></li>
+            <li><a href="sales-register.html">Sales Register</a></li>
+            <li><a href="batch-log.html">Batch Log</a></li>
+            <li><a href="bom.html">BOM Master</a></li>
+            <li><a href="marketing-log.html">Samples & Marketing</a></li>
+            <li><a href="inventory-tracker.html">Inventory Tracker</a></li>
+            <li><a href="purchase-log.html">Purchase Log</a></li>
+            <li><a href="accounts.html">Accounting & Reports</a></li>
+            <li><a href="crm.html">Customer CRM</a></li>
+        </ul>
+        <div class="backup-section">
+            <button class="btn-outline" onclick="exportJSON()">Download JSON Backup</button>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+        <header>
+            <h1 id="page-title">Order Management</h1>
+            <span id="current-date" class="date-display"></span>
+        </header>
+
+        <div class="content-area">
+            <!-- Order Entry Form Card -->
+            <div class="card">
+                <h2 id="order-form-title">Create New Customer Order</h2>
+                <form id="order-form" onsubmit="addOrder(event)">
+                    <input type="hidden" id="order-edit-index" value="">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="order-date">Order Date</label>
+                            <input type="date" id="order-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customer-name">Customer Name</label>
+                            <input type="text" id="customer-name" placeholder="e.g. Ramanathan" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customer-phone">Mobile No</label>
+                            <input type="tel" id="customer-phone" placeholder="e.g. 9940264143" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 14px;">
+                        <label for="delivery-address">Delivery Address</label>
+                        <textarea id="delivery-address" rows="2" placeholder="Full delivery address with landmarks" required></textarea>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 14px;">
+                        <div class="form-group">
+                            <label for="order-product">Product</label>
+                            <input type="text" id="order-product" placeholder="e.g. Rava Ladoo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="order-qty">Quantity</label>
+                            <input type="number" id="order-qty" min="1" value="1" oninput="calculateTotalAmount()" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit-cost">Unit Cost (₹)</label>
+                            <input type="number" id="unit-cost" min="0" step="0.01" placeholder="e.g. 15" oninput="calculateTotalAmount()" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="total-amount">Total Amount (₹)</label>
+                            <input type="number" id="total-amount" readonly placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 14px;">
+                        <div class="form-group">
+                            <label for="required-date">Required Date</label>
+                            <input type="date" id="required-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="required-time">Required Time</label>
+                            <input type="text" id="required-time" placeholder="e.g. 3 PM" required>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="margin-top: 20px; display: flex; gap: 12px;">
+                        <button type="submit" class="btn-primary" id="order-submit-btn">Save Order</button>
+                        <button type="button" id="order-cancel-btn" class="btn-outline" style="display: none;" onclick="cancelOrderEdit()">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Order History & Status Tracking Table Card -->
+            <div class="card">
+                <div class="section-header-flex">
+                    <h2>Orders List</h2>
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <button type="button" class="btn-outline" onclick="exportOrdersCSV()">Export Orders CSV</button>
+                        <div class="filter-group">
+                            <select id="status-filter" onchange="renderOrders()">
+                                <option value="ALL">All Statuses</option>
+                                <option value="Pending" selected>Pending Only</option>
+                                <option value="Completed">Completed Only</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="mobile-stack-table">
+                        <thead>
+                            <tr>
+                                <th>Order Date</th>
+                                <th>Customer</th>
+                                <th>Mobile</th>
+                                <th>Address</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Unit Cost</th>
+                                <th>Total (₹)</th>
+                                <th>Required Date & Time</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-table-body">
+                            <!-- Populated dynamically via order-mgmt.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('open');
+        };
+    </script>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('current-date');
+            if(dateEl) {
+                dateEl.innerText = new Date().toLocaleDateString('en-IN', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script type="module" src="../js/order-mgmt.js?v=1.3"></script>
+</body>
+</html>

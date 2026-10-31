@@ -1,0 +1,152 @@
+/* ==========================================================================
+   KB Savouries - Order Management Custom Styles (Optimized Desktop Layout)
+   ========================================================================== */
+
+/* Expand the main content area for this page to prevent cramping with 11 columns */
+.content-area {
+  max-width: 100% !important;
+}
+
+/* Table container styling to ensure smooth horizontal scrolling if needed on smaller screens */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Widen table and give cells proper padding so text never feels squashed */
+.card .mobile-stack-table, 
+.card .data-table {
+  width: 100%;
+  min-width: 1100px; /* Ensures all 11 columns have adequate width on desktop */
+  border-collapse: collapse;
+}
+
+.card .mobile-stack-table th, 
+.card .mobile-stack-table td {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 0.9rem;
+  white-space: nowrap; /* Keeps table data clean and single-line on desktop */
+}
+
+/* Allow address column to wrap nicely without breaking table alignment */
+.cell-address {
+  max-width: 250px;
+  white-space: normal !important;
+  word-wrap: break-word;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #475569;
+}
+
+/* Deadline & Required Date Styling */
+.required-deadline {
+  font-weight: 600;
+  color: #c2410c;
+  background-color: #ffedd5;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-block;
+  text-align: center;
+  border: 1px solid transparent;
+  letter-spacing: 0.3px;
+}
+
+.status-badge.status-pending {
+  background-color: #fef3c7;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.status-badge.status-completed {
+  background-color: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+/* Filter dropdown styling */
+.filter-group select {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--glass-border, rgba(254, 215, 170, 0.8));
+  font-size: 0.88rem;
+  font-weight: 600;
+  background-color: #ffffff;
+  color: #1e293b;
+  outline: none;
+  cursor: pointer;
+}
+
+.filter-group select:focus {
+  border-color: var(--accent-orange, #EA580C);
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+/* Action buttons */
+.btn-toggle-status {
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-toggle-status.btn-mark-completed {
+  background-color: #16a34a;
+  color: #ffffff;
+}
+
+.btn-toggle-status.btn-mark-completed:hover {
+  background-color: #15803d;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.btn-toggle-status.btn-mark-pending {
+  background-color: #d97706;
+  color: #ffffff;
+}
+
+.btn-toggle-status.btn-mark-pending:hover {
+  background-color: #b45309;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+}
+
+/* ==========================================================================
+   Mobile Stack Table Fixes for Order Management
+   ========================================================================== */
+@media screen and (max-width: 900px) {
+  /* Ensure the address cell behaves like the other stack rows but accommodates multi-line text */
+  .mobile-stack-table td.cell-address {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    padding: 12px 16px !important;
+  }
+
+  /* Bring back the pseudo-element label cleanly at the top */
+  .mobile-stack-table td.cell-address::before {
+    content: "ADDRESS";
+    font-weight: 700;
+    color: var(--text-muted, #64748B);
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: block !important;
+  }
+}
