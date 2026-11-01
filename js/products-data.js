@@ -33,7 +33,17 @@ export const STORE_PRODUCTS = [
         image: '../Assets/products-img/sunnundalu.png',
         sizes: [
             { label: '6 pcs (M)', weight: '6 pcs', price: 200 },
-            { label: '12 pcs (L)', weight: '12 pcs', price: 380 }
+            { label: '10 pcs (L)', weight: '10 pcs', price: 380 }
+        ]
+    },
+    {
+        id: 'rava-ladoo',
+        name: 'Rava Ladoo',
+        badge: 'TRADITIONAL',
+        image: '../Assets/products-img/rava-ladoo.png',
+        sizes: [
+            { label: '6 pcs (S)', weight: '6 pcs', price: 150 },
+            { label: '10 pcs (L)', weight: '10 pcs', price: 250 }
         ]
     },
     {
