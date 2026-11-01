@@ -1,24 +1,21 @@
 /* ==========================================================================
-   KB Savouries - Order Management Custom Styles (Optimized Desktop Layout)
+   KB Savouries - Order Management Custom Styles (Optimized Multi-Item Layout)
    ========================================================================== */
 
-/* Expand the main content area for this page to prevent cramping with 11 columns */
 .content-area {
   max-width: 100% !important;
 }
 
-/* Table container styling to ensure smooth horizontal scrolling if needed on smaller screens */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Widen table and give cells proper padding so text never feels squashed */
 .card .mobile-stack-table, 
 .card .data-table {
   width: 100%;
-  min-width: 1100px; /* Ensures all 11 columns have adequate width on desktop */
+  min-width: 1100px;
   border-collapse: collapse;
 }
 
@@ -27,12 +24,11 @@
   padding: 12px 14px;
   text-align: left;
   font-size: 0.9rem;
-  white-space: nowrap; /* Keeps table data clean and single-line on desktop */
+  white-space: nowrap;
 }
 
-/* Allow address column to wrap nicely without breaking table alignment */
 .cell-address {
-  max-width: 250px;
+  max-width: 220px;
   white-space: normal !important;
   word-wrap: break-word;
   font-size: 0.85rem;
@@ -40,7 +36,6 @@
   color: #475569;
 }
 
-/* Deadline & Required Date Styling */
 .required-deadline {
   font-weight: 600;
   color: #c2410c;
@@ -52,7 +47,6 @@
   white-space: nowrap;
 }
 
-/* Status Badges */
 .status-badge {
   padding: 5px 10px;
   border-radius: 20px;
@@ -76,7 +70,6 @@
   border-color: #bbf7d0;
 }
 
-/* Filter dropdown styling */
 .filter-group select {
   padding: 8px 14px;
   border-radius: 10px;
@@ -94,7 +87,6 @@
   box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
 }
 
-/* Action buttons */
 .btn-toggle-status {
   padding: 6px 12px;
   font-size: 0.78rem;
@@ -130,7 +122,6 @@
    Mobile Stack Table Fixes for Order Management
    ========================================================================== */
 @media screen and (max-width: 900px) {
-  /* Ensure the address cell behaves like the other stack rows but accommodates multi-line text */
   .mobile-stack-table td.cell-address {
     display: flex !important;
     flex-direction: column !important;
@@ -139,7 +130,6 @@
     padding: 12px 16px !important;
   }
 
-  /* Bring back the pseudo-element label cleanly at the top */
   .mobile-stack-table td.cell-address::before {
     content: "ADDRESS";
     font-weight: 700;
@@ -148,5 +138,90 @@
     letter-spacing: 0.5px;
     margin-bottom: 6px;
     display: block !important;
+  }
+}
+
+/* Print Media Styles for Order Summary Preparation Slip */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #order-pdf-modal, #order-pdf-modal * {
+    visibility: visible;
+  }
+  #order-pdf-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    display: block !important;
+  }
+  #order-pdf-modal .passcode-card {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  #order-pdf-modal .form-actions {
+    display: none !important;
+  }
+}
+
+/* Print Engine Styles (Single Page Fit) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm;
+  }
+
+  body, html {
+    background: #ffffff !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #order-pdf-modal, #order-pdf-modal * {
+    visibility: visible !important;
+  }
+
+  #order-pdf-modal {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: #ffffff !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 999999 !important;
+    backdrop-filter: none !important;
+  }
+
+  .order-pdf-container {
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .no-print {
+    display: none !important;
   }
 }
