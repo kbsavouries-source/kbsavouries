@@ -612,3 +612,72 @@ textarea:focus {
         font-size: 1.8rem;
     }
 }
+
+/* Clickable UPI ID Pill Styling */
+.upi-id-badge-wrapper {
+    margin: 16px 0 24px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.upi-clickable-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 247, 237, 0.9);
+    backdrop-filter: blur(12px);
+    border: 2px dashed #EA580C;
+    padding: 12px 20px;
+    border-radius: 16px;
+    color: #0F172A;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(234, 88, 12, 0.12);
+    transition: all 0.25s ease;
+}
+
+.upi-clickable-pill:hover {
+    background: #FFF7ED;
+    border-style: solid;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(234, 88, 12, 0.22);
+}
+
+.upi-clickable-pill strong {
+    color: #C2410C;
+    font-weight: 900;
+}
+
+.upi-tap-hint {
+    background: #EA580C;
+    color: #FFFFFF;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Uniform Product Card Action Button */
+.product-inline-card .btn-primary {
+    width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    margin-top: 16px;
+    text-align: center;
+}
+
+/* Force Product Cards to Fill Height & Push Button to Bottom Uniformly */
+.product-inline-card {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+.product-inline-card .btn-primary {
+    margin-top: auto !important; /* Automatically pushes button to the very bottom */
+    width: 100% !important;
+}

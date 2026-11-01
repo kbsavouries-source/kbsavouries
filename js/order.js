@@ -124,13 +124,18 @@ window.updateItemQtyDirect = function(prodId, newQty) {
 
     syncAllActiveSelectionsToCart();
 
-    // If order summary is visible, instantly re-evaluate and refresh it
+    // Check Minimum Order Value after live cart adjustment
+    const total = calculateCombinedTotal();
     const summaryCard = document.getElementById('order-summary-card');
-    if (summaryCard && summaryCard.style.display !== 'none') {
-        const total = calculateCombinedTotal();
-        if (total < 200) {
-            summaryCard.style.display = 'none';
-        } else {
+
+    if (total > 0 && total < 200) {
+        if (summaryCard) summaryCard.style.display = 'none';
+        showModal(
+            "Minimum Order Value Required",
+            `Your combined order total has dropped to ₹${total}. Please maintain at least ₹200 to proceed with online checkout.`
+        );
+    } else if (total >= 200) {
+        if (summaryCard && summaryCard.style.display !== 'none') {
             refreshOrderSummaryDisplay();
         }
     }
@@ -256,14 +261,21 @@ function refreshOrderSummaryDisplay() {
     }
 
     syncAllActiveSelectionsToCart();
-    const items = Object.values(window.cart);
     const combinedSubtotal = calculateCombinedTotal();
 
+    // STRICT MINIMUM ORDER VALUE CHECK HERE
     if (combinedSubtotal < 200) {
-        showModal("Minimum Order Value", "Minimum online order value is ₹200 across all combined items.");
+        const summaryCard = document.getElementById('order-summary-card');
+        if (summaryCard) summaryCard.style.display = 'none';
+        
+        showModal(
+            "Minimum Order Value Required",
+            `Your current order subtotal is ₹${combinedSubtotal}. Minimum online order value is ₹200 across all combined items. Please add more items to proceed.`
+        );
         return;
     }
 
+    const items = Object.values(window.cart);
     const deliveryCharges = 50;
     const grandTotal = combinedSubtotal + deliveryCharges;
 
@@ -275,6 +287,12 @@ function refreshOrderSummaryDisplay() {
 
     document.getElementById('sum-subtotal').innerText = `₹${combinedSubtotal}`;
     document.getElementById('sum-grand-total').innerText = `₹${grandTotal}`;
+
+    // Dynamically update the UPI payment link with the exact grand total amount
+    const upiLink = document.getElementById('upi-pay-link');
+    if (upiLink) {
+        upiLink.href = `upi://pay?pa=kbsavouries@upi&pn=KB%20Savouries&am=${grandTotal}&cu=INR`;
+    }
 
     window.currentOrderData = {
         name,
