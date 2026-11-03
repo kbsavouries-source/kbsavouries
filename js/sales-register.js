@@ -514,12 +514,45 @@ export function exportCSV(type) {
         alert("No data available to export in " + type);
         return;
     }
-    let keys = Object.keys(items[0]);
-    let csvContent = "data:text/csv;charset=utf-8," + keys.join(",") + "\n";
-    items.forEach(row => {
-        let val = keys.map(k => `"${typeof row[k] === 'object' ? JSON.stringify(row[k]) : (row[k] || '')}"`).join(",");
-        csvContent += val + "\n";
-    });
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    if (type === 'sales') {
+        // Flatten multi-product invoices into clean, report-ready rows
+        csvContent += "Invoice No,Date,Customer,Payment Method,Product / SKU,Batch Code,Quantity Sold,Line Total (₹),Invoice Total (₹)\n";
+        
+        items.forEach(sale => {
+            const invNo = sale.invoiceNo || '';
+            const date = sale.date || '';
+            const customer = (sale.customer || '').replace(/"/g, '""');
+            const method = sale.method || '';
+            const invoiceTotal = sale.total || 0;
+
+            const saleItems = sale.items && sale.items.length > 0 ? sale.items : [{
+                product: sale.product || '',
+                batchCode: sale.batchCode || '',
+                qtyDisplay: sale.qtyDisplay || '',
+                total: sale.total || 0
+            }];
+
+            saleItems.forEach(item => {
+                const product = (item.product || '').replace(/"/g, '""');
+                const batchCode = item.batchCode || '';
+                const qtyDisplay = (item.qtyDisplay || '').replace(/"/g, '""');
+                const lineTotal = item.total || 0;
+
+                csvContent += `"${invNo}","${date}","${customer}","${method}","${product}","${batchCode}","${qtyDisplay}",${lineTotal},${invoiceTotal}\n`;
+            });
+        });
+    } else {
+        let keys = Object.keys(items[0]);
+        csvContent += keys.join(",") + "\n";
+        items.forEach(row => {
+            let val = keys.map(k => `"${typeof row[k] === 'object' ? JSON.stringify(row[k]) : (row[k] || '')}"`).join(",");
+            csvContent += val + "\n";
+        });
+    }
+
     const encodedUri = encodeURI(csvContent);
     const linkAnchor = document.createElement("a");
     linkAnchor.setAttribute("href", encodedUri);
