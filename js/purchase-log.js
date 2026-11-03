@@ -395,12 +395,45 @@ export function exportCSV(type) {
         alert("No data available to export in " + type);
         return;
     }
-    let keys = Object.keys(items[0]);
-    let csvContent = "data:text/csv;charset=utf-8," + keys.join(",") + "\n";
-    items.forEach(row => {
-        let val = keys.map(k => `"${typeof row[k] === 'object' ? JSON.stringify(row[k]) : (row[k] || '')}"`).join(",");
-        csvContent += val + "\n";
-    });
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    if (type === 'purchases') {
+        // Flatten multi-item purchase orders into clean, report-ready rows
+        csvContent += "PO No,Date,Vendor,Status,Raw Material Item,Quantity,Unit,Item Amount (₹),Total PO Outflow (₹)\n";
+        
+        items.forEach(purchase => {
+            const poNo = purchase.poNo || '';
+            const date = purchase.date || '';
+            const vendor = (purchase.vendor || '').replace(/"/g, '""');
+            const status = purchase.status || 'Pending Receipt';
+            const totalOutflow = purchase.amt || 0;
+
+            const purItems = purchase.items && purchase.items.length > 0 ? purchase.items : [{
+                item: purchase.item || '',
+                qty: purchase.qty || 0,
+                unit: purchase.unit || 'Kg',
+                amt: purchase.amt || 0
+            }];
+
+            purItems.forEach(item => {
+                const itemName = (item.item || '').replace(/"/g, '""');
+                const qty = item.qty || 0;
+                const unit = item.unit || 'Kg';
+                const itemAmt = item.amt || 0;
+
+                csvContent += `"${poNo}","${date}","${vendor}","${status}","${itemName}",${qty},"${unit}",${itemAmt},${totalOutflow}\n`;
+            });
+        });
+    } else {
+        let keys = Object.keys(items[0]);
+        csvContent += keys.join(",") + "\n";
+        items.forEach(row => {
+            let val = keys.map(k => `"${typeof row[k] === 'object' ? JSON.stringify(row[k]) : (row[k] || '')}"`).join(",");
+            csvContent += val + "\n";
+        });
+    }
+
     const encodedUri = encodeURI(csvContent);
     const linkAnchor = document.createElement("a");
     linkAnchor.setAttribute("href", encodedUri);
