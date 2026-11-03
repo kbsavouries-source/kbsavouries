@@ -7,3 +7,50 @@
   color: #dc2626;
   border-color: #fecaca;
 }
+
+/* Optimize Batch Log Table Spacing & Layout */
+.table-responsive table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+}
+
+.table-responsive th, 
+.table-responsive td {
+    padding: 14px 10px;
+    vertical-align: middle;
+    white-space: nowrap; /* Keeps dates, codes, and shifts on a clean single line */
+}
+
+/* Allow product line to use proper space */
+.table-responsive td[data-label="Product Line"] {
+    white-space: normal;
+    min-width: 120px;
+    font-weight: 700;
+}
+
+/* Code tag styling for Batch Codes */
+.table-responsive code {
+    background: rgba(234, 88, 12, 0.08);
+    color: #C2410C;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+/* Side-by-side Edit and Delete buttons */
+.batch-action-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.batch-action-group .btn-outline,
+.batch-action-group .btn-danger {
+    min-height: 34px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+}

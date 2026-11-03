@@ -180,10 +180,49 @@ export function renderBatches() {
                 <td data-label="Shift">${b.shift}</td>
                 <td data-label="Available Bulk Stock"><strong>${formatGrams(remGrams)}</strong> / ${formatGrams(totalGrams)}</td>
                 <td data-label="Status"><span class="status-badge ${remGrams <= 0 ? 'status-soldout' : ''}">${b.status}</span></td>
-                <td data-label="Action"><button class="btn-danger" onclick="deleteBatchItem(${index})">Delete</button></td>
+                <td data-label="Action">
+                    <div class="batch-action-group">
+                        <button class="btn-outline" onclick="editBatchItem(${index})">Edit</button>
+                        <button class="btn-danger" onclick="deleteBatchItem(${index})">Delete</button>
+                    </div>
+                </td>
             </tr>
         `;
     }).join('');
+}
+
+export async function editBatchItem(index) {
+    if (!window.appData || !window.appData.batches[index]) return;
+    const batch = window.appData.batches[index];
+
+    // Prompt user to update remaining stock
+    const newStockInput = prompt(`Edit Remaining Stock for Batch ${batch.code} (${batch.product}) in Grams:`, batch.remainingGrams);
+    if (newStockInput === null) return; // Cancelled
+
+    const newGrams = Number(newStockInput);
+    if (isNaN(newGrams) || newGrams < 0) {
+        alert("Please enter a valid non-negative number for stock.");
+        return;
+    }
+
+    batch.remainingGrams = newGrams;
+    batch.status = newGrams > 0 ? 'Available' : 'Sold Out';
+
+    // Update Firestore database record
+    if (batch.firebaseId) {
+        try {
+            const { updateDoc, doc } = await import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js");
+            await updateDoc(doc(db, 'batches', batch.firebaseId), {
+                remainingGrams: batch.remainingGrams,
+                status: batch.status
+            });
+        } catch (err) {
+            console.error("Error updating batch record:", err);
+            alert("Error updating record in cloud database.");
+        }
+    }
+
+    renderBatches();
 }
 
 export async function deleteBatchItem(index) {
@@ -225,6 +264,7 @@ export function exportCSV(type) {
 // Bind functions to window scope for inline HTML event handling
 window.onBatchProductChange = onBatchProductChange;
 window.addBatch = addBatch;
+window.editBatchItem = editBatchItem;
 window.deleteBatchItem = deleteBatchItem;
 window.exportCSV = exportCSV;
 
