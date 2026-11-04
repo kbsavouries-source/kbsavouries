@@ -141,8 +141,9 @@ window.onRowProductChange = function(rowId) {
     if (matchingBatches.length === 0) {
         batchSelect.innerHTML = `<option value="">No Stock Available</option>`;
     } else {
+        // Updated to include product name in brackets: KBS-20261103-01 (Idly Podi)
         batchSelect.innerHTML = matchingBatches.map(b => 
-            `<option value="${b.code}">${b.code} (${formatGrams(b.remainingGrams)} left)</option>`
+            `<option value="${b.code}">${b.code} (${b.product}) - ${formatGrams(b.remainingGrams)} left</option>`
         ).join('');
     }
 

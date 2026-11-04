@@ -116,8 +116,9 @@ export function populateSampleBatchOptions() {
         batchSelect.innerHTML = `<option value="">No Stock</option>`;
         if (submitBtn) submitBtn.disabled = true;
     } else {
+        // Updated to include product name in brackets: KBS-20261103-01 (Idly Podi)
         batchSelect.innerHTML = matchingBatches.map(b => 
-            `<option value="${b.code}">${b.code} (${formatGrams(b.remainingGrams)} left)</option>`
+            `<option value="${b.code}">${b.code} (${b.product}) - ${formatGrams(b.remainingGrams)} left</option>`
         ).join('');
         if (submitBtn) submitBtn.disabled = false;
     }
