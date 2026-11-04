@@ -116,9 +116,9 @@ export function populateSampleBatchOptions() {
         batchSelect.innerHTML = `<option value="">No Stock</option>`;
         if (submitBtn) submitBtn.disabled = true;
     } else {
-        // Updated to include product name in brackets: KBS-20261103-01 (Idly Podi)
+        // Use firebaseId as value for unique distinction, display product name in brackets for user identification
         batchSelect.innerHTML = matchingBatches.map(b => 
-            `<option value="${b.code}">${b.code} (${b.product}) - ${formatGrams(b.remainingGrams)} left</option>`
+            `<option value="${b.firebaseId}">${b.code} (${b.product}) - ${formatGrams(b.remainingGrams)} left</option>`
         ).join('');
         if (submitBtn) submitBtn.disabled = false;
     }
@@ -129,16 +129,17 @@ export async function addSample(e) {
     const todayStr = new Date().toISOString().split('T')[0];
     const qtyVal = Number(document.getElementById('sample-qty').value);
     const unitVal = document.getElementById('sample-unit').value;
-    const selectedBatchCode = document.getElementById('sample-batch').value;
+    const selectedBatchId = document.getElementById('sample-batch').value;
 
-    if (!selectedBatchCode) {
+    if (!selectedBatchId) {
         alert("Cannot log sample. No stock available.");
         return;
     }
 
     const totalGramsGiven = unitVal === 'Kg' ? qtyVal * 1000 : qtyVal;
 
-    const batch = window.appData.batches.find(b => b.code === selectedBatchCode);
+    // Find batch by its unique firebaseId
+    const batch = window.appData.batches.find(b => b.firebaseId === selectedBatchId);
     if (batch) {
         if (Number(batch.remainingGrams) < totalGramsGiven) {
             alert(`Cannot log sample. Selected batch only has ${formatGrams(batch.remainingGrams)} remaining, but this requires ${formatGrams(totalGramsGiven)}.`);
@@ -150,7 +151,6 @@ export async function addSample(e) {
             batch.status = 'Sold Out';
         }
 
-        // Update batch remaining grams in Firestore
         if (batch.firebaseId) {
             try {
                 await updateDoc(doc(db, 'batches', batch.firebaseId), {
@@ -166,7 +166,8 @@ export async function addSample(e) {
     const sample = {
         date: document.getElementById('sample-date').value,
         recipient: document.getElementById('sample-recipient').value,
-        batchCode: selectedBatchCode,
+        batchCode: batch ? batch.code : '',
+        batchId: selectedBatchId, // Store exact unique batch firebaseId for accurate stock restoration
         qty: qtyVal,
         unit: unitVal,
         gramsGiven: totalGramsGiven,
@@ -176,7 +177,6 @@ export async function addSample(e) {
     window.appData.samples.push(sample);
     try {
         const docRef = await addDoc(collection(db, 'samples'), sample);
-        // Keep the Firestore id so this sample can be deleted from the cloud later
         sample.firebaseId = docRef.id;
         sample.id = docRef.id;
     } catch (err) {
@@ -223,12 +223,15 @@ export async function deleteSampleItem(index) {
     if (pendingSampleDeletes.has(sample)) return;
     pendingSampleDeletes.add(sample);
 
-    // 1. Work out the restored stock, capped at the produced quantity
+    // 1. Work out the restored stock using exact batchId (or fallback to code)
     let batch = null;
     let rollback = null;
     let batchUpdate = null;
 
-    if (sample.batchCode && sample.batchCode !== 'N/A') {
+    if (sample.batchId) {
+        batch = window.appData.batches.find(b => b.firebaseId === sample.batchId) || null;
+    }
+    if (!batch && sample.batchCode && sample.batchCode !== 'N/A') {
         batch = window.appData.batches.find(b => b.code === sample.batchCode) || null;
     }
 
@@ -287,6 +290,51 @@ export async function deleteSampleItem(index) {
         pendingSampleDeletes.delete(sample);
     }
 }
+
+export function exportCSV(type) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    let items = window.appData[type];
+    if (!items || items.length === 0) {
+        alert("No data available to export in " + type);
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    if (type === 'samples') {
+        csvContent += "Date,Recipient/Event,Batch Code,Product,Quantity Given,Unit,Total Grams,Purpose\n";
+        
+        items.forEach(row => {
+            const date = row.date || '';
+            const recipient = (row.recipient || '').replace(/"/g, '""');
+            const batchCode = row.batchCode || '';
+            const product = row.productName ? row.productName : (window.appData.batches.find(b => b.code === batchCode || b.firebaseId === row.batchId)?.product || '');
+            const qty = row.qty || 0;
+            const unit = row.unit || '';
+            const gramsGiven = row.gramsGiven || 0;
+            const purpose = (row.purpose || '').replace(/"/g, '""');
+
+            csvContent += `"${date}","${recipient}","${batchCode}","${product}",${qty},"${unit}",${gramsGiven},"${purpose}"\n`;
+        });
+    } else {
+        let keys = Object.keys(items[0]);
+        csvContent += keys.join(",") + "\n";
+        items.forEach(row => {
+            let val = keys.map(k => `"${typeof row[k] === 'object' ? JSON.stringify(row[k]) : (row[k] || '')}"`).join(",");
+            csvContent += val + "\n";
+        });
+    }
+
+    const encodedUri = encodeURI(csvContent);
+    const linkAnchor = document.createElement("a");
+    linkAnchor.setAttribute("href", encodedUri);
+    linkAnchor.setAttribute("download", `kb_savouries_${type}_${todayStr}.csv`);
+    document.body.appendChild(linkAnchor);
+    linkAnchor.click();
+    linkAnchor.remove();
+}
+
+window.exportCSV = exportCSV;
 
 // Bind functions to window scope for inline HTML event handling
 window.addSample = addSample;

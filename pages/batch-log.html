@@ -95,7 +95,14 @@
                 <div class="card">
                     <div class="section-header-flex">
                         <h2>Batch Log History</h2>
-                        <button type="button" class="btn-outline" onclick="exportCSV('batches')">Export Batches CSV</button>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <select id="batch-status-filter" class="form-control" style="width: 160px; padding: 8px 12px; font-size: 0.85rem;" onchange="renderBatches()">
+                                <option value="all">All Batches</option>
+                                <option value="available" selected>Available Only</option>
+                                <option value="soldout">Sold Out Only</option>
+                            </select>
+                            <button type="button" class="btn-outline" onclick="exportCSV('batches')">Export Batches CSV</button>
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table class="mobile-stack-table">

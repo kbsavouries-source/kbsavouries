@@ -93,6 +93,22 @@ export function onBatchProductChange() {
     }
 }
 
+
+// Helper to generate custom product prefixes dynamically
+function getBatchPrefix(productName) {
+    const name = (productName || '').toLowerCase();
+    if (name.includes('poha crunch') || name.includes('poha mixture')) return 'PC';
+    if (name.includes('sunnundalu')) return 'S';
+    if (name.includes('gongura chutney')) return 'GC';
+    if (name.includes('idly podi')) return 'IP';
+    if (name.includes('rava ladoo')) return 'RL';
+    if (name.includes('ulundhu urundai')) return 'UU';
+    
+    // Generic fallback: takes the first letters of each word or upper-cases first 2 chars
+    return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 3) || 'KBS';
+}
+
+
 export async function addBatch(e) {
     e.preventDefault();
     const todayStr = new Date().toISOString().split('T')[0];
@@ -111,7 +127,9 @@ export async function addBatch(e) {
         totalGrams = weightVal * singleGrams;
     }
 
-    const batchCode = `KBS-${formattedDate}-${shiftVal}`;
+    // Generate new styled prefix format: e.g., PC-20261028-01
+    const prefix = getBatchPrefix(productLine);
+    const batchCode = `${prefix}-${formattedDate}-${shiftVal}`;
 
     // Dynamically lookup SKU shelf life (expiryDays), defaulting to 30 days if not defined
     const matchingSKU = window.appData.skus.find(s => s.name.toLowerCase().includes(productLine.toLowerCase()) && s.type === 'Finished Inventory');
@@ -167,7 +185,25 @@ export function renderBatches() {
     const tbody = document.getElementById('batch-table-body');
     if(!tbody || !window.appData) return;
 
-    tbody.innerHTML = window.appData.batches.map((b, index) => {
+    const filterEl = document.getElementById('batch-status-filter');
+    const filterVal = filterEl ? filterEl.value : 'available';
+
+    let displayedBatches = window.appData.batches;
+
+    if (filterVal === 'available') {
+        displayedBatches = displayedBatches.filter(b => Number(b.remainingGrams) > 0);
+    } else if (filterVal === 'soldout') {
+        displayedBatches = displayedBatches.filter(b => Number(b.remainingGrams) <= 0);
+    }
+
+    if (displayedBatches.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color: var(--text-secondary); padding: 32px;">No batch records found for this filter.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = displayedBatches.map((b) => {
+        // Find real index in the full appData.batches array for editing/deleting accurately
+        const realIndex = window.appData.batches.indexOf(b);
         const remGrams = b.remainingGrams !== undefined ? b.remainingGrams : 0;
         const totalGrams = b.totalGrams || remGrams;
 
@@ -182,8 +218,8 @@ export function renderBatches() {
                 <td data-label="Status"><span class="status-badge ${remGrams <= 0 ? 'status-soldout' : ''}">${b.status}</span></td>
                 <td data-label="Action">
                     <div class="batch-action-group">
-                        <button class="btn-outline" onclick="editBatchItem(${index})">Edit</button>
-                        <button class="btn-danger" onclick="deleteBatchItem(${index})">Delete</button>
+                        <button class="btn-outline" onclick="editBatchItem(${realIndex})">Edit</button>
+                        <button class="btn-danger" onclick="deleteBatchItem(${realIndex})">Delete</button>
                     </div>
                 </td>
             </tr>
@@ -267,6 +303,7 @@ window.addBatch = addBatch;
 window.editBatchItem = editBatchItem;
 window.deleteBatchItem = deleteBatchItem;
 window.exportCSV = exportCSV;
+window.renderBatches = renderBatches;
 
 // Auto-initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
