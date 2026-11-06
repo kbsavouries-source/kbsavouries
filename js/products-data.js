@@ -37,6 +37,17 @@ export const STORE_PRODUCTS = [
         ]
     },
     {
+        id: 'mini-sunnundalu',
+        name: 'Mini Sunnundalu',
+        badge: 'NEW',
+        image: '../Assets/products-img/mini-sunnundalu.png',
+        sizes: [
+            { label: '12 pcs (M)', weight: '12 pcs', price: 200 },
+            { label: '20 pcs (L)', weight: '20 pcs', price: 380 }
+        ]
+    },
+    
+    {
         id: 'rava-ladoo',
         name: 'Rava Ladoo',
         badge: 'TRADITIONAL',
@@ -46,6 +57,18 @@ export const STORE_PRODUCTS = [
             { label: '10 pcs (L)', weight: '10 pcs', price: 250 }
         ]
     },
+
+    {
+        id: 'mini-rava-ladoo',
+        name: 'Mini Rava Ladoo',
+        badge: 'NEW',
+        image: '../Assets/products-img/mini-rava-ladoo.png',
+        sizes: [
+            { label: '12 pcs (M)', weight: '12 pcs', price: 150 },
+            { label: '20 pcs (L)', weight: '20 pcs', price: 250 }
+        ]
+    },
+
     {
         id: 'gongura-chutney',
         name: 'Gongura Chutney',

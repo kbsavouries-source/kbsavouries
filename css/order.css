@@ -1,3 +1,7 @@
+/* ==========================================================================
+   KB Savouries Storefront CSS (4-Column Desktop Grid)
+   ========================================================================== */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -30,7 +34,7 @@ body.storefront-body {
 }
 
 .header-container {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -90,30 +94,30 @@ body.storefront-body {
 
 /* Main Centered Content Container */
 main.customer-main-wrapper {
-    max-width: 900px !important;
+    max-width: 1380px !important;
     margin: 0 auto !important;
-    padding: 40px 20px 80px 20px !important;
+    padding: 30px 16px 60px 16px !important;
     width: 100% !important;
     display: block !important;
 }
 
 .storefront-hero {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 35px;
 }
 
 .storefront-hero h1 {
-    font-size: 2.4rem;
+    font-size: 2.2rem;
     font-weight: 900;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: #0F172A;
     letter-spacing: -0.02em;
 }
 
 .storefront-hero p {
     color: #475569;
-    font-size: 1.05rem;
-    margin-bottom: 16px;
+    font-size: 1rem;
+    margin-bottom: 14px;
     font-weight: 500;
 }
 
@@ -123,18 +127,18 @@ main.customer-main-wrapper {
     backdrop-filter: blur(12px);
     color: #C2410C;
     border: 1.5px dashed rgba(251, 146, 60, 0.5);
-    padding: 8px 20px;
-    border-radius: 14px;
-    font-size: 0.9rem;
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
     font-weight: 700;
     box-shadow: 0 4px 16px rgba(234, 88, 12, 0.04);
 }
 
-/* Glassmorphic Product Cards Grid */
+/* Glassmorphic Product Cards Grid (4 Columns) */
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-    gap: 28px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
     margin-bottom: 40px;
 }
 
@@ -143,37 +147,39 @@ main.customer-main-wrapper {
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1.5px solid rgba(255, 255, 255, 0.9);
-    border-radius: 28px;
-    padding: 28px;
-    box-shadow: 0 20px 45px 0 rgba(31, 38, 135, 0.06);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 12px 30px 0 rgba(31, 38, 135, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     overflow: hidden;
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 25px 50px 0 rgba(31, 38, 135, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 18px 35px 0 rgba(31, 38, 135, 0.08);
 }
 
 .product-inline-card {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    height: 100%;
 }
 
-/* Product Image Container & Featured Banner */
+/* Compact Product Image Container */
 .product-image-container {
     position: relative;
     width: 100%;
-    height: 220px;
+    height: 135px;
     background: rgba(255, 255, 255, 0.9);
-    border-radius: 20px;
+    border-radius: 12px;
     border: 1.5px solid rgba(254, 215, 170, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    margin-bottom: 20px;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.03);
+    margin-bottom: 12px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
 }
 
 .product-thumb {
@@ -188,30 +194,33 @@ main.customer-main-wrapper {
 }
 
 .product-card-header {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 
 .product-card-header h3 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.05rem;
     font-weight: 900;
     color: #0F172A;
     letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .status-badge {
     position: absolute;
-    top: 14px;
-    right: 14px;
-    font-size: 0.7rem;
+    top: 10px;
+    right: 10px;
+    font-size: 0.65rem;
     font-weight: 800;
-    padding: 6px 14px;
-    border-radius: 20px;
+    padding: 4px 10px;
+    border-radius: 14px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     z-index: 2;
     backdrop-filter: blur(10px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .status-badge.finished {
@@ -225,31 +234,31 @@ main.customer-main-wrapper {
 }
 
 .selector-group {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 
 .selector-group label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     font-weight: 800;
     color: #64748B;
-    margin-bottom: 10px;
-    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    letter-spacing: 0.06em;
 }
 
 .size-pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 5px;
 }
 
 .size-pill {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px);
     border: 1.5px solid rgba(254, 215, 170, 0.7);
-    padding: 9px 16px;
-    border-radius: 12px;
-    font-size: 0.88rem;
+    padding: 5px 9px;
+    border-radius: 8px;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #0F172A;
     cursor: pointer;
@@ -265,46 +274,46 @@ main.customer-main-wrapper {
     background: linear-gradient(135deg, #EA580C, #C2410C);
     color: #FFFFFF;
     border-color: #EA580C;
-    box-shadow: 0 4px 16px rgba(234, 88, 12, 0.3);
+    box-shadow: 0 3px 12px rgba(234, 88, 12, 0.3);
 }
 
 .qty-price-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+    margin-top: 6px;
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(10px);
-    padding: 14px 18px;
-    border-radius: 16px;
+    padding: 8px 10px;
+    border-radius: 10px;
     border: 1.5px solid rgba(255, 255, 255, 0.8);
 }
 
 .price-display {
-    font-size: 0.95rem;
+    font-size: 0.82rem;
     color: #475569;
     font-weight: 600;
 }
 
 .price-display strong {
     color: #EA580C;
-    font-size: 1.35rem;
+    font-size: 1.05rem;
 }
 
 .qty-stepper {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .qty-stepper button {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 7px;
     font-weight: 800;
     border: 1.5px solid rgba(255, 255, 255, 0.9);
     background: #FFFFFF;
@@ -318,8 +327,8 @@ main.customer-main-wrapper {
 
 .qty-num {
     font-weight: 900;
-    font-size: 1.1rem;
-    min-width: 24px;
+    font-size: 0.9rem;
+    min-width: 18px;
     text-align: center;
     color: #0F172A;
 }
@@ -329,18 +338,24 @@ main.customer-main-wrapper {
     background: linear-gradient(135deg, #EA580C, #C2410C);
     color: #FFFFFF;
     border: none;
-    padding: 15px 24px;
-    border-radius: 14px;
-    font-size: 1.05rem;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.88rem;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.25s ease;
-    box-shadow: 0 8px 22px rgba(234, 88, 12, 0.28);
+    box-shadow: 0 6px 18px rgba(234, 88, 12, 0.25);
+    width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    margin-top: 10px !important;
+    margin-top: auto !important;
+    text-align: center;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(234, 88, 12, 0.38);
+    box-shadow: 0 8px 22px rgba(234, 88, 12, 0.35);
 }
 
 .btn-outline {
@@ -401,6 +416,10 @@ textarea:focus {
     margin-top: 32px;
     padding: 36px;
     border-radius: 28px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(24px);
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 20px 45px 0 rgba(31, 38, 135, 0.06);
 }
 
 .summary-card h2 {
@@ -517,11 +536,12 @@ textarea:focus {
     font-size: 1rem;
 }
 
+/* Cyan Glowing Post Pay Instruction Text */
 .post-pay-text {
     display: inline-block;
-    background: rgba(15, 23, 42, 0.75); /* Dark slate backing to pop cyan glow */
+    background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(8px);
-    color: #00F0FF; /* Bright Electric Cyan */
+    color: #00F0FF;
     padding: 10px 18px;
     border-radius: 14px;
     border: 1px solid rgba(0, 240, 255, 0.3);
@@ -529,7 +549,6 @@ textarea:focus {
     margin-bottom: 20px;
     font-weight: 700;
     letter-spacing: 0.02em;
-    /* Electric Glow */
     text-shadow: 0 0 6px rgba(0, 240, 255, 0.7), 0 0 12px rgba(0, 240, 255, 0.4);
     box-shadow: 0 0 16px rgba(0, 240, 255, 0.15);
 }
@@ -595,6 +614,12 @@ textarea:focus {
 }
 
 /* Responsive Breakpoints */
+@media screen and (max-width: 1100px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media screen and (max-width: 600px) {
     .customer-header {
         padding: 12px 16px;
@@ -671,23 +696,30 @@ textarea:focus {
     letter-spacing: 0.05em;
 }
 
-/* Uniform Product Card Action Button */
-.product-inline-card .btn-primary {
-    width: 100% !important;
-    display: block !important;
-    box-sizing: border-box !important;
-    margin-top: 16px;
+/* 1. Fix Textarea and Input sizing inside customer details card */
+textarea.form-control, 
+textarea {
+    resize: vertical;
+    min-height: 90px;
+    margin-bottom: 8px; /* Adds breathing room before the Proceed button */
+}
+
+/* 2. Center and align the glowing instruction text box properly inside payment box */
+.post-pay-text {
+    display: block; /* Changes from inline-block to block so it spans nicely */
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto 20px auto; /* Centers it horizontally and adds bottom spacing */
     text-align: center;
-}
-
-/* Force Product Cards to Fill Height & Push Button to Bottom Uniformly */
-.product-inline-card {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-}
-
-.product-inline-card .btn-primary {
-    margin-top: auto !important; /* Automatically pushes button to the very bottom */
-    width: 100% !important;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(8px);
+    color: #00F0FF;
+    padding: 12px 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 6px rgba(0, 240, 255, 0.7), 0 0 12px rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.15);
 }
