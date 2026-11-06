@@ -8,6 +8,31 @@ PRODUCTS.forEach(p => {
     window.productSelections[p.id] = { sizeIndex: 0, qty: 0 };
 });
 
+window.cart = {};
+
+// ==========================================================================
+// Search filter (defined before init so it always exists when called)
+// Uses setProperty(..., 'important') because order.css has
+// ".product-inline-card { display: flex !important }" which would
+// otherwise override a normal inline display:none.
+// ==========================================================================
+function filterStorefrontProducts() {
+    const searchInput = document.getElementById('storefront-search');
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const cards = document.querySelectorAll('#product-grid .product-inline-card');
+
+    cards.forEach(card => {
+        const titleEl = card.querySelector('.product-card-header h3');
+        const productName = titleEl ? titleEl.textContent.toLowerCase() : '';
+        if (productName.includes(query)) {
+            card.style.removeProperty('display');
+        } else {
+            card.style.setProperty('display', 'none', 'important');
+        }
+    });
+}
+window.filterStorefrontProducts = filterStorefrontProducts;
+
 export function initOrderStorefront() {
     renderProductCards();
 }
@@ -61,6 +86,8 @@ function renderProductCards() {
             </div>
         `;
     }).join('');
+    // Re-apply any active search text after re-rendering
+    filterStorefrontProducts();
 }
 
 window.selectProductSize = function(prodId, sIdx) {
@@ -314,20 +341,19 @@ window.sendWhatsAppOrder = function() {
     if (!window.currentOrderData) return;
     const { name, phone, address, items, subtotal, deliveryCharges, grandTotal } = window.currentOrderData;
 
-    let itemsText = items.map(i => `• ${i.name} (${i.sizeLabel}) x ${i.qty} = ₹${i.unitPrice * i.qty}`).join('%0A');
+    const itemsText = items.map(i => `• ${i.name} (${i.sizeLabel}) x ${i.qty} = ₹${i.unitPrice * i.qty}`).join('\n');
 
-    let msg = `*NEW ORDER - KB SAVOURIES*%0A%0A` +
-              `*Customer Name:* ${encodeURIComponent(name)}%0A` +
-              `*Phone:* ${encodeURIComponent(phone)}%0A` +
-              `*Delivery Address:* ${encodeURIComponent(address)}%0A%0A` +
-              `*Order Details:*%0A${itemsText}%0A%0A` +
-              `*Items Subtotal:* ₹${subtotal}%0A` +
-              `*Delivery Charges:* ₹${deliveryCharges}%0A` +
-              `*Grand Total:* ₹${grandTotal}%0A%0A` +
-              `_Payment completed via UPI. Receipt screenshot attached._`;
+    const msg = `*NEW ORDER - KB SAVOURIES*\n\n` +
+                `*Customer Name:* ${name}\n` +
+                `*Phone:* ${phone}\n` +
+                `*Delivery Address:* ${address}\n\n` +
+                `*Order Details:*\n${itemsText}\n\n` +
+                `*Items Subtotal:* ₹${subtotal}\n` +
+                `*Delivery Charges:* ₹${deliveryCharges}\n` +
+                `*Grand Total:* ₹${grandTotal}\n\n` +
+                `_Payment completed via UPI. Receipt screenshot attached._`;
 
-    const whatsappUrl = `https://wa.me/919884049021?text=${msg}`;
-    window.open(whatsappUrl, '_blank');
+    window.open(`https://wa.me/919884049021?text=${encodeURIComponent(msg)}`, '_blank');
 };
 
 function showModal(title, message) {

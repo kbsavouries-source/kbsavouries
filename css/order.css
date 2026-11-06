@@ -723,3 +723,53 @@ textarea {
     text-shadow: 0 0 6px rgba(0, 240, 255, 0.7), 0 0 12px rgba(0, 240, 255, 0.4);
     box-shadow: 0 0 16px rgba(0, 240, 255, 0.15);
 }
+
+/* ==========================================================================
+   Storefront Search Bar (left-aligned with product grid)
+   ========================================================================== */
+.storefront-search-bar {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0 0 24px 0;
+}
+
+.storefront-search-bar .search-field {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+}
+
+.storefront-search-bar .search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.05rem;
+    pointer-events: none;
+}
+
+.storefront-search-bar .search-input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 48px;
+    padding: 0 18px 0 46px;
+    border-radius: 24px;
+    border: 1.5px solid rgba(234, 88, 12, 0.3);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    font-size: 0.95rem;
+    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.06);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.storefront-search-bar .search-input:focus {
+    outline: none;
+    border-color: #EA580C;
+    box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.12);
+}
+
+@media screen and (max-width: 600px) {
+    .storefront-search-bar .search-field {
+        max-width: 100%;
+    }
+}

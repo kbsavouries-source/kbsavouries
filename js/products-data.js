@@ -27,7 +27,7 @@ export const STORE_PRODUCTS = [
         ]
     },
     {
-        id: 'ulundhu urundai',
+        id: 'sunnundalu',
         name: 'Sunnundalu(Ulundhu Urundai)',
         badge: 'Andhra Sweet',
         image: '../Assets/products-img/sunnundalu.png',
