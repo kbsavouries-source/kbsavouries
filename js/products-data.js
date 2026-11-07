@@ -5,8 +5,8 @@
 export const STORE_PRODUCTS = [
     {
         id: 'poha-crunch',
-        name: 'Poha Crunch',
-        badge: 'POPULAR',
+        name: 'Poha Crunch <br>(அவல் மிக்ஸர்)',
+        badge: 'Popular',
         image: '../Assets/products-img/poha-crunch.png',
         sizes: [
             { label: '30g (S)', weight: '50g', price: 20 },
@@ -18,7 +18,7 @@ export const STORE_PRODUCTS = [
     },
     {
         id: 'idly-podi',
-        name: 'Idly Podi',
+        name: 'Idly Podi <br>(இட்லிப் பொடி)',
         badge: 'NEW',
         image: '../Assets/products-img/idly-podi.png',
         sizes: [
@@ -26,41 +26,21 @@ export const STORE_PRODUCTS = [
             { label: '250g (L)', weight: '250g', price: 130 }
         ]
     },
-    {
-        id: 'sunnundalu',
-        name: 'Sunnundalu(Ulundhu Urundai)',
-        badge: 'Andhra Sweet',
-        image: '../Assets/products-img/sunnundalu.png',
-        sizes: [
-            { label: '6 pcs (M)', weight: '6 pcs', price: 200 },
-            { label: '10 pcs (L)', weight: '10 pcs', price: 380 }
-        ]
-    },
+   
     {
         id: 'mini-sunnundalu',
-        name: 'Mini Sunnundalu',
-        badge: 'NEW',
+        name: 'Mini Sunnundalu 💪 <br>(உளுந்து உருண்டை)',
+        badge: 'Special Andhra Delicacy',
         image: '../Assets/products-img/mini-sunnundalu.png',
         sizes: [
             { label: '12 pcs (M)', weight: '12 pcs', price: 200 },
             { label: '20 pcs (L)', weight: '20 pcs', price: 380 }
         ]
     },
-    
-    {
-        id: 'rava-ladoo',
-        name: 'Rava Ladoo',
-        badge: 'TRADITIONAL',
-        image: '../Assets/products-img/rava-ladoo.png',
-        sizes: [
-            { label: '6 pcs (S)', weight: '6 pcs', price: 150 },
-            { label: '10 pcs (L)', weight: '10 pcs', price: 250 }
-        ]
-    },
 
     {
         id: 'mini-rava-ladoo',
-        name: 'Mini Rava Ladoo',
+        name: 'Mini Rava Ladoo <br>(ரவா லட்டு)',
         badge: 'NEW',
         image: '../Assets/products-img/mini-rava-ladoo.png',
         sizes: [
@@ -71,8 +51,8 @@ export const STORE_PRODUCTS = [
 
     {
         id: 'gongura-chutney',
-        name: 'Gongura Chutney',
-        badge: 'SPECIAL',
+        name: 'Gongura Chutney <br>(கொங்குரா சுட்னி)',
+        badge: 'NEW',
         image: '../Assets/products-img/gongura-chutney.png',
         sizes: [
             { label: '100g (M)', weight: '100g', price: 100 },
