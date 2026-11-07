@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave a Review - KB Savouries</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <meta name="theme-color" content="#0F172A">
+</head>
+<body>
+
+  <div class="container" style="max-width: 600px; padding: 4rem 1.5rem;">
+    <div style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(24px); border: 1.5px solid rgba(255, 255, 255, 0.9); border-radius: 24px; padding: 2.5rem; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);">
+      
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <a href="../index.html" style="font-size: 0.85rem; font-weight: 800; color: #EA580C; text-decoration: none;">&larr; Back to Home</a>
+        <h1 style="font-size: 2rem; font-weight: 800; color: #0F172A; margin-top: 1rem; letter-spacing: -0.5px;">Share Your Snacking Experience</h1>
+        <p style="color: #475569; font-size: 0.95rem; margin-top: 0.5rem;">We'd love to hear what you think about our traditional batches!</p>
+      </div>
+
+      <form id="review-form">
+        
+        <!-- Name Input -->
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin-bottom: 0.5rem;">Your Name</label>
+          <input type="text" id="review-name" required placeholder="e.g. Bhargav" style="width: 100%; padding: 0.85rem 1rem; border: 1.5px solid rgba(15, 23, 42, 0.15); border-radius: 12px; font-size: 1rem; font-family: inherit; background: #FFFFFF; outline: none;">
+        </div>
+
+        <!-- Products Tried Checkboxes -->
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin-bottom: 0.5rem;">Products Tried</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.92rem; color: #1E293B; cursor: pointer;">
+              <input type="checkbox" class="review-prod-check" value="Poha Crunch" style="width: 18px; height: 18px; accent-color: #EA580C;"> Poha Crunch
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.92rem; color: #1E293B; cursor: pointer;">
+              <input type="checkbox" class="review-prod-check" value="Sunnundalu" style="width: 18px; height: 18px; accent-color: #EA580C;"> Sunnundalu
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.92rem; color: #1E293B; cursor: pointer;">
+              <input type="checkbox" class="review-prod-check" value="Idly Podi" style="width: 18px; height: 18px; accent-color: #EA580C;"> Idly Podi
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.92rem; color: #1E293B; cursor: pointer;">
+              <input type="checkbox" class="review-prod-check" value="Gongura Chutney" style="width: 18px; height: 18px; accent-color: #EA580C;"> Gongura Chutney
+            </label>
+          </div>
+        </div>
+
+        <!-- Star Rating Selector -->
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin-bottom: 0.5rem;">Rating</label>
+          <input type="hidden" id="review-rating" value="0">
+          <div id="kb-star-rating" class="kb-star-rating" role="radiogroup" aria-label="Rating">
+            <button type="button" class="kb-star" data-value="1" role="radio" aria-checked="false" aria-label="1 star">★</button>
+            <button type="button" class="kb-star" data-value="2" role="radio" aria-checked="false" aria-label="2 stars">★</button>
+            <button type="button" class="kb-star" data-value="3" role="radio" aria-checked="false" aria-label="3 stars">★</button>
+            <button type="button" class="kb-star" data-value="4" role="radio" aria-checked="false" aria-label="4 stars">★</button>
+            <button type="button" class="kb-star" data-value="5" role="radio" aria-checked="false" aria-label="5 stars">★</button>
+            <span id="kb-star-label" class="kb-star-label">Tap a star to rate</span>
+          </div>
+          <style>
+            .kb-star-rating { display: flex; align-items: center; gap: 6px; }
+            .kb-star {
+              background: none; border: none; padding: 0 2px; cursor: pointer;
+              font-size: 2.2rem; line-height: 1; color: #CBD5E1;
+              transition: color 0.15s, transform 0.15s;
+              -webkit-tap-highlight-color: transparent;
+            }
+            .kb-star.filled { color: #F59E0B; }
+            .kb-star:hover { transform: scale(1.15); }
+            .kb-star:focus-visible { outline: 3px solid #F59E0B; outline-offset: 2px; border-radius: 6px; }
+            .kb-star-label { margin-left: 10px; font-size: 0.85rem; font-weight: 700; color: #475569; }
+          </style>
+        </div>
+
+        <!-- Comments -->
+        <div style="margin-bottom: 2rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 800; color: #0F172A; text-transform: uppercase; margin-bottom: 0.5rem;">Your Review</label>
+          <textarea id="review-comment" rows="4" required placeholder="Tell us about the crunch, taste, and aroma..." style="width: 100%; padding: 0.85rem 1rem; border: 1.5px solid rgba(15, 23, 42, 0.15); border-radius: 12px; font-size: 1rem; font-family: inherit; background: #FFFFFF; outline: none; resize: vertical;"></textarea>
+        </div>
+
+        <button type="submit" id="review-submit" class="btn btn-order" style="width: 100%; padding: 1rem; text-align: center; font-size: 1rem;">SUBMIT REVIEW</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="review-success-modal" class="modal-backdrop hidden" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); justify-content: center; align-items: center; z-index: 99999;">
+    <div class="modal-card" style="background: #0F172A; border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 20px; width: 90%; max-width: 440px; padding: 2.5rem; text-align: center;">
+      <h3 style="font-size: 1.6rem; font-weight: 800; color: #FFFFFF; margin-bottom: 1rem;">Review Submitted! 🎉</h3>
+      <p style="color: #94A3B8; font-size: 0.95rem; margin-bottom: 1.5rem;">Thank you for sharing your feedback. Your review has been saved and will appear on our home page.</p>
+      <a href="../index.html" class="btn btn-order" style="display: inline-block; width: 100%; padding: 1rem; text-decoration: none;">RETURN TO HOME</a>
+    </div>
+  </div>
+
+  <script type="module" src="../js/review.js"></script>
+</body>
+</html>

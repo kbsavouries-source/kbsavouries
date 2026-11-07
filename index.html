@@ -10,6 +10,46 @@
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0F172A">
+
+    <style>
+      /* ---------- Reviews slideshow ---------- */
+      .kb-reviews { --per-view: 1; max-width: 1000px; margin: 0 auto; }
+      .kb-reviews-viewport { overflow: hidden; border-radius: 20px; padding: 6px 0 14px; }
+      .kb-reviews-track { display: flex; align-items: stretch; transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1); will-change: transform; }
+      .kb-slide { flex: 0 0 calc(100% / var(--per-view)); padding: 0 10px; box-sizing: border-box; display: flex; }
+      .kb-review-card {
+        width: 100%; box-sizing: border-box; padding: 24px;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1.5px solid rgba(255, 255, 255, 0.9); border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+        display: flex; flex-direction: column; justify-content: space-between;
+      }
+      .kb-review-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+      .kb-review-name { font-size: 1.05rem; color: #0F172A; }
+      .kb-review-stars { color: #F59E0B; font-size: 1.1rem; letter-spacing: 2px; white-space: nowrap; }
+      .kb-review-product { font-size: 0.75rem; font-weight: 800; color: #EA580C; text-transform: uppercase; margin-bottom: 12px; }
+      .kb-review-comment { color: #475569; font-size: 0.92rem; line-height: 1.5; margin: 0 0 16px; }
+      .kb-review-foot { font-size: 0.75rem; color: #94A3B8; border-top: 1px solid rgba(254, 215, 170, 0.5); padding-top: 10px; }
+      .kb-review-note { text-align: center; justify-content: center; color: #475569; font-size: 1rem; font-weight: 600; min-height: 140px; align-items: center; }
+      .kb-reviews-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+      .kb-reviews-controls[hidden] { display: none; }
+      .kb-reviews-counter { font-size: 0.8rem; font-weight: 800; color: #475569; letter-spacing: 1px; }
+      .kb-arrow-box {
+        width: 48px; height: 48px; border-radius: 14px; cursor: pointer;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border: 1.5px solid rgba(255, 255, 255, 0.9); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        color: #EA580C; font-size: 1.8rem; line-height: 1; padding: 0 0 4px;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s, color 0.2s, transform 0.2s, opacity 0.2s;
+      }
+      .kb-arrow-box:hover:not(:disabled) { background: #EA580C; color: #fff; transform: translateY(-2px); }
+      .kb-arrow-box:focus-visible { outline: 3px solid #F59E0B; outline-offset: 2px; }
+      .kb-arrow-box:disabled { opacity: 0.35; cursor: default; }
+      @media (min-width: 640px)  { .kb-reviews { --per-view: 2; } }
+      @media (min-width: 960px)  { .kb-reviews { --per-view: 3; } }
+      @media (prefers-reduced-motion: reduce) { .kb-reviews-track { transition: none; } }
+    </style>
 </head>
 <body>
 
@@ -91,6 +131,30 @@
 
       </div>
     </section>
+
+    <!-- Featured Customer Reviews Section -->
+        <div class="container" id="reviews" style="margin-top: 50px; margin-bottom: 20px;">
+            <div class="section-header" style="margin-bottom: 25px;">
+                <h2>Loved by Our Snackers</h2>
+                <p>Real reviews from verified tea-time enthusiasts.</p>
+                <div style="margin-top: 14px;">
+                    <a href="pages/review.html" class="btn btn-order" style="font-size: 0.8rem; padding: 10px 24px;">Leave a Review ⭐</a>
+                </div>
+            </div>
+
+            <div class="kb-reviews" id="kb-reviews" style="--per-view: 1;" aria-roledescription="carousel" aria-label="Customer reviews">
+                <div class="kb-reviews-viewport">
+                    <div class="kb-reviews-track" id="kb-reviews-track" aria-live="polite">
+                        <div class="kb-slide"><div class="kb-review-card kb-review-note">No reviews yet. Be the first to leave a review! ⭐</div></div>
+                    </div>
+                </div>
+                <div class="kb-reviews-controls" id="kb-reviews-controls" hidden>
+                    <button type="button" class="kb-arrow-box" id="kb-reviews-prev" aria-label="Previous review">&#8249;</button>
+                    <span class="kb-reviews-counter" id="kb-reviews-counter"></span>
+                    <button type="button" class="kb-arrow-box" id="kb-reviews-next" aria-label="Next review">&#8250;</button>
+                </div>
+            </div>
+        </div>
 
     <!-- Product 1: Poha Crunch -->
     <section id="benefits" class="recipes-section">
@@ -615,5 +679,224 @@
   </a>
 
   <script src="app.js"></script>
+  <script type="module">
+// ==========================================================================
+// Landing page reviews: fetch from Firestore and render as a slideshow
+// ==========================================================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import {
+    getFirestore,
+    collection,
+    query,
+    orderBy,
+    limit,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCullX49Und6AmRgg8UL9hP1cLvQ-KVnEI",
+    authDomain: "kb-savouries.firebaseapp.com",
+    projectId: "kb-savouries",
+    storageBucket: "kb-savouries.firebasestorage.app",
+    messagingSenderId: "805966330754",
+    appId: "1:805966330754:web:22cf30e2499298e4456d9b"
+};
+
+const MAX_REVIEWS = 20;
+const AUTOPLAY_MS = 6000;
+const FETCH_TIMEOUT_MS = 10000;
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
+// ---------- Data ----------
+async function fetchReviews() {
+    try {
+        const q = query(
+            collection(db, "reviews"),
+            orderBy("createdAt", "desc"),
+            limit(MAX_REVIEWS)
+        );
+        const snapshot = await Promise.race([
+            getDocs(q),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Firestore request timed out")), FETCH_TIMEOUT_MS)
+            )
+        ]);
+        return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    } catch (err) {
+        console.error("Error fetching reviews from Firestore:", err);
+        throw err;
+    }
+}
+
+// ---------- DOM helpers (textContent only, so user input can never inject HTML) ----------
+function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+}
+
+function formatDate(r) {
+    if (r.date) return String(r.date);
+    const d = new Date(r.createdAt);
+    return isNaN(d) ? "" : d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function buildSlide(contentCard) {
+    const slide = el("div", "kb-slide");
+    slide.appendChild(contentCard);
+    return slide;
+}
+
+function buildReviewCard(r) {
+    const rating = Math.min(5, Math.max(1, Math.round(Number(r.rating) || 0)));
+
+    const card = el("article", "kb-review-card");
+    const body = el("div");
+
+    const head = el("div", "kb-review-head");
+    head.appendChild(el("strong", "kb-review-name", r.name || "Anonymous"));
+    const stars = el("span", "kb-review-stars", "★".repeat(rating));
+    stars.setAttribute("aria-label", `${rating} out of 5 stars`);
+    head.appendChild(stars);
+
+    body.appendChild(head);
+    if (r.product) body.appendChild(el("div", "kb-review-product", `Tried: ${r.product}`));
+    body.appendChild(el("p", "kb-review-comment", `“${r.comment || ""}”`));
+
+    const date = formatDate(r);
+    card.appendChild(body);
+    card.appendChild(el("div", "kb-review-foot", date ? `Verified Snacker • ${date}` : "Verified Snacker"));
+    return card;
+}
+
+function buildNoteCard(message) {
+    return el("div", "kb-review-card kb-review-note", message);
+}
+
+// ---------- Slideshow ----------
+function initSlideshow(root, track, controls, prevBtn, nextBtn, counter, slideCount) {
+    const perViewQueries = [
+        { mq: window.matchMedia("(min-width: 960px)"), n: 3 },
+        { mq: window.matchMedia("(min-width: 640px)"), n: 2 }
+    ];
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    let index = 0;
+    let timer = null;
+
+    const perView = () => (perViewQueries.find((p) => p.mq.matches) || { n: 1 }).n;
+    const maxIndex = () => Math.max(0, slideCount - perView());
+
+    function render() {
+        const pv = perView();
+        index = Math.min(index, maxIndex());
+        track.style.transform = `translateX(${(-index * 100) / pv}%)`;
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index >= maxIndex();
+        counter.textContent = `${index + 1} / ${slideCount}`;
+        controls.hidden = maxIndex() === 0;
+    }
+
+    function go(delta, userInitiated) {
+        const max = maxIndex();
+        if (max === 0) return;
+        // Wrap around on autoplay; clamp on manual clicks (buttons disable at the ends)
+        if (!userInitiated && index + delta > max) index = 0;
+        else index = Math.min(max, Math.max(0, index + delta));
+        render();
+        if (userInitiated && typeof window.playCrunchSound === "function") window.playCrunchSound();
+    }
+
+    function startAutoplay() {
+        stopAutoplay();
+        if (reduceMotion.matches || maxIndex() === 0) return;
+        timer = setInterval(() => go(1, false), AUTOPLAY_MS);
+    }
+    function stopAutoplay() {
+        if (timer) clearInterval(timer);
+        timer = null;
+    }
+
+    prevBtn.addEventListener("click", () => { go(-1, true); startAutoplay(); });
+    nextBtn.addEventListener("click", () => { go(1, true); startAutoplay(); });
+
+    root.addEventListener("mouseenter", stopAutoplay);
+    root.addEventListener("mouseleave", startAutoplay);
+    root.addEventListener("focusin", stopAutoplay);
+    root.addEventListener("focusout", startAutoplay);
+
+    // Keyboard arrows when focus is inside the slideshow
+    root.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") go(-1, true);
+        if (e.key === "ArrowRight") go(1, true);
+    });
+
+    // Touch swipe
+    let startX = null;
+    track.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; stopAutoplay(); }, { passive: true });
+    track.addEventListener("touchend", (e) => {
+        if (startX === null) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1, true);
+        startX = null;
+        startAutoplay();
+    });
+
+    perViewQueries.forEach(({ mq }) => mq.addEventListener("change", () => { render(); startAutoplay(); }));
+    document.addEventListener("visibilitychange", () => (document.hidden ? stopAutoplay() : startAutoplay()));
+
+    render();
+    startAutoplay();
+}
+
+// ---------- Boot ----------
+async function renderReviews() {
+    console.log("[reviews] module loaded, fetching…");
+    const root = document.getElementById("kb-reviews");
+    const track = document.getElementById("kb-reviews-track");
+    const controls = document.getElementById("kb-reviews-controls");
+    const prevBtn = document.getElementById("kb-reviews-prev");
+    const nextBtn = document.getElementById("kb-reviews-next");
+    const counter = document.getElementById("kb-reviews-counter");
+    if (!root || !track || !controls || !prevBtn || !nextBtn || !counter) return;
+
+    let reviews;
+    try {
+        reviews = await fetchReviews();
+    } catch (err) {
+        track.replaceChildren(buildSlide(buildNoteCard("We couldn't load reviews right now. Please try again later.")));
+        controls.hidden = true;
+        root.style.setProperty("--per-view", "1");
+        return;
+    }
+
+    console.log(`[reviews] Firestore returned ${reviews.length} review(s)`, reviews);
+
+    if (reviews.length === 0) {
+        track.replaceChildren(buildSlide(buildNoteCard("No reviews yet. Be the first to leave a review! ⭐")));
+        controls.hidden = true;
+        // A single note card should span the full width regardless of breakpoint
+        root.style.setProperty("--per-view", "1");
+        return;
+    }
+
+    root.style.removeProperty("--per-view"); // hand width control back to the CSS breakpoints
+    track.replaceChildren(...reviews.map((r) => buildSlide(buildReviewCard(r))));
+    initSlideshow(root, track, controls, prevBtn, nextBtn, counter, reviews.length);
+}
+
+renderReviews().catch((err) => {
+    console.error("Unexpected error while rendering reviews:", err);
+    const track = document.getElementById("kb-reviews-track");
+    const controls = document.getElementById("kb-reviews-controls");
+    const root = document.getElementById("kb-reviews");
+    if (track) track.replaceChildren(buildSlide(buildNoteCard("We couldn't load reviews right now. Please try again later.")));
+    if (controls) controls.hidden = true;
+    if (root) root.style.setProperty("--per-view", "1");
+});
+  </script>
 </body>
 </html>

@@ -156,20 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const navbar = document.querySelector('.navbar');
-  let lastScrollY = window.scrollY;
-
-  if (navbar) {
-    window.addEventListener('scroll', () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        navbar.classList.add('nav-hidden');
-      } else {
-        navbar.classList.remove('nav-hidden');
-      }
-      lastScrollY = currentScrollY;
-    });
-  }
+  // Navbar stays visible while scrolling (hide-on-scroll behaviour removed)
 
   const footerContent = document.querySelector('.footer-content');
   if (footerContent) {
@@ -183,7 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     observer.observe(footerContent);
   }
+});
 
+// ==========================================================================
+// PWA install prompt (kept at top level so onclick="triggerInstallApp(event)" works)
+// ==========================================================================
 let deferredPrompt;
 
 // Capture the browser's install prompt event
@@ -216,5 +207,3 @@ function triggerInstallApp(e) {
     alert("App is already installed, or your browser doesn't support direct installation prompts. You can check your browser menu to install the app.");
   }
 }
-
-});
