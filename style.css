@@ -1419,3 +1419,19 @@ html.has-cursor iframe { cursor: auto !important; }
 @supports (height: 100dvh) {
   .mobile-menu-drawer, .modal-backdrop { height: 100dvh; }
 }
+
+
+/* ==========================================================================
+   HERO COVER — show the whole photo
+   ========================================================================== */
+/* desktop: small bleed so the scroll parallax never exposes the background */
+.kbh-slides { top: -5%; height: 110%; }
+
+/* phones: stage matches the photo's 16:9 shape (+ room for the rounded band overlap),
+   no oversizing, no zoom, so nothing is cropped */
+@media (max-width: 800px) {
+  .kbh-stage { height: calc(56.25vw + 1.75rem); min-height: 0; }
+  .kbh-slides { top: 0; height: 100%; }
+  .kbh-slide { background-position: center top; transform: none; }
+  .kbh-slide.is-active { animation: none; }
+}

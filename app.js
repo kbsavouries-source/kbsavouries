@@ -69,20 +69,20 @@ function initFuturisticScroll() {
       );
     });
 
-    // B. Hero Image Scale Parallax
-    const heroStage = document.querySelector('.kbh-stage');
-    if (heroStage) {
-      gsap.to('.kbh-slides', {
-        yPercent: 8,
-        scale: 1.05,
-        transformOrigin: 'center top',
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '#video-story',
-          start: 'top top',
-          end: 'bottom top',
-          scrub: true,
-        },
+    // B. Hero image parallax (desktop only; on phones the full cover photo stays visible)
+    if (document.querySelector('.kbh-stage')) {
+      gsap.matchMedia().add('(min-width: 801px)', () => {
+        gsap.to('.kbh-slides', {
+          yPercent: 4,
+          scale: 1.03,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '#video-story',
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
       });
     }
 

@@ -120,12 +120,14 @@
   function initHeroShrink() {
     const stage = document.querySelector('.kbh-stage');
     if (!stage) return;
-    gsap.fromTo(stage,
-      { clipPath: 'inset(0% 0% 0% 0% round 0px 0px 0px 0px)' },
-      {
-        clipPath: 'inset(0% 5% 0% 5% round 0px 0px 44px 44px)', ease: 'none',
-        scrollTrigger: { trigger: '#video-story', start: 'top 90px', end: 'bottom 35%', scrub: true },
-      });
+    gsap.matchMedia().add('(min-width: 801px)', () => {
+      gsap.fromTo(stage,
+        { clipPath: 'inset(0% 0% 0% 0% round 0px 0px 0px 0px)' },
+        {
+          clipPath: 'inset(0% 5% 0% 5% round 0px 0px 44px 44px)', ease: 'none',
+          scrollTrigger: { trigger: '#video-story', start: 'top 90px', end: 'bottom 35%', scrub: true },
+        });
+    });
   }
 
   /* ---------- 6. GIANT OUTLINED SECTION NUMERALS ---------- */
