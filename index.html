@@ -147,6 +147,21 @@
             </div>
         </div>
 
+    <!-- Taste Test: YouTube Shorts (links are managed in js/youtube-shorts.js) -->
+    <section id="taste-test" class="taste-test-section">
+      <div class="container">
+        <div class="section-header" style="margin-bottom: 1.5rem;">
+          <h2>Taste Test</h2>
+          <p>Watch our quick taste tests and tell us what you think.</p>
+        </div>
+        <div class="tt-wrap">
+          <button type="button" class="tt-arrow tt-prev" id="taste-test-prev" aria-label="Previous videos" hidden>&#8249;</button>
+          <div class="tt-track" id="taste-test-track" aria-label="Taste test videos"></div>
+          <button type="button" class="tt-arrow tt-next" id="taste-test-next" aria-label="Next videos" hidden>&#8250;</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Product 1: Poha Crunch -->
     <section id="benefits" class="recipes-section">
       <div class="container">
@@ -670,6 +685,7 @@
   </a>
 
   <script src="app.js"></script>
+  <script src="js/youtube-shorts.js"></script>
   <script type="module">
 // ==========================================================================
 // Landing page reviews: fetch from Firestore and render as a slideshow
