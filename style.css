@@ -1272,3 +1272,123 @@ html { scroll-padding-top: 90px; }
 .orb-a { top: 12vh; left: -12vw; width: 46vw; height: 46vw; max-width: 620px; max-height: 620px; background: radial-gradient(circle, #FDBA74, transparent 68%); }
 .orb-b { top: 55vh; right: -14vw; width: 40vw; height: 40vw; max-width: 540px; max-height: 540px; background: radial-gradient(circle, #FCD34D, transparent 68%); }
 @media (max-width: 800px) { .ambient-orb { opacity: .28; filter: blur(70px); } }
+
+
+/* ==========================================================================
+   EXPERIMENTAL / AWWWARDS LAYER
+   ========================================================================== */
+
+/* ---- Film grain ---- */
+html::after {
+  content: ""; position: fixed; inset: -120px; z-index: 99990; pointer-events: none; opacity: .07;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .16  0 0 0 0 .09  0 0 0 0 .03  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grainShift .9s steps(6) infinite;
+}
+@keyframes grainShift {
+  0% { transform: translate(0,0); } 20% { transform: translate(-40px,25px); } 40% { transform: translate(30px,-35px); }
+  60% { transform: translate(-25px,-20px); } 80% { transform: translate(35px,30px); } 100% { transform: translate(0,0); }
+}
+
+/* ---- Custom cursor ---- */
+.kb-cursor-dot, .kb-cursor-ring { position: fixed; top: 0; left: 0; z-index: 100002; pointer-events: none; }
+.kb-cursor-dot { width: 8px; height: 8px; border-radius: 50%; background: #EA580C; transition: transform .25s var(--ease-premium), opacity .25s; }
+.kb-cursor-dot.is-hidden { transform: translate(-50%, -50%) scale(0) !important; }
+.kb-cursor-ring {
+  width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(234, 88, 12, .75);
+  display: grid; place-items: center;
+  transition: width .4s var(--ease-premium), height .4s var(--ease-premium), background .3s ease, border-color .3s ease;
+}
+.kb-cursor-label { font-size: .72rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #fff; opacity: 0; transition: opacity .25s ease; white-space: nowrap; }
+.kb-cursor-ring.is-link { width: 64px; height: 64px; background: rgba(234, 88, 12, .14); border-color: rgba(234, 88, 12, .9); }
+.kb-cursor-ring.is-label { width: 92px; height: 92px; background: #EA580C; border-color: #EA580C; }
+.kb-cursor-ring.is-label .kb-cursor-label { opacity: 1; }
+.kb-cursor-ring.is-down { width: 30px; height: 30px; }
+html.has-cursor, html.has-cursor * { cursor: none !important; }
+html.has-cursor iframe { cursor: auto !important; }
+
+/* ---- Magnetic buttons (GSAP owns transform, CSS keeps the glow) ---- */
+.kbh .kbh-btn.is-magnetic, .navbar .btn.is-magnetic { transition: box-shadow .3s ease, background .3s ease; }
+.kbh .kbh-btn.is-magnetic:hover, .navbar .btn.is-magnetic:hover { transform: none; }
+
+/* ---- Velocity marquee ---- */
+.kb-marquee {
+  position: relative; z-index: 3; overflow: hidden; background: #2A1608; color: #FFF7ED;
+  padding: clamp(1.1rem, 2.6vw, 2rem) 0; border-block: 1px solid rgba(253, 186, 116, .25);
+}
+.marquee-track { display: flex; width: max-content; will-change: transform; }
+.marquee-group { display: flex; align-items: center; flex-shrink: 0; gap: clamp(1.5rem, 3.5vw, 3rem); padding-right: clamp(1.5rem, 3.5vw, 3rem); }
+.marquee-group span {
+  font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 600; white-space: nowrap;
+  font-size: clamp(2.4rem, 7vw, 5.5rem); line-height: 1.1; letter-spacing: -.02em;
+}
+.marquee-group span.o { color: transparent; -webkit-text-stroke: 1.5px rgba(255, 247, 237, .85); font-style: normal; }
+.marquee-group i { font-style: normal; color: #F59E0B; font-size: clamp(1.4rem, 3vw, 2.4rem); }
+
+/* ---- Manifesto (words light up as you scroll) ---- */
+.kb-manifesto { padding: clamp(5rem, 11vw, 10rem) 0; }
+.kb-manifesto .container { max-width: 1060px; }
+.manifesto-eyebrow {
+  display: inline-flex; align-items: center; gap: .6rem; margin-bottom: 1.75rem;
+  font-size: .75rem; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: var(--accent-orange);
+}
+.manifesto-eyebrow::before { content: ""; width: 38px; height: 2px; background: linear-gradient(90deg, #EA580C, #F59E0B); }
+.manifesto-text {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-spacing: -.025em;
+  font-size: clamp(1.9rem, 4.9vw, 4rem); line-height: 1.16; color: #2A1608;
+}
+.manifesto-text em { font-style: italic; color: var(--accent-orange); }
+
+/* ---- Giant outlined numerals behind each product ---- */
+.recipes-section { overflow-x: clip; }
+.recipes-section > .container { position: relative; z-index: 1; }
+.sec-index {
+  position: absolute; top: 1.5rem; left: max(1rem, calc(50% - 590px)); z-index: 0; pointer-events: none;
+  font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-style: italic; line-height: .8; letter-spacing: -.05em;
+  font-size: clamp(7rem, 24vw, 19rem);
+  color: transparent; -webkit-text-stroke: 1.5px rgba(234, 88, 12, .32);
+  will-change: transform;
+}
+.recipes-section:nth-of-type(even) .sec-index { left: auto; right: max(1rem, calc(50% - 590px)); }
+
+/* ---- Footer wordmark ---- */
+.footer { position: relative; overflow: hidden; }
+.footer-wordmark {
+  display: flex; justify-content: center; width: 100%; white-space: nowrap; user-select: none;
+  padding: 0 1rem 2.5rem; margin-top: -1.5rem;
+  font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-style: italic; letter-spacing: -.03em; line-height: 1;
+  font-size: clamp(2.4rem, 11.5vw, 11rem);
+}
+.footer-wordmark .split-mask { padding-bottom: .2em; margin-bottom: -.2em; }
+.wm-letter { color: transparent; -webkit-text-stroke: 1.5px rgba(253, 186, 116, .55); transition: color .4s ease; }
+.wm-letter:hover { color: #EA580C; }
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  html::after { animation: none; }
+  .manifesto-text .mw { opacity: 1 !important; }
+}
+@media (max-width: 800px) {
+  html::after { animation: none; opacity: .05; }
+  .sec-index { top: .5rem; }
+}
+
+
+/* ==========================================================================
+   MARQUEE ALIGNMENT FIX
+   ========================================================================== */
+.kb-marquee { padding: 0; }
+.marquee-track { align-items: center; padding-left: clamp(1.25rem, 3vw, 3rem); }
+.marquee-group { gap: clamp(1.5rem, 3.5vw, 3rem); padding-right: clamp(1.5rem, 3.5vw, 3rem); }
+.marquee-group span {
+  display: inline-flex; align-items: center;
+  line-height: 1; padding: .2em 0 .26em;          /* optical vertical centring for Fraunces */
+  font-size: clamp(2rem, 6.2vw, 5rem);
+}
+.marquee-group span.o { font-style: italic; }       /* same slant as filled words so widths and rhythm match */
+.marquee-group i {
+  flex: 0 0 auto; display: block; align-self: center;
+  width: clamp(1.1rem, 2.4vw, 2rem); height: clamp(1.1rem, 2.4vw, 2rem);
+  background: #F59E0B; font-size: 0;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+@media (max-width: 800px) { .kb-marquee { border-block-width: 0; } }

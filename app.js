@@ -127,7 +127,7 @@ function initPremiumMotion() {
   if (heroItems.length) {
     gsap.from(heroItems, {
       y: 36, opacity: 0, filter: 'blur(8px)',
-      duration: 1.1, ease: EASE, stagger: 0.09, delay: 0.35,
+      duration: 1.1, ease: EASE, stagger: 0.09, delay: 0.3,
       clearProps: 'filter,transform,opacity',
     });
   }
