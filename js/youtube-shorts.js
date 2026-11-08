@@ -11,6 +11,7 @@
    ========================================================================== */
 
 const KB_TASTE_TEST_SHORTS = [
+  'https://youtube.com/shorts/GqFD92zPLjQ?si=Bg8wVKYIs-NyOTrR',
   'https://youtube.com/shorts/uEuEziPaKmA?si=dQo-y_cZhlCfWCeZ',
   'https://youtube.com/shorts/ZtOd2Kika8g?si=Vy_HLOm4-zb32n94',
   'https://youtube.com/shorts/WIzqbbereWM?si=UCmqRlBAXYb5NKED',
