@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0F172A">
@@ -63,12 +64,6 @@
         <span class="badge-vegan">100% Veg</span>
       </a>
 
-      <!-- Desktop Navigation Links -->
-      <div class="nav-center desktop-nav">
-        <a href="pages/about.html" class="nav-link">About</a>
-        <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries%2C%20I%20would%20like%20to%20get%20in%20touch!" target="_blank" rel="noopener noreferrer" class="nav-link">Contact</a>
-      </div>
-
       <div class="nav-right desktop-order">
         <a href="pages/order.html" class="btn btn-order">ORDER FRESH</a>
       </div>
@@ -85,50 +80,46 @@
     <div class="mobile-menu-drawer" id="mobileMenuDrawer">
       <div class="mobile-menu-links">
         <a href="pages/order.html" class="mobile-nav-link" onclick="toggleMobileMenu()">Shop</a>
-        <a href="pages/about.html" class="mobile-nav-link" onclick="toggleMobileMenu()">About</a>
-        <a href="https://wa.me/919884049021?text=Hello%20KB%20Savouries%2C%20I%20would%20like%20to%20get%20in%20touch!" target="_blank" rel="noopener noreferrer" class="mobile-nav-link" onclick="toggleMobileMenu()">Contact</a>
       </div>
       <div class="mobile-menu-footer">
         <a href="pages/order.html" class="btn btn-order btn-mobile-order" onclick="toggleMobileMenu()">ORDER FRESH</a>
       </div>
     </div>
 
-    <!-- Hero & Product Showcase Section -->
-    <section id="video-story" class="hero-section zoom-on-scroll">
-      <div class="container">
-        <div class="hero-header">
-          <h1 class="hero-title">Nostalgia Meets <span>Modern Crunch</span></h1>
+    <!-- Hero: cover photo shown in full, content band below -->
+    <section id="video-story" class="kbh" aria-roledescription="carousel" aria-label="KB Savouries highlights">
+      <div class="kbh-stage">
+        <div class="kbh-slides" aria-hidden="true">
+          <div class="kbh-slide is-active" style="background-image:url('Assets/cover-image.png')"></div>
+          <div class="kbh-slide" style="background-image:url('Assets/cover-image-2.png')"></div>
+          <div class="kbh-slide" style="background-image:url('Assets/cover-image-3.png')"></div>
+        </div>
+        <div class="kbh-dots" role="tablist" aria-label="Choose slide">
+          <button type="button" class="kbh-dot is-active" role="tab" aria-selected="true" aria-label="Slide 1"><span>01</span><i></i></button>
+          <button type="button" class="kbh-dot" role="tab" aria-selected="false" aria-label="Slide 2"><span>02</span><i></i></button>
+          <button type="button" class="kbh-dot" role="tab" aria-selected="false" aria-label="Slide 3"><span>03</span><i></i></button>
+        </div>
+      </div>
 
-          <!-- Hero Freshness Guarantee Card -->
-          <div class="why-kb-card">
-            <div class="why-kb-badge">✨ MADE-TO-ORDER GUARANTEE</div>
-            <h3 class="why-kb-heading">Why KB Savouries?</h3>
-            <p class="why-kb-description">
-               <strong>Prepared only after you place your order</strong>
-            </p>
+      <div class="kbh-band">
+        <div class="kbh-inner">
+          <div class="kbh-main">
+            <p class="kbh-eyebrow">MADE-TO-ORDER GUARANTEE</p>
+            <h1 class="kbh-title">Nostalgia Meets <em>Modern Crunch</em></h1>
+          </div>
+          <div class="kbh-side">
+            <h2 class="kbh-sub">Why KB Savouries?</h2>
+            <p class="kbh-lead">Prepared only after you place your order</p>
+            <div class="kbh-actions">
+              <a href="pages/order.html" class="kbh-btn kbh-btn-gold">Shop Now <span aria-hidden="true">&rarr;</span></a>
+              <a href="pages/about.html" class="kbh-link">Our story <span aria-hidden="true">&rarr;</span></a>
+            </div>
+            <ul class="kbh-trust">
+              <li>100% Veg</li>
+              <li>Prepared after you order</li>
+            </ul>
           </div>
         </div>
-
-        <!-- Glassmorphic Cover Image Slideshow Frame -->
-        <div class="slideshow-glass-container">
-          <div class="slideshow-viewport">
-            <!-- Slide 1 -->
-            <div class="slideshow-slide slide-1">
-              <img src="Assets/cover-image.png" alt="Signature Poha Crunch Showcase">
-            </div>
-
-            <!-- Slide 2 -->
-            <div class="slideshow-slide slide-2">
-              <img src="Assets/cover-image-2.png" alt="Traditional Small Batch Freshness">
-            </div>
-
-            <!-- Slide 3 -->
-            <div class="slideshow-slide slide-3">
-              <img src="Assets/cover-image-3.png" alt="Authentic Spices and Crunch">
-            </div>
-          </div>
-        </div>
-
       </div>
     </section>
 

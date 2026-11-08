@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kb-savouries-v83';
+const CACHE_NAME = 'kb-savouries-v84';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
