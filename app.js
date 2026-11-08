@@ -25,7 +25,6 @@ function toggleMobileMenu() {
   const menuDrawer = document.getElementById('mobileMenuDrawer');
   
   if (menuBtn && menuDrawer) {
-    // If the menu is currently closed and we are opening it, scroll to top first
     if (!menuDrawer.classList.contains('open')) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -156,8 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Navbar stays visible while scrolling (hide-on-scroll behaviour removed)
-
   const footerContent = document.querySelector('.footer-content');
   if (footerContent) {
     const observer = new IntersectionObserver((entries) => {
@@ -170,31 +167,90 @@ document.addEventListener('DOMContentLoaded', () => {
 
     observer.observe(footerContent);
   }
+
+  // Render Featured Customer Reviews from Firestore Cloud Storage (Strictly Limited to 10)
+  const reviewsGrid = document.getElementById('featured-reviews-grid');
+  if (reviewsGrid) {
+      localStorage.removeItem('kb_customer_reviews');
+
+      import("https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js").then(({ initializeApp }) => {
+          import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js").then(({ getFirestore, collection, getDocs, query, orderBy, limit }) => {
+              const firebaseConfig = {
+                  apiKey: "AIzaSyCullX49Und6AmRgg8UL9hP1cLvQ-KVnEI",
+                  authDomain: "kb-savouries.firebaseapp.com",
+                  projectId: "kb-savouries",
+                  storageBucket: "kb-savouries.firebasestorage.app",
+                  messagingSenderId: "805966330754",
+                  appId: "1:805966330754:web:22cf30e2499298e4456d9b"
+              };
+
+              const firebaseApp = initializeApp(firebaseConfig);
+              const db = getFirestore(firebaseApp);
+
+              const fetchReviews = async () => {
+                  try {
+                      // Fetch only the latest 10 reviews to protect free tier Spark quota
+                      const q = query(
+                          collection(db, 'reviews'), 
+                          orderBy('createdAt', 'desc'), 
+                          limit(10)
+                      );
+                      
+                      const querySnapshot = await getDocs(q);
+                      const cloudReviews = querySnapshot.docs.map(doc => doc.data());
+
+                      if (cloudReviews.length === 0) {
+                          reviewsGrid.innerHTML = `
+                              <div style="grid-column: 1 / -1; text-align: center; color: #64748B; padding: 24px; font-weight: 500;">
+                                  No reviews yet. Be the first to leave a review! ⭐
+                              </div>
+                          `;
+                          return;
+                      }
+
+                      reviewsGrid.innerHTML = cloudReviews.map(r => `
+                          <div style="background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); border: 1.5px solid rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 24px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04); display: flex; flex-direction: column; justify-content: space-between;">
+                              <div>
+                                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                      <strong style="font-size: 1.05rem; color: #0F172A;">${r.name}</strong>
+                                      <span style="color: #F59E0B; font-size: 1.1rem; letter-spacing: 2px;">${'★'.repeat(r.rating || 5)}</span>
+                                  </div>
+                                  <div style="font-size: 0.75rem; font-weight: 800; color: #EA580C; text-transform: uppercase; margin-bottom: 12px;">Tried: ${r.product}</div>
+                                  <p style="color: #475569; font-size: 0.92rem; line-height: 1.5; margin-bottom: 16px;">"${r.comment}"</p>
+                              </div>
+                              <div style="font-size: 0.75rem; color: #94A3B8; border-top: 1px solid rgba(254, 215, 170, 0.5); padding-top: 10px;">Verified Snacker • ${r.date}</div>
+                          </div>
+                      `).join('');
+                  } catch (err) {
+                      console.error("Error fetching Firestore reviews:", err);
+                  }
+              };
+
+              fetchReviews();
+          });
+      });
+  }
 });
 
 // ==========================================================================
-// PWA install prompt (kept at top level so onclick="triggerInstallApp(event)" works)
+// PWA install prompt
 // ==========================================================================
 let deferredPrompt;
 
-// Capture the browser's install prompt event
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
 });
 
-// Triggered when clicking "Our App" in the footer
 function triggerInstallApp(e) {
   if (e) e.preventDefault();
 
-  // Detect iOS Safari
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if (isIOS) {
     alert("To install KB Savouries on your iPhone:\n1. Tap the 'Share' button at the bottom of Safari.\n2. Scroll down and select 'Add to Home Screen'.");
     return;
   }
 
-  // Trigger Chrome / Android / Desktop prompt
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then((choiceResult) => {

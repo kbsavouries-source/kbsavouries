@@ -796,7 +796,6 @@ function initSlideshow(root, track, controls, prevBtn, nextBtn, counter, slideCo
         track.style.transform = `translateX(${(-index * 100) / pv}%)`;
         prevBtn.disabled = index === 0;
         nextBtn.disabled = index >= maxIndex();
-        counter.textContent = `${index + 1} / ${slideCount}`;
         controls.hidden = maxIndex() === 0;
     }
 
