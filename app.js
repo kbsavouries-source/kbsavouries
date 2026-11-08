@@ -86,21 +86,22 @@ function initFuturisticScroll() {
       });
     }
 
-    // C. Center Product Images Floating Parallax
-    const parallaxImgs = document.querySelectorAll('.gsap-parallax-img');
-    parallaxImgs.forEach((img) => {
-      gsap.to(img, {
-        y: -14,
-        scale: 1.03,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: img,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1,
-        },
-      });
+    // C. Product images: oversized + drift inside their rounded frame (never exposes edges)
+    document.querySelectorAll('.gsap-parallax-img').forEach((img) => {
+      gsap.fromTo(
+        img,
+        { yPercent: 4, scale: 1.1 },
+        {
+          yPercent: -4,
+          scale: 1.1,
+          ease: 'none',
+          scrollTrigger: { trigger: img, start: 'top bottom', end: 'bottom top', scrub: 0.6 },
+        }
+      );
     });
+
+    // D. Premium scroll choreography
+    initPremiumMotion();
   } else {
     // Fallback animation frame loop if GSAP isn't loaded
     function raf(time) {
@@ -109,6 +110,127 @@ function initFuturisticScroll() {
     }
     requestAnimationFrame(raf);
   }
+}
+
+
+// ==========================================================================
+// PREMIUM SCROLL MOTION (GSAP + ScrollTrigger)
+// ==========================================================================
+function initPremiumMotion() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const EASE = 'power4.out';
+
+  // ---- 1. Hero entrance: staggered, blur-to-sharp ----
+  const heroItems = ['.kbh-eyebrow', '.kbh-title', '.kbh-sub', '.kbh-lead', '.kbh-actions', '.kbh-trust li']
+    .map((q) => [...document.querySelectorAll(q)]).flat();
+  if (heroItems.length) {
+    gsap.from(heroItems, {
+      y: 36, opacity: 0, filter: 'blur(8px)',
+      duration: 1.1, ease: EASE, stagger: 0.09, delay: 0.35,
+      clearProps: 'filter,transform,opacity',
+    });
+  }
+
+  // ---- 2. Section headings: masked word-by-word rise ----
+  document.querySelectorAll('.section-header h2').forEach((h2) => {
+    const text = h2.textContent.trim();
+    if (!text || h2.dataset.split) return;
+    h2.dataset.split = '1';
+    h2.setAttribute('aria-label', text);
+    h2.textContent = '';
+    text.split(/\s+/).forEach((word, i, arr) => {
+      const mask = document.createElement('span');
+      mask.className = 'split-mask';
+      mask.setAttribute('aria-hidden', 'true');
+      const inner = document.createElement('span');
+      inner.className = 'split-inner';
+      inner.textContent = word;
+      mask.appendChild(inner);
+      h2.appendChild(mask);
+      if (i < arr.length - 1) h2.appendChild(document.createTextNode(' '));
+    });
+    gsap.from(h2.querySelectorAll('.split-inner'), {
+      yPercent: 115, rotate: 4, duration: 1.1, ease: EASE, stagger: 0.08,
+      scrollTrigger: { trigger: h2, start: 'top 88%', toggleActions: 'play none none reverse' },
+    });
+  });
+
+  // Sub-copy follows its heading
+  document.querySelectorAll('.section-header p').forEach((p) => {
+    gsap.from(p, {
+      y: 22, opacity: 0, duration: 1, ease: EASE, delay: 0.15,
+      scrollTrigger: { trigger: p, start: 'top 90%', toggleActions: 'play none none reverse' },
+    });
+  });
+
+  // ---- 3. Product photos: rounded curtain reveal ----
+  document.querySelectorAll('.poha-center-image-wrapper').forEach((wrap) => {
+    gsap.fromTo(
+      wrap,
+      { clipPath: 'inset(14% 14% 14% 14% round 48px)', opacity: 0 },
+      {
+        clipPath: 'inset(0% 0% 0% 0% round 28px)', opacity: 1,
+        duration: 1.4, ease: 'expo.out',
+        scrollTrigger: { trigger: wrap, start: 'top 85%', toggleActions: 'play none none reverse' },
+        onComplete: () => gsap.set(wrap, { clearProps: 'clipPath' }),
+      }
+    );
+  });
+
+  // ---- 4. Benefit cards: staggered rise-and-settle ----
+  document.querySelectorAll('.recipe-grid').forEach((grid) => {
+    const cards = grid.querySelectorAll('.recipe-card');
+    gsap.from(cards, {
+      y: 24, opacity: 0, scale: 0.94,
+      duration: 1, ease: EASE, stagger: 0.12,
+      scrollTrigger: { trigger: grid, start: 'top 88%', once: true },
+      onStart: () => cards.forEach((c) => (c.style.transition = 'none')),   // stop CSS hover transition fighting GSAP
+      onComplete: () => cards.forEach((c) => { c.style.transition = ''; gsap.set(c, { clearProps: 'transform,opacity' }); }),
+    });
+  });
+
+  // ---- 5. Desktop split layout: heading and cards drift at different speeds ----
+  gsap.matchMedia().add('(min-width: 1024px)', () => {
+    document.querySelectorAll('.recipes-section > .container').forEach((c) => {
+      const header = c.querySelector('.section-header');
+      const carousel = c.querySelector('.carousel-container');
+      const st = { trigger: c, start: 'top bottom', end: 'bottom top', scrub: 1 };
+      if (header) gsap.fromTo(header, { y: 30 }, { y: -30, ease: 'none', scrollTrigger: st });
+      if (carousel) gsap.fromTo(carousel, { y: 14 }, { y: -14, ease: 'none', scrollTrigger: st });
+    });
+  });
+
+  // ---- 6. Signature lineup cards ----
+  const snacks = document.querySelectorAll('.snack-card');
+  if (snacks.length) {
+    gsap.from(snacks, {
+      y: 60, opacity: 0, scale: 0.96, duration: 1.1, ease: EASE, stagger: 0.15,
+      scrollTrigger: { trigger: '.snack-cards-grid', start: 'top 85%', once: true },
+      onStart: () => snacks.forEach((c) => (c.style.transition = 'none')),
+      onComplete: () => snacks.forEach((c) => { c.style.transition = ''; gsap.set(c, { clearProps: 'transform,opacity' }); }),
+    });
+  }
+
+  // ---- 7. Ambient orbs: soft depth that drifts at its own pace ----
+  const orbs = [
+    { cls: 'ambient-orb orb-a', from: 0, to: -520 },
+    { cls: 'ambient-orb orb-b', from: 0, to: 380 },
+  ].map(({ cls, from, to }) => {
+    const o = document.createElement('div');
+    o.className = cls;
+    o.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(o);
+    gsap.fromTo(o, { y: from }, {
+      y: to, ease: 'none',
+      scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 1.5 },
+    });
+    return o;
+  });
+
+  // ---- 8. Layout settles after images/fonts load ----
+  window.addEventListener('load', () => ScrollTrigger.refresh());
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
 }
 
 // Toggle Mobile Menu Drawer with Automatic Scroll to Top

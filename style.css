@@ -1257,3 +1257,18 @@ html { scroll-padding-top: 90px; }
 /* shadow lives on a pseudo-layer so overflow:hidden doesn't cut it off */
 .poha-center-image-wrapper::before { display: none; }
 .recipes-section .poha-center-image-wrapper { filter: drop-shadow(0 18px 28px rgba(120, 53, 15, .22)); }
+
+
+/* ==========================================================================
+   GSAP MOTION SUPPORT
+   ========================================================================== */
+.split-mask { display: inline-block; overflow: hidden; vertical-align: top; padding: 0 .04em .14em; margin-bottom: -.14em; }
+.split-inner { display: inline-block; will-change: transform; transform-origin: 0 100%; }
+
+.ambient-orb {
+  position: fixed; z-index: -1; pointer-events: none; border-radius: 50%;
+  filter: blur(90px); opacity: .38; will-change: transform;
+}
+.orb-a { top: 12vh; left: -12vw; width: 46vw; height: 46vw; max-width: 620px; max-height: 620px; background: radial-gradient(circle, #FDBA74, transparent 68%); }
+.orb-b { top: 55vh; right: -14vw; width: 40vw; height: 40vw; max-width: 540px; max-height: 540px; background: radial-gradient(circle, #FCD34D, transparent 68%); }
+@media (max-width: 800px) { .ambient-orb { opacity: .28; filter: blur(70px); } }
