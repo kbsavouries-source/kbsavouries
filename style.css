@@ -264,7 +264,7 @@ body::before {
   --kbh-orange: #EA580C;
   --kbh-ink: #2A1608;
   --kbh-muted: #6B4A33;
-  --kbh-time: 6000ms;
+  --kbh-time: 4000ms;
   position: relative;
   color: var(--kbh-ink);
   background: #FFF7ED;
@@ -287,44 +287,13 @@ body::before {
   opacity: 0;
   transform: scale(1.04);
   filter: saturate(1.1) contrast(1.03);
-  transition: opacity 1.2s ease;
+  transition: opacity 1s ease-in-out;
 }
 .kbh-slide.is-active {
   opacity: 1;
-  animation: kbhDrift calc(var(--kbh-time) + 1800ms) ease-out forwards;
+  animation: kbhDrift calc(var(--kbh-time) + 1000ms) ease-out forwards;
 }
 @keyframes kbhDrift { from { transform: scale(1.04); } to { transform: scale(1); } }
-
-/* slide indicators: small glass pill on the photo */
-.kbh-dots {
-  position: absolute; z-index: 2;
-  left: 50%; bottom: 1.25rem; transform: translateX(-50%);
-  display: flex; gap: 1.1rem;
-  padding: .65rem 1.25rem .6rem;
-  background: rgba(255, 247, 237, .86);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(255,255,255,.8);
-  border-radius: 999px;
-  box-shadow: 0 8px 24px rgba(120, 53, 15, .2);
-}
-.kbh-dot {
-  all: unset; cursor: pointer; width: 44px;
-  display: flex; flex-direction: column; gap: .4rem;
-  font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: .8rem;
-  color: rgba(42, 22, 8, .45);
-  transition: color .3s;
-}
-.kbh-dot:focus-visible { outline: 3px solid var(--kbh-orange); outline-offset: 4px; }
-.kbh-dot i { display: block; height: 3px; border-radius: 3px; background: rgba(120, 53, 15, .16); overflow: hidden; position: relative; }
-.kbh-dot i::after {
-  content: ""; position: absolute; inset: 0; background: var(--kbh-orange);
-  transform: scaleX(0); transform-origin: left;
-}
-.kbh-dot.is-active { color: var(--kbh-ink); }
-.kbh-dot.is-active i::after { animation: kbhFill var(--kbh-time) linear forwards; }
-.kbh.is-paused .kbh-dot.is-active i::after { animation-play-state: paused; }
-@keyframes kbhFill { to { transform: scaleX(1); } }
 
 /* ---- Band: content sits below the photo ---- */
 .kbh-band {
@@ -399,11 +368,9 @@ body::before {
   .kbh-band { padding: 1.75rem 1.25rem 2.25rem; }
   .kbh-inner { grid-template-columns: 1fr; gap: 1.5rem; }
   .kbh-side { padding-left: 0; border-left: 0; border-top: 1px solid rgba(120, 53, 15, .18); padding-top: 1.5rem; }
-  .kbh-dots { bottom: .75rem; gap: .8rem; padding: .5rem .9rem .45rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .kbh-slide, .kbh-slide.is-active { animation: none; transform: none; }
-  .kbh-dot.is-active i::after { animation: none; transform: scaleX(1); }
 }
 
 .recipes-section {

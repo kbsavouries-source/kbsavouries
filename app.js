@@ -265,56 +265,35 @@ function triggerInstallApp(e) {
 }
 
 // ==========================================================================
-// Hero slideshow (full-bleed, auto-advancing, with progress indicators)
+// Hero slideshow (full-bleed, cross-fades every 4 seconds)
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
   const hero = document.getElementById('video-story');
   if (!hero) return;
 
-  const SLIDE_MS = 6000; // keep equal to --kbh-time in style.css
+  const SLIDE_MS = 4000;
   const slides = [...hero.querySelectorAll('.kbh-slide')];
-  const dots = [...hero.querySelectorAll('.kbh-dot')];
-  let current = 0, timer = null, remaining = SLIDE_MS, startedAt = 0, paused = false;
+  if (slides.length < 2) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  function schedule() {
-    clearTimeout(timer);
-    startedAt = Date.now();
-    timer = setTimeout(() => show(current + 1), remaining);
-  }
+  // Preload every photo so the cross-fade never flickers
+  slides.forEach((s) => {
+    const m = (s.style.backgroundImage || '').match(/url\(["']?(.*?)["']?\)/);
+    if (m) new Image().src = m[1];
+  });
+
+  let current = 0;
+  let timer = null;
 
   function show(i) {
     current = (i + slides.length) % slides.length;
     slides.forEach((s, n) => s.classList.toggle('is-active', n === current));
-    dots.forEach((d, n) => {
-      d.classList.toggle('is-active', n === current);
-      d.setAttribute('aria-selected', n === current);
-    });
-    remaining = SLIDE_MS;
-    if (!paused) schedule();
   }
+  function start() { clearInterval(timer); timer = setInterval(() => show(current + 1), SLIDE_MS); }
+  function stop() { clearInterval(timer); }
 
-  function pause() {
-    if (paused) return;
-    paused = true;
-    hero.classList.add('is-paused');
-    clearTimeout(timer);
-    remaining -= Date.now() - startedAt;
-  }
-
-  function resume() {
-    if (!paused) return;
-    paused = false;
-    hero.classList.remove('is-paused');
-    schedule();
-  }
-
-  hero.addEventListener('mouseenter', pause);
-  hero.addEventListener('mouseleave', resume);
-  dots.forEach((d, n) => d.addEventListener('click', () => {
-    if (n !== current) show(n);
-  }));
-  document.addEventListener('visibilitychange', () => (document.hidden ? pause() : resume()));
-
-  // Reduced motion: stay on the first slide, no auto-advance
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) schedule();
+  hero.addEventListener('mouseenter', stop);
+  hero.addEventListener('mouseleave', start);
+  document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+  start();
 });
