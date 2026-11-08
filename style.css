@@ -22,6 +22,27 @@
   padding: 0;
 }
 
+/* Lenis Recommended Essential CSS Styles */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
@@ -191,7 +212,7 @@ body::before {
   transform: translateY(-10.5px) rotate(-45deg);
 }
 
-/* Mobile Full-Screen/Fixed Overlay Menu Drawer */
+/* Mobile Full-Screen Overlay Menu Drawer */
 .mobile-menu-drawer {
   position: fixed;
   top: 0;
@@ -252,14 +273,7 @@ body::before {
   text-align: center;
 }
 
-.zoom-on-scroll {
-  will-change: transform;
-  transform: scale(var(--scroll-scale, 1));
-  transform-origin: center top;
-  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1);
-}
-
-/* ===== Hero: full cover photo with content band below ===== */
+/* Hero Section Styling */
 .kbh {
   --kbh-orange: #EA580C;
   --kbh-ink: #2A1608;
@@ -270,7 +284,6 @@ body::before {
   background: #FFF7ED;
 }
 
-/* ---- Stage: the cover photo, shown in full ---- */
 .kbh-stage {
   position: relative;
   width: 100%;
@@ -280,7 +293,7 @@ body::before {
   background: #FDBA74;
 }
 .kbh-slides, .kbh-slide { position: absolute; inset: 0; }
-.kbh-slides { pointer-events: none; }
+.kbh-slides { pointer-events: none; will-change: transform; }
 .kbh-slide {
   background-size: cover;
   background-position: center;
@@ -295,7 +308,6 @@ body::before {
 }
 @keyframes kbhDrift { from { transform: scale(1.04); } to { transform: scale(1); } }
 
-/* ---- Band: content sits below the photo ---- */
 .kbh-band {
   position: relative;
   padding: clamp(2rem, 4vw, 3.5rem) 3rem clamp(2.25rem, 4vw, 3.5rem);
@@ -395,7 +407,6 @@ body::before {
   font-size: 1.1rem;
 }
 
-/* Centered Poha Crunch Image Styles */
 .poha-center-image-wrapper {
   max-width: 400px;
   margin: 0 auto 3rem auto;
@@ -412,9 +423,10 @@ body::before {
 .poha-center-img {
   width: 100%;
   height: auto;
-  max-height: 480px; /* Forces live servers to respect a clean maximum height */
+  max-height: 480px;
   object-fit: contain;
   border-radius: 12px;
+  will-change: transform;
   transition: transform 0.3s ease;
 }
 
@@ -665,7 +677,7 @@ body::before {
   transform: translateX(3px);
 }
 
-/* Modal Backdrop & Card Styling */
+/* Modal Styling */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -892,7 +904,7 @@ body::before {
   height: 32px;
 }
 
-/* Media Queries for Mobile Hamburger Layout */
+/* Media Queries */
 @media (max-width: 900px) {
   .desktop-nav,
   .desktop-order {
@@ -930,8 +942,7 @@ body::before {
   }
 }
 
-
-/* ===== Taste Test (YouTube Shorts) ===== */
+/* Taste Test (YouTube Shorts) */
 .taste-test-section { padding: 4rem 0 3rem; }
 .tt-wrap { position: relative; padding: 0 4.25rem; }
 .tt-track {
@@ -984,3 +995,265 @@ body::before {
 .tt-prev { left: 0; }
 .tt-next { right: 0; }
 @media (max-width: 700px) { .tt-wrap { padding: 0; } .tt-arrow { display: none; } .taste-test-section { padding-top: 3rem; } }
+
+/* ==========================================================================
+   PREMIUM LAYER — refined layout, aligned imagery, polished motion
+   (appended last so it overrides earlier rules)
+   ========================================================================== */
+:root {
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-lg: 28px;
+  --radius-md: 20px;
+  --shadow-soft: 0 1px 2px rgba(42, 22, 8, .04), 0 12px 32px rgba(120, 53, 15, .08);
+  --shadow-lift: 0 2px 4px rgba(42, 22, 8, .05), 0 28px 56px rgba(234, 88, 12, .16);
+  --section-gap: clamp(4rem, 8vw, 7rem);
+}
+
+html { scroll-padding-top: 90px; }
+::selection { background: #EA580C; color: #fff; }
+
+/* ---- Scroll progress bar ---- */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 100%;
+  transform-origin: 0 50%; transform: scaleX(0);
+  background: linear-gradient(90deg, #EA580C, #F59E0B);
+  z-index: 100000; pointer-events: none;
+}
+
+/* ---- Navbar: compact + refined on scroll ---- */
+.navbar { transition: padding .35s var(--ease-premium), box-shadow .35s ease, background .35s ease, transform .4s var(--ease-premium), opacity .4s ease; }
+.navbar.is-scrolled {
+  padding-top: .7rem; padding-bottom: .7rem;
+  background: rgba(255, 251, 245, .86);
+  box-shadow: 0 8px 30px rgba(120, 53, 15, .1);
+}
+.navbar .logo-text { font-size: clamp(1.15rem, 2.2vw, 1.4rem); }
+
+/* ---- Hero: cinematic, perfectly framed ---- */
+.kbh-stage { height: min(52vw, calc(100vh - 110px)); min-height: 320px; }
+.kbh-stage::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(42,22,8,0) 55%, rgba(42,22,8,.22) 100%);
+}
+.kbh-slide { background-position: center 40%; }
+.kbh-band {
+  margin-top: -1.75rem; position: relative; z-index: 2;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-image: none; border-top: 0;
+  box-shadow: 0 -18px 40px rgba(120, 53, 15, .12);
+}
+.kbh-band::before {
+  content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 90px; height: 4px; border-radius: 4px;
+  background: linear-gradient(90deg, #EA580C, #F59E0B);
+}
+.kbh-btn-gold { position: relative; overflow: hidden; }
+.kbh-btn-gold::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-120%);
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+  transition: transform .8s var(--ease-premium);
+}
+.kbh-btn-gold:hover::after { transform: translateX(120%); }
+
+/* ---- Section rhythm & headers ---- */
+.recipes-section { padding: var(--section-gap) 0; position: relative; }
+.recipes-section + .recipes-section::before {
+  content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: min(1060px, 86%); height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(234, 88, 12, .3), transparent);
+}
+.section-header { margin-bottom: clamp(2rem, 4vw, 3.25rem); }
+.section-header h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2rem, 4.2vw, 3rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1;
+}
+.section-header p { max-width: 56ch; margin-inline: auto; line-height: 1.7; }
+
+/* ---- Product sections: split layout, image + benefits perfectly aligned ---- */
+.poha-center-image-wrapper {
+  position: relative; isolation: isolate;
+  width: 100%; max-width: 440px; aspect-ratio: 1 / 1;
+  margin: 0 auto clamp(2rem, 4vw, 3rem); padding: clamp(1.25rem, 3vw, 2rem);
+  display: grid; place-items: center; overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,.95) 0%, rgba(255,237,213,.75) 55%, rgba(253,186,116,.35) 100%);
+  border: 1.5px solid rgba(255,255,255,.95);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft), inset 0 0 0 1px rgba(234, 88, 12, .06);
+  transition: box-shadow .5s var(--ease-premium), transform .5s var(--ease-premium);
+}
+.poha-center-image-wrapper::before {  /* soft floor shadow under the product */
+  content: ""; position: absolute; left: 50%; bottom: 9%; width: 56%; height: 22px; z-index: -1;
+  transform: translateX(-50%); border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(120,53,15,.28), transparent 70%);
+  filter: blur(6px);
+}
+.poha-center-image-wrapper:hover { box-shadow: var(--shadow-lift); transform: translateY(-4px); }
+.poha-center-img {
+  width: 100%; height: 100%; max-height: none;
+  object-fit: contain; object-position: center;
+  border-radius: 0; transition: none;
+  filter: drop-shadow(0 18px 22px rgba(120, 53, 15, .22));
+}
+.poha-center-img:hover { transform: none; }
+
+@media (min-width: 1024px) {
+  .recipes-section > .container {
+    display: grid;
+    grid-template-columns: minmax(320px, 5fr) minmax(0, 7fr);
+    grid-template-areas: "image header" "image carousel";
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+  .recipes-section > .container > .section-header { grid-area: header; text-align: left; margin-bottom: 1.25rem; align-self: end; }
+  .recipes-section > .container > .section-header p { margin-inline: 0; }
+  .recipes-section > .container > .poha-center-image-wrapper { grid-area: image; margin: 0; max-width: 100%; }
+  .recipes-section > .container > .carousel-container { grid-area: carousel; align-self: start; min-width: 0; }
+  /* mirror every second product for a zig-zag rhythm */
+  .recipes-section:nth-of-type(even) > .container {
+    grid-template-columns: minmax(0, 7fr) minmax(320px, 5fr);
+    grid-template-areas: "header image" "carousel image";
+  }
+  .recipe-card { flex-basis: calc(50% - .9rem); }
+  .prev-btn { left: -22px; } .next-btn { right: -22px; }
+}
+
+/* ---- Benefit cards: even, tactile, accessible ---- */
+.carousel-container { max-width: 100%; }
+.recipe-grid { align-items: flex-start; gap: 1.25rem; padding: 1rem .35rem 1.75rem; scroll-padding-left: .35rem; }
+.recipe-card {
+  position: relative; padding: 1.75rem; min-height: 214px; justify-content: flex-start;
+  border-radius: var(--radius-md); box-shadow: var(--shadow-soft);
+  transition: transform .45s var(--ease-premium), box-shadow .45s var(--ease-premium), background .3s ease;
+}
+.recipe-card::before {
+  content: ""; position: absolute; left: 1.75rem; top: 0; width: 44px; height: 3px;
+  border-radius: 0 0 4px 4px; background: linear-gradient(90deg, #EA580C, #F59E0B);
+  transition: width .45s var(--ease-premium);
+}
+.recipe-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lift); }
+.recipe-card:hover::before, .recipe-card.expanded::before { width: 88px; }
+.recipe-card-header h3 { font-size: 1.15rem; line-height: 1.3; }
+.recipe-desc { font-size: .93rem; line-height: 1.65; margin-bottom: 1.25rem; }
+.recipe-toggle { margin-top: auto; }
+.recipe-card.expanded .recipe-details { max-height: 340px; }
+
+.carousel-btn { width: 46px; height: 46px; box-shadow: 0 10px 28px rgba(120, 53, 15, .16); }
+.carousel-btn:hover { background: var(--accent-orange); color: #fff; }
+.carousel-btn:focus-visible, .recipe-card:focus-visible, .kb-arrow-box:focus-visible { outline: 3px solid #F59E0B; outline-offset: 3px; }
+
+/* ---- Reviews ---- */
+#reviews { margin-top: var(--section-gap) !important; margin-bottom: 1rem !important; }
+.kb-reviews .kb-review-card {
+  padding: 1.75rem; border-radius: var(--radius-md); box-shadow: var(--shadow-soft);
+  transition: transform .4s var(--ease-premium), box-shadow .4s var(--ease-premium);
+}
+.kb-reviews .kb-review-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+.kb-reviews .kb-review-comment { line-height: 1.7; }
+.kb-reviews .kb-slide { padding: 0 .65rem; }
+
+/* ---- Taste test: aligned, even video cards ---- */
+.taste-test-section { padding: var(--section-gap) 0 2rem; }
+.tt-track { gap: 1.5rem; padding: .75rem .5rem 1.75rem; scroll-padding-left: .5rem; }
+.tt-card { border-radius: var(--radius-md); box-shadow: var(--shadow-soft); transition: transform .45s var(--ease-premium), box-shadow .45s var(--ease-premium); }
+.tt-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lift); }
+.tt-poster img { aspect-ratio: 9 / 16; }
+
+/* ---- Signature lineup ---- */
+.snacks-showcase-section { padding: var(--section-gap) 0; }
+.snack-cards-grid { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 1.75rem; align-items: stretch; }
+.snack-card { padding: 2.25rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); position: relative; overflow: hidden; }
+.snack-card::after {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
+  background: linear-gradient(90deg, #EA580C, #F59E0B); transform: scaleX(0); transform-origin: left;
+  transition: transform .6s var(--ease-premium);
+}
+.snack-card:hover { box-shadow: var(--shadow-lift); }
+.snack-card:hover::after { transform: scaleX(1); }
+.snack-card-top { gap: .75rem; }
+.snack-card-top h3 { font-family: 'Fraunces', Georgia, serif; font-size: 1.45rem; line-height: 1.2; }
+.snack-badge { white-space: nowrap; }
+
+/* ---- Footer ---- */
+.footer { padding: 4rem 0; }
+.footer-right a { transition: color .25s ease; }
+.footer-right a:hover { color: #FDBA74; }
+
+/* ---- Mobile polish ---- */
+@media (max-width: 1023px) {
+  .poha-center-image-wrapper { max-width: min(380px, 100%); }
+  .recipe-card { flex: 0 0 min(82%, 340px); }
+  .prev-btn, .next-btn { display: none; }          /* swipe on touch */
+  .recipe-grid { scroll-padding-left: 1.5rem; padding-inline: 1.5rem; margin-inline: -1.5rem; width: calc(100% + 3rem); }
+}
+@media (max-width: 800px) {
+  .kbh-band { margin-top: -1.25rem; border-radius: 22px 22px 0 0; }
+  .section-header h2 { letter-spacing: -.01em; }
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .recipe-card, .tt-card, .poha-center-image-wrapper, .snack-card::after, .kbh-btn-gold::after { transition: none !important; }
+  .scroll-progress { display: none; }
+}
+
+
+/* ==========================================================================
+   IMAGE POLISH — rounded, edge-to-edge product photos
+   ========================================================================== */
+.poha-center-image-wrapper {
+  --frame-pad: clamp(.6rem, 1.2vw, .9rem);
+  padding: var(--frame-pad);
+  border-radius: 32px;
+  background: linear-gradient(145deg, #FFFFFF 0%, #FFEDD5 100%);
+  box-shadow: 0 1px 2px rgba(42,22,8,.05), 0 24px 50px rgba(120,53,15,.16), inset 0 0 0 1px rgba(234,88,12,.08);
+}
+.poha-center-image-wrapper::before { display: none; }   /* floor shadow no longer needed */
+.poha-center-img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  border-radius: calc(32px - var(--frame-pad));           /* concentric corners */
+  filter: none;                                           /* drop-shadow followed the old square edges */
+  box-shadow: 0 8px 22px rgba(42,22,8,.18);
+  display: block;
+}
+
+/* Even, aligned benefit cards */
+.recipe-grid { align-items: stretch; }
+.recipe-card { height: auto; }
+
+
+/* ==========================================================================
+   HERO GAP FIX — slides layer is taller than the stage, so parallax
+   can never expose the orange background behind it
+   ========================================================================== */
+.kbh-stage { background: #FFEDD5; isolation: isolate; }
+.kbh-slides {
+  inset: auto; left: 0; right: 0;
+  top: -10%; height: 120%;
+}
+
+
+/* ==========================================================================
+   FRAMELESS PRODUCT IMAGE — no glass container, just the rounded photo
+   ========================================================================== */
+.poha-center-image-wrapper {
+  --img-radius: 28px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: var(--img-radius);
+  overflow: hidden;                 /* clips the parallax zoom to the rounded corners */
+  transform: translateZ(0);         /* keeps the clip crisp during animation */
+}
+.poha-center-image-wrapper:hover { box-shadow: none; transform: translateY(-4px); }
+.poha-center-img {
+  border-radius: var(--img-radius);
+  box-shadow: none;
+}
+/* shadow lives on a pseudo-layer so overflow:hidden doesn't cut it off */
+.poha-center-image-wrapper::before { display: none; }
+.recipes-section .poha-center-image-wrapper { filter: drop-shadow(0 18px 28px rgba(120, 53, 15, .22)); }

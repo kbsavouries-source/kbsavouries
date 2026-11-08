@@ -19,6 +19,98 @@ function playInitialCrunch() {
   });
 }
 
+// Global Lenis Instance
+let lenisInstance = null;
+
+function initFuturisticScroll() {
+  if (typeof Lenis === 'undefined') return;
+
+  // 1. Initialize Lenis Smooth Scroll
+  lenisInstance = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    orientation: 'vertical',
+    gestureOrientation: 'vertical',
+    smoothWheel: true,
+    wheelMultiplier: 1.0,
+    touchMultiplier: 1.5,
+  });
+
+  // 2. Connect Lenis to GSAP ScrollTrigger if available
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+
+    lenisInstance.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenisInstance.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
+
+    // GSAP Scroll Animations
+    // A. Fade & Reveal Sections on Scroll
+    const revealElements = document.querySelectorAll('.gsap-reveal');
+    revealElements.forEach((el) => {
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+    });
+
+    // B. Hero Image Scale Parallax
+    const heroStage = document.querySelector('.kbh-stage');
+    if (heroStage) {
+      gsap.to('.kbh-slides', {
+        yPercent: 8,
+        scale: 1.05,
+        transformOrigin: 'center top',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#video-story',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+    }
+
+    // C. Center Product Images Floating Parallax
+    const parallaxImgs = document.querySelectorAll('.gsap-parallax-img');
+    parallaxImgs.forEach((img) => {
+      gsap.to(img, {
+        y: -14,
+        scale: 1.03,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: img,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+        },
+      });
+    });
+  } else {
+    // Fallback animation frame loop if GSAP isn't loaded
+    function raf(time) {
+      lenisInstance.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+  }
+}
+
 // Toggle Mobile Menu Drawer with Automatic Scroll to Top
 function toggleMobileMenu() {
   const menuBtn = document.getElementById('mobileMenuBtn');
@@ -26,7 +118,11 @@ function toggleMobileMenu() {
   
   if (menuBtn && menuDrawer) {
     if (!menuDrawer.classList.contains('open')) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (lenisInstance) {
+        lenisInstance.scrollTo(0, { duration: 0.8 });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
     
     menuBtn.classList.toggle('active');
@@ -38,14 +134,18 @@ function toggleRecipe(cardElement) {
   if (cardElement) {
     playCrunchSound();
     cardElement.classList.toggle('expanded');
+    cardElement.setAttribute('aria-expanded', cardElement.classList.contains('expanded'));
     const toggleText = cardElement.querySelector('.toggle-text');
     if (toggleText) {
-      const isBenefit = cardElement.closest('#benefitGrid') !== null;
+      const isBenefit = cardElement.closest('.recipes-section') !== null;
       if (isBenefit) {
         toggleText.textContent = cardElement.classList.contains('expanded') ? 'Show Less' : 'Learn More';
       } else {
         toggleText.textContent = cardElement.classList.contains('expanded') ? 'Hide Recipe' : 'View Recipe';
       }
+    }
+    if (typeof ScrollTrigger !== 'undefined') {
+      ScrollTrigger.refresh();
     }
   }
 }
@@ -88,6 +188,7 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('DOMContentLoaded', () => {
   playInitialCrunch();
+  initFuturisticScroll();
 
   const mainContent = document.getElementById('main-content');
   if (mainContent) {
@@ -96,21 +197,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 50);
   }
 
-  const zoomTargets = document.querySelectorAll('.zoom-on-scroll');
-  function updateZoomScale() {
-    const windowHeight = window.innerHeight;
-    zoomTargets.forEach(el => {
-      const rect = el.getBoundingClientRect();
-      const progress = Math.min(Math.max((windowHeight - rect.top) / windowHeight, 0), 1);
-      const scaleValue = 1 + (progress * 0.05);
-      el.style.setProperty('--scroll-scale', scaleValue.toFixed(3));
-    });
-  }
+  const progress = document.getElementById('scrollProgress');
+  const navbar = document.querySelector('.navbar');
+  const onScroll = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    if (progress && max > 0) progress.style.transform = 'scaleX(' + Math.min(1, window.scrollY / max) + ')';
+    if (navbar) navbar.classList.toggle('is-scrolled', window.scrollY > 40);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
-  window.addEventListener('scroll', () => {
-    requestAnimationFrame(updateZoomScale);
+  document.querySelectorAll('.recipe-card').forEach((card) => {
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleRecipe(card); }
+    });
   });
-  updateZoomScale();
 
   const interactiveElements = document.querySelectorAll('.btn, .nav-brand, a, .snack-order-link');
   
@@ -151,7 +252,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (logoLink) {
     logoLink.addEventListener('click', (e) => {
       e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (lenisInstance) {
+        lenisInstance.scrollTo(0, { duration: 1 });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     });
   }
 
@@ -167,76 +272,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     observer.observe(footerContent);
   }
-
-  // Render Featured Customer Reviews from Firestore Cloud Storage (Strictly Limited to 10)
-  const reviewsGrid = document.getElementById('featured-reviews-grid');
-  if (reviewsGrid) {
-      localStorage.removeItem('kb_customer_reviews');
-
-      import("https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js").then(({ initializeApp }) => {
-          import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js").then(({ getFirestore, collection, getDocs, query, orderBy, limit }) => {
-              const firebaseConfig = {
-                  apiKey: "AIzaSyCullX49Und6AmRgg8UL9hP1cLvQ-KVnEI",
-                  authDomain: "kb-savouries.firebaseapp.com",
-                  projectId: "kb-savouries",
-                  storageBucket: "kb-savouries.firebasestorage.app",
-                  messagingSenderId: "805966330754",
-                  appId: "1:805966330754:web:22cf30e2499298e4456d9b"
-              };
-
-              const firebaseApp = initializeApp(firebaseConfig);
-              const db = getFirestore(firebaseApp);
-
-              const fetchReviews = async () => {
-                  try {
-                      // Fetch only the latest 10 reviews to protect free tier Spark quota
-                      const q = query(
-                          collection(db, 'reviews'), 
-                          orderBy('createdAt', 'desc'), 
-                          limit(10)
-                      );
-                      
-                      const querySnapshot = await getDocs(q);
-                      const cloudReviews = querySnapshot.docs.map(doc => doc.data());
-
-                      if (cloudReviews.length === 0) {
-                          reviewsGrid.innerHTML = `
-                              <div style="grid-column: 1 / -1; text-align: center; color: #64748B; padding: 24px; font-weight: 500;">
-                                  No reviews yet. Be the first to leave a review! ⭐
-                              </div>
-                          `;
-                          return;
-                      }
-
-                      reviewsGrid.innerHTML = cloudReviews.map(r => `
-                          <div style="background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); border: 1.5px solid rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 24px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04); display: flex; flex-direction: column; justify-content: space-between;">
-                              <div>
-                                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                      <strong style="font-size: 1.05rem; color: #0F172A;">${r.name}</strong>
-                                      <span style="color: #F59E0B; font-size: 1.1rem; letter-spacing: 2px;">${'★'.repeat(r.rating || 5)}</span>
-                                  </div>
-                                  <div style="font-size: 0.75rem; font-weight: 800; color: #EA580C; text-transform: uppercase; margin-bottom: 12px;">Tried: ${r.product}</div>
-                                  <p style="color: #475569; font-size: 0.92rem; line-height: 1.5; margin-bottom: 16px;">"${r.comment}"</p>
-                              </div>
-                              <div style="font-size: 0.75rem; color: #94A3B8; border-top: 1px solid rgba(254, 215, 170, 0.5); padding-top: 10px;">Verified Snacker • ${r.date}</div>
-                          </div>
-                      `).join('');
-                  } catch (err) {
-                      console.error("Error fetching Firestore reviews:", err);
-                  }
-              };
-
-              fetchReviews();
-          });
-      });
-  }
 });
 
-// ==========================================================================
 // PWA install prompt
-// ==========================================================================
 let deferredPrompt;
-
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -244,7 +283,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 function triggerInstallApp(e) {
   if (e) e.preventDefault();
-
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if (isIOS) {
     alert("To install KB Savouries on your iPhone:\n1. Tap the 'Share' button at the bottom of Safari.\n2. Scroll down and select 'Add to Home Screen'.");
@@ -264,9 +302,7 @@ function triggerInstallApp(e) {
   }
 }
 
-// ==========================================================================
-// Hero slideshow (full-bleed, cross-fades every 4 seconds)
-// ==========================================================================
+// Hero slideshow
 document.addEventListener('DOMContentLoaded', () => {
   const hero = document.getElementById('video-story');
   if (!hero) return;
@@ -276,7 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (slides.length < 2) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  // Preload every photo so the cross-fade never flickers
   slides.forEach((s) => {
     const m = (s.style.backgroundImage || '').match(/url\(["']?(.*?)["']?\)/);
     if (m) new Image().src = m[1];
@@ -297,3 +332,4 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
   start();
 });
+window.playCrunchSound = playCrunchSound;
