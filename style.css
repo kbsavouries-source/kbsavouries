@@ -1392,3 +1392,30 @@ html.has-cursor iframe { cursor: auto !important; }
   clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 }
 @media (max-width: 800px) { .kb-marquee { border-block-width: 0; } }
+
+
+/* ==========================================================================
+   MOBILE FIX — keep the WhatsApp button pinned to the *visible* screen.
+   On phones the browser toolbar collapses/expands while scrolling, so
+   "bottom: 18px" can end up measured from a taller, hidden viewport and the
+   button sinks under the edge. dvh always tracks the screen you can see.
+   ========================================================================== */
+.whatsapp-float { --wa-size: 60px; --wa-gap: 24px; will-change: transform; }
+@media (max-width: 768px) { .whatsapp-float { --wa-size: 52px; --wa-gap: 18px; } }
+
+@media (pointer: coarse) {
+  .whatsapp-float {
+    bottom: calc(var(--wa-gap) + env(safe-area-inset-bottom, 0px));   /* fallback */
+  }
+  @supports (height: 100dvh) {
+    .whatsapp-float {
+      bottom: auto;
+      top: calc(100dvh - var(--wa-size) - var(--wa-gap) - env(safe-area-inset-bottom, 0px));
+    }
+  }
+}
+
+/* Same toolbar issue for full-screen layers */
+@supports (height: 100dvh) {
+  .mobile-menu-drawer, .modal-backdrop { height: 100dvh; }
+}
