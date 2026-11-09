@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const hero = document.getElementById('video-story');
   if (!hero) return;
 
-  const SLIDE_MS = 4000;
+  const SLIDE_MS = 2000;   // cover image changes every 2 seconds
   const slides = [...hero.querySelectorAll('.kbh-slide')];
   if (slides.length < 2) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;

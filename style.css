@@ -278,7 +278,7 @@ body::before {
   --kbh-orange: #EA580C;
   --kbh-ink: #2A1608;
   --kbh-muted: #6B4A33;
-  --kbh-time: 4000ms;
+  --kbh-time: 2000ms;
   position: relative;
   color: var(--kbh-ink);
   background: #FFF7ED;
@@ -300,11 +300,12 @@ body::before {
   opacity: 0;
   transform: scale(1.04);
   filter: saturate(1.1) contrast(1.03);
-  transition: opacity 1s ease-in-out;
+  /* 0.7s cross-fade fits inside the 2s slide; the zoom resets only after the slide has faded out */
+  transition: opacity .7s ease-in-out, transform 0s linear .7s;
 }
 .kbh-slide.is-active {
   opacity: 1;
-  animation: kbhDrift calc(var(--kbh-time) + 1000ms) ease-out forwards;
+  animation: kbhDrift calc(var(--kbh-time) + 500ms) ease-out forwards;
 }
 @keyframes kbhDrift { from { transform: scale(1.04); } to { transform: scale(1); } }
 
