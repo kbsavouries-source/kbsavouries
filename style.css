@@ -278,7 +278,7 @@ body::before {
   --kbh-orange: #EA580C;
   --kbh-ink: #2A1608;
   --kbh-muted: #6B4A33;
-  --kbh-time: 2000ms;
+  --kbh-time: 3000ms;
   position: relative;
   color: var(--kbh-ink);
   background: #FFF7ED;
@@ -1435,4 +1435,28 @@ html.has-cursor iframe { cursor: auto !important; }
   .kbh-slides { top: 0; height: 100%; }
   .kbh-slide { background-position: center top; transform: none; }
   .kbh-slide.is-active { animation: none; }
+}
+
+/* ==========================================================================
+   HERO COVER (desktop) — never crop the top of the artwork, 3 s slideshow
+   ========================================================================== */
+@media (min-width: 801px) {
+  /* stage keeps the artwork's 16:9 shape (only shorter when the window is short) */
+  .kbh-stage { height: min(56.25vw, calc(100vh - 88px)); min-height: 320px; }
+  /* no overshoot above/below, so nothing is trimmed at the top */
+  .kbh-slides { top: 0; height: 100%; }
+  /* anchor the picture to its top edge: any unavoidable trim happens at the bottom,
+     which sits under the rounded content card anyway */
+  .kbh-slide { background-position: center top; transform-origin: 50% 0%; }
+}
+
+/* Cross-fade without a ghost/dip: the new slide fades in over the old one,
+   and the old one is only removed once the new one is fully opaque. */
+.kbh-slide {
+  opacity: 0; z-index: 0;
+  transition: opacity 0s linear .9s, transform 0s linear .9s;
+}
+.kbh-slide.is-active {
+  opacity: 1; z-index: 1;
+  transition: opacity .9s ease-in-out;
 }

@@ -73,8 +73,8 @@ function initFuturisticScroll() {
     if (document.querySelector('.kbh-stage')) {
       gsap.matchMedia().add('(min-width: 801px)', () => {
         gsap.to('.kbh-slides', {
-          yPercent: 4,
-          scale: 1.03,
+          scale: 1.05,                 // grows from the top edge, so the top of the artwork is never cropped
+          transformOrigin: '50% 0%',
           ease: 'none',
           scrollTrigger: {
             trigger: '#video-story',
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const hero = document.getElementById('video-story');
   if (!hero) return;
 
-  const SLIDE_MS = 2000;   // cover image changes every 2 seconds
+  const SLIDE_MS = 3000;   // cover image changes every 3 seconds
   const slides = [...hero.querySelectorAll('.kbh-slide')];
   if (slides.length < 2) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
