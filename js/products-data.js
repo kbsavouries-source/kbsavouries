@@ -11,8 +11,8 @@ export const STORE_PRODUCTS = [
         sizes: [
             { label: '30g (S)', weight: '50g', price: 20 },
             { label: '50g (M)', weight: '100g', price: 40 },
-            { label: '250g (L)', weight: '250g', price: 110 },
-            { label: '500g (XL)', weight: '500g', price: 210 },
+            { label: '250g (L)', weight: '250g', price: 100 },
+            { label: '500g (XL)', weight: '500g', price: 200 },
             { label: '1Kg (XXL)', weight: '1Kg', price: 400 }
         ]
     },
@@ -33,8 +33,8 @@ export const STORE_PRODUCTS = [
         badge: 'Special Andhra Delicacy',
         image: '../Assets/products-img/mini-sunnundalu.png',
         sizes: [
-            { label: '12 pcs (M)', weight: '12 pcs', price: 200 },
-            { label: '20 pcs (L)', weight: '20 pcs', price: 380 }
+            { label: '12 pcs (M)', weight: '12 pcs', price: 180 },
+            { label: '20 pcs (L)', weight: '20 pcs', price: 300 }
         ]
     },
 
