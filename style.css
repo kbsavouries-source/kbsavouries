@@ -875,34 +875,68 @@ body::before {
   color: #FFFFFF;
 }
 
-/* Floating WhatsApp Button */
+/* =========================================================
+   FLOATING WHATSAPP WIDGET
+   ========================================================= */
 .whatsapp-float {
   position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 999;
   width: 60px;
   height: 60px;
-  bottom: 24px;
-  right: 24px;
-  background-color: #25D366;
-  color: #FFFFFF;
+  background-color: #25d366;
+  color: #ffffff;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
-  z-index: 99999;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-  text-decoration: none;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.45);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  animation: pulseWhatsApp 3s infinite;
 }
 
 .whatsapp-float:hover {
   transform: scale(1.1);
-  background-color: #20BA5A;
-  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6);
+  box-shadow: 0 12px 35px rgba(37, 211, 102, 0.65);
 }
 
-.whatsapp-float svg {
-  width: 32px;
-  height: 32px;
+.whatsapp-icon {
+  width: 34px;
+  height: 34px;
+}
+
+.whatsapp-tooltip {
+  position: absolute;
+  right: 74px;
+  background: rgba(6, 21, 45, 0.9);
+  color: #caf0f8;
+  padding: 0.4rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  border: 1px solid rgba(144, 224, 239, 0.22);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(10px);
+  transition: all 0.25s ease;
+}
+
+.whatsapp-float:hover .whatsapp-tooltip {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@keyframes pulseWhatsApp {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+  70% { box-shadow: 0 0 0 16px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+@media (max-width: 920px) {
+  .whatsapp-tooltip {
+    display: none;
+  }
 }
 
 /* Media Queries */
